@@ -1,0 +1,54 @@
+.history {
+  &__chart {
+    position: relative;
+    height: 240px;
+
+    @media (max-width: 640px) {
+      height: 200px;
+    }
+  }
+
+  &__header {
+    flex-wrap: wrap;
+  }
+
+  &__count {
+    font-size: 13px;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
+    gap: 20px;
+  }
+
+  &__legend {
+    font-size: 13px;
+    color: var(--p-text-muted-color);
+
+    > span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+  }
+
+  &__dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+
+    &--income {
+      background: var(--budget-income);
+    }
+
+    &--expense {
+      background: var(--budget-expense);
+    }
+
+    &--saving {
+      background: var(--budget-saving);
+    }
+  }
+}

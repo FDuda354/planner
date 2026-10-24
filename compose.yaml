@@ -1,0 +1,21 @@
+services:
+  planner-db:
+    image: postgres:18-alpine
+    container_name: planner-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: planner
+      POSTGRES_USER: ${DB_USER:-planner}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-planner}
+    ports:
+      - "${DB_PORT:-5433}:5432"
+    volumes:
+      - planner-pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d planner"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  planner-pgdata:

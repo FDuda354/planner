@@ -1,0 +1,8 @@
+<div class="empty-state">
+  <span class="empty-state__icon"><i class="pi" [class]="icon()" aria-hidden="true"></i></span>
+  <span class="empty-state__title">{{ title() }}</span>
+  @if (text()) {
+    <span class="empty-state__text">{{ text() }}</span>
+  }
+  <ng-content/>
+</div>

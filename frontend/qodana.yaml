@@ -1,0 +1,41 @@
+version: "1.0"
+
+linter: jetbrains/qodana-js:latest
+
+fixesStrategy: none
+
+profile:
+  name: qodana.recommended
+  inspections:
+    - inspection: HardcodedPasswords
+      enabled: true
+      options:
+        reportDefaultSuspiciousVariableNames: false
+    - inspection: AngularUndefinedBinding
+      enabled: false
+    - inspection: JSConstantReassignment
+      enabled: false
+    - inspection: AngularIncorrectBlockUsage
+      enabled: false
+    - inspection: AngularUnresolvedPipe
+      enabled: false
+    - inspection: AngularUnsupportedSyntax
+      enabled: false
+    - inspection: AngularCliAddDependency
+      enabled: false
+
+bootstrap: npm ci --prefer-offline --no-audit
+
+exclude:
+  - name: All
+    paths:
+      - node_modules
+      - dist
+      - .angular
+      - coverage
+      - .nx
+
+failureConditions:
+  severityThresholds:
+    critical: 0
+    high: 0

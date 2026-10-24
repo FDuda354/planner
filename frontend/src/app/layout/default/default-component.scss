@@ -1,0 +1,127 @@
+:host {
+  --bottom-nav-height: 64px;
+  display: block;
+  width: 100%;
+  height: 100dvh;
+}
+
+.default-layout {
+  width: 100%;
+  height: 100%;
+  background: var(--budget-canvas);
+
+  &__sidebar {
+    display: none;
+    flex: none;
+    width: 248px;
+    height: 100%;
+
+    @media (min-width: 992px) {
+      display: flex;
+    }
+  }
+
+  &__header {
+    width: 100%;
+  }
+
+  &__body {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+  }
+
+  &__content {
+    position: relative;
+    flex: 1;
+    padding: 8px 32px 112px;
+    overflow: auto;
+    overscroll-behavior: contain;
+
+    @media (max-width: 991px) {
+      padding: 4px 24px calc(var(--bottom-nav-height) + 96px + env(safe-area-inset-bottom));
+    }
+
+    @media (max-width: 640px) {
+      padding-left: 12px;
+      padding-right: 12px;
+    }
+  }
+}
+
+.bottom-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 60;
+  display: none;
+  grid-template-columns: repeat(4, 1fr);
+  height: var(--bottom-nav-height);
+  padding-bottom: env(safe-area-inset-bottom);
+  background: color-mix(in srgb, var(--budget-surface) 92%, transparent);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--budget-border);
+
+  @media (max-width: 991px) {
+    display: grid;
+  }
+
+  &__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-width: 0;
+    color: var(--p-text-muted-color);
+    font-size: 11px;
+    font-weight: 700;
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+
+    .pi {
+      font-size: 19px;
+      transition: transform 0.2s ease;
+    }
+
+    &--active {
+      color: var(--p-primary-color);
+
+      .pi {
+        transform: translateY(-1px) scale(1.08);
+      }
+    }
+  }
+}
+
+.add-fab.p-button {
+  position: fixed;
+  right: 32px;
+  bottom: 32px;
+  z-index: 70;
+  gap: 8px;
+  height: 56px;
+  padding: 0 24px 0 20px;
+  border-radius: 999px;
+  font-size: 16px;
+  font-weight: 700;
+  box-shadow: 0 10px 30px color-mix(in srgb, var(--p-primary-color) 45%, transparent);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.3s;
+
+  .pi {
+    font-size: 18px;
+  }
+
+  &:hover {
+    transform: translateY(-2px) scale(1.02);
+  }
+
+  @media (max-width: 991px) {
+    right: 16px;
+    bottom: calc(var(--bottom-nav-height) + 16px + env(safe-area-inset-bottom));
+    height: 52px;
+    padding: 0 20px 0 16px;
+    font-size: 15px;
+  }
+}

@@ -1,0 +1,13 @@
+.budget {
+  &__tabs {
+    --p-tabs-tablist-background: transparent;
+    --p-tabs-tablist-border-color: var(--budget-border);
+    --p-tabs-tab-background: transparent;
+    --p-tabs-tab-hover-background: transparent;
+    --p-tabs-tab-active-background: transparent;
+    --p-tabs-tab-font-weight: 700;
+    --p-tabs-tab-padding: 12px 18px;
+    --p-tabs-tab-gap: 8px;
+    margin-bottom: 20px;
+  }
+}

@@ -1,0 +1,17 @@
+<div class="item-card" [class.item-card--inactive]="!item().active">
+  <button type="button" class="flex flex-row items-center gap-12 item-card__main" (click)="edit()">
+    <ui-item-icon [icon]="item().icon" [color]="item().color"/>
+    <span class="flex flex-col item-card__text">
+      <span class="item-card__name">{{ item().name }}</span>
+      <span class="item-card__meta">
+        {{ meta() }}
+      </span>
+    </span>
+    <i class="pi pi-pencil item-card__edit" aria-hidden="true"></i>
+  </button>
+  <p-toggleswitch [formField]="activeForm.active"
+                  (onChange)="toggleActive()"
+                  [pTooltip]="item().active ? 'Wstrzymaj' : 'Przywróć'"
+                  tooltipPosition="top"
+                  [ariaLabel]="item().active ? 'Wstrzymaj ' + item().name : 'Przywróć ' + item().name"/>
+</div>

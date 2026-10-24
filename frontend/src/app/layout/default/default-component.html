@@ -1,0 +1,35 @@
+<div class="flex flex-row default-layout">
+  <nav class="default-layout__sidebar" aria-label="Menu główne">
+    <app-side-bar [menuItems]="menuItems"></app-side-bar>
+  </nav>
+  <div class="flex flex-col default-layout__body">
+    <header class="default-layout__header">
+      <app-header-bar></app-header-bar>
+    </header>
+    <main #content class="default-layout__content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>
+
+<nav class="bottom-nav" aria-label="Menu główne">
+  @for (item of navItems; track item.label) {
+    <a class="bottom-nav__item" [routerLink]="item.routerLink" routerLinkActive="bottom-nav__item--active">
+      <i [class]="item.icon" aria-hidden="true"></i>
+      <span>{{ item.label }}</span>
+    </a>
+  }
+</nav>
+
+<button pButton
+        type="button"
+        class="add-fab action-button--solid"
+        pTooltip="Skrót klawiszowy: N"
+        tooltipPosition="left"
+        [attr.aria-label]="fabLabel()"
+        (click)="editor.create()">
+  <i class="pi pi-plus" aria-hidden="true"></i>
+  <span class="add-fab__label">{{ fabLabel() }}</span>
+</button>
+
+<app-transaction-dialog/>

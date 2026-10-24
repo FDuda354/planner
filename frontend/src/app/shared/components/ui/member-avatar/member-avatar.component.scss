@@ -1,0 +1,41 @@
+:host {
+  display: inline-flex;
+  flex: none;
+}
+
+.member-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: #ffffff;
+  background: var(--member-color);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  box-shadow: 0 0 0 2px var(--budget-surface);
+  user-select: none;
+
+  &--xs {
+    width: 18px;
+    height: 18px;
+    font-size: 10px;
+  }
+
+  &--sm {
+    width: 24px;
+    height: 24px;
+    font-size: 11px;
+  }
+
+  &--md {
+    width: 36px;
+    height: 36px;
+    font-size: 15px;
+  }
+
+  &--lg {
+    width: 48px;
+    height: 48px;
+    font-size: 19px;
+  }
+}

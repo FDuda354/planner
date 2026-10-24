@@ -1,0 +1,38 @@
+.month-overview {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 20px;
+
+  > * {
+    min-width: 0;
+  }
+
+  &__balance {
+    grid-column: span 8;
+  }
+
+  &__members {
+    grid-column: span 4;
+  }
+
+  &__categories {
+    grid-column: span 5;
+  }
+
+  &__pace {
+    grid-column: span 7;
+  }
+
+  &__feed {
+    grid-column: span 12;
+  }
+
+  @media (max-width: 1200px) {
+    &__balance,
+    &__members,
+    &__categories,
+    &__pace {
+      grid-column: span 12;
+    }
+  }
+}

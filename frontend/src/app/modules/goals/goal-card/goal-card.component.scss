@@ -1,0 +1,127 @@
+:host {
+  display: block;
+}
+
+.goal-card {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  height: 100%;
+  box-sizing: border-box;
+  background: radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--goal-color) 12%, transparent) 0%, transparent 50%),
+  var(--budget-surface);
+
+  &__title {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__owner {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: 6px;
+    align-self: flex-start;
+    padding: 4px 10px 4px 6px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    background: var(--budget-surface-muted);
+    border: 1px solid var(--budget-border);
+
+    .pi {
+      margin-left: 4px;
+      font-size: 11px;
+    }
+  }
+
+  &__name {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+
+  &__note {
+    font-size: 13px;
+    color: var(--p-text-muted-color);
+  }
+
+  &__percent {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 24px;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  &__percent-label {
+    font-size: 12px;
+    color: var(--p-text-muted-color);
+  }
+
+  &__saved {
+    font-size: 24px;
+    color: var(--goal-color);
+  }
+
+  &__target {
+    font-size: 13px;
+  }
+
+  &__forecast {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    border-radius: var(--budget-radius-sm);
+    font-size: 13px;
+    line-height: 1.5;
+    background: var(--budget-surface-muted);
+
+    .pi {
+      margin-top: 3px;
+      color: var(--goal-color);
+    }
+  }
+
+  &__history {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+    height: 72px;
+  }
+
+  &__history-column {
+    height: 100%;
+  }
+
+  &__history-bar {
+    display: flex;
+    align-items: flex-end;
+    flex: 1;
+    width: 100%;
+    max-width: 28px;
+    overflow: hidden;
+    border-radius: 6px;
+    background: var(--budget-surface-muted);
+
+    span {
+      display: block;
+      width: 100%;
+      border-radius: 6px;
+      background: var(--goal-color);
+      transition: height 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+  }
+
+  &__history-label {
+    font-size: 11px;
+    color: var(--p-text-muted-color);
+  }
+
+  &__deposit.p-button {
+    justify-content: center;
+    margin-top: auto;
+    border-radius: 12px;
+  }
+}

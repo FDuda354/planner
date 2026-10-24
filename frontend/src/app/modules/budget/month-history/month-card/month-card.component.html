@@ -1,0 +1,46 @@
+<a class="panel month-card" [routerLink]="route()">
+  <div class="flex flex-row items-start justify-between gap-8">
+    <div class="flex flex-col">
+      <span class="month-card__name">{{ name() }}</span>
+      <span class="month-card__year">{{ year() }}</span>
+    </div>
+    <span class="month-card__balance" [class.month-card__balance--negative]="balance() < 0">
+      {{ balance() >= 0 ? '+' : '' }}{{ balance() | money: 'whole' }}
+    </span>
+  </div>
+
+  <div class="flex flex-col">
+    <span class="overline">Wydatki</span>
+    <span class="amount month-card__expenses">{{ summary().expenses | money: 'whole' }}</span>
+  </div>
+
+  <div class="month-card__slices" aria-hidden="true">
+    @for (slice of slices(); track slice.item.id) {
+      <span [style.width.%]="slice.share * 100" [style.background]="slice.item.color"
+            [pTooltip]="slice.item.name" tooltipPosition="top"></span>
+    }
+    @if (restShare() > 0.001) {
+      <span class="month-card__slice-rest" [style.width.%]="restShare() * 100"></span>
+    }
+  </div>
+
+  <div class="flex flex-col gap-4 month-card__details">
+    <div class="flex flex-row justify-between">
+      <span class="muted">Wpływy</span>
+      <span class="amount amount--income">{{ summary().income | money: 'whole' }}</span>
+    </div>
+    <div class="flex flex-row justify-between">
+      <span class="muted">Odłożone</span>
+      <span class="amount amount--saving">{{ summary().savings | money: 'whole' }}</span>
+    </div>
+    @if (topCategory(); as top) {
+      <div class="flex flex-row justify-between items-center">
+        <span class="muted">Najwięcej na</span>
+        <span class="flex flex-row items-center gap-4 month-card__top">
+          <i class="pi" [class]="top.item.icon" [style.color]="top.item.color" aria-hidden="true"></i>
+          {{ top.item.name }}
+        </span>
+      </div>
+    }
+  </div>
+</a>

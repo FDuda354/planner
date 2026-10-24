@@ -1,0 +1,63 @@
+<form class="login-form" [formRoot]="loginForm" (submit)="login($event)">
+  <div class="login-form__header">
+    <h1 class="login-form__title">Witaj z powrotem</h1>
+    <p class="login-form__subtitle">Zaloguj się do wspólnego budżetu</p>
+  </div>
+
+  <div class="login-form__body">
+    <label class="login-form__label" for="login-email">E-mail</label>
+    <input pInputText
+           id="login-email"
+           type="email"
+           placeholder="ty@example.com"
+           class="login-form__input"
+           [pAutoFocus]="true"
+           [formField]="loginForm.email"
+           (change)="trimEmail()"
+           autocomplete="username"/>
+    @if (loginForm.email().touched() && loginForm.email().invalid()) {
+      <small class="p-error login-form__error">{{ loginForm.email().errors()[0].message }}</small>
+    }
+
+    <label class="login-form__label" for="login-password">Hasło</label>
+    <p-iconfield>
+      <input pInputPassword
+             id="login-password"
+             placeholder="••••••••"
+             class="login-form__input"
+             [mask]="passwordMasked()"
+             [formField]="loginForm.password"
+             autocomplete="current-password"/>
+      <p-inputicon>
+        <button type="button" class="input-icon-button"
+                [attr.aria-label]="passwordMasked() ? 'Pokaż hasło' : 'Ukryj hasło'"
+                (click)="passwordMasked.set(!passwordMasked())">
+          <i [class]="passwordMasked() ? 'pi pi-eye' : 'pi pi-eye-slash'"></i>
+        </button>
+      </p-inputicon>
+    </p-iconfield>
+    @if (loginForm.password().touched() && loginForm.password().invalid()) {
+      <small class="p-error login-form__error">{{ loginForm.password().errors()[0].message }}</small>
+    }
+
+    @if (errorMessage()) {
+      <p-message severity="error">{{ errorMessage() }}</p-message>
+    }
+  </div>
+
+  <button pButton
+          class="login-form__submit action-button--solid"
+          type="submit"
+          [disabled]="isWorking()"
+          [attr.aria-busy]="isWorking()">
+    @if (isWorking()) {
+      <i class="pi pi-spin pi-spinner" aria-hidden="true"></i>
+    }
+    Zaloguj się
+  </button>
+
+  <p class="login-form__switch">
+    Nie masz jeszcze konta?
+    <button type="button" class="login-form__link" (click)="switchToRegister.emit()">Załóż je</button>
+  </p>
+</form>

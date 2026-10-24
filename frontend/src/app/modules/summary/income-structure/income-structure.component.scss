@@ -1,0 +1,52 @@
+:host {
+  display: block;
+}
+
+.income {
+  height: 100%;
+  box-sizing: border-box;
+
+  &__chart {
+    position: relative;
+    height: 160px;
+    margin-bottom: 16px;
+  }
+
+  &__name {
+    flex: 1;
+    min-width: 0;
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  &__share {
+    font-size: 12px;
+  }
+
+  &__track {
+    display: block;
+    height: 6px;
+    overflow: hidden;
+    border-radius: 99px;
+    background: var(--budget-surface-muted);
+
+    span {
+      display: block;
+      height: 100%;
+      border-radius: 99px;
+      transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+  }
+}
+
+.income__shared {
+  padding: 8px 10px;
+  border: 1.5px dashed var(--budget-border);
+  border-radius: var(--budget-radius-sm);
+  color: var(--p-text-muted-color);
+
+  .income__name,
+  .amount {
+    color: var(--p-text-color);
+  }
+}

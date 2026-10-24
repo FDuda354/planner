@@ -1,0 +1,53 @@
+@if (store.data.isLoading() && !store.hasHistory()) {
+  <div class="history__grid">
+    @for (placeholder of [1, 2, 3, 4, 5, 6]; track placeholder) {
+      <p-skeleton height="220px" borderRadius="20px"/>
+    }
+  </div>
+} @else if (!store.hasHistory()) {
+  <section class="panel">
+    <ui-empty-state icon="pi-history" title="Brak poprzednich miesięcy"
+                    text="Gdy minie pierwszy miesiąc z transakcjami, znajdziecie go tutaj."/>
+  </section>
+} @else {
+  <div class="flex flex-col gap-20 animation-fadeIn">
+    <div class="flex flex-row flex-wrap items-center justify-between gap-12">
+      <div class="segmented history__years" role="radiogroup" aria-label="Rok">
+        @for (year of store.years(); track year) {
+          <button type="button"
+                  role="radio"
+                  class="segmented__option"
+                  [class.segmented__option--active]="store.year() === year"
+                  [attr.aria-checked]="store.year() === year"
+                  (click)="store.selectYear(year)">
+            {{ year }}
+          </button>
+        }
+      </div>
+      <span class="muted history__count">{{ store.monthsOfYear().length }} mies. z transakcjami</span>
+    </div>
+
+    <section class="panel">
+      <div class="panel__header history__header">
+        <div>
+          <h2 class="panel__title">Rok {{ store.year() }} miesiąc po miesiącu</h2>
+          <p class="panel__subtitle">Kliknij słupek, aby otworzyć miesiąc</p>
+        </div>
+        <div class="flex flex-row gap-16 history__legend">
+          <span><span class="history__dot history__dot--income"></span>Wpływy</span>
+          <span><span class="history__dot history__dot--expense"></span>Wydatki</span>
+          <span><span class="history__dot history__dot--saving"></span>Odłożone</span>
+        </div>
+      </div>
+      <div class="history__chart">
+        <canvas [uiChart]="trendChart()"></canvas>
+      </div>
+    </section>
+
+    <div class="history__grid animation-stagger-children">
+      @for (summary of store.monthsOfYear(); track summary.month) {
+        <app-month-card [summary]="summary"/>
+      }
+    </div>
+  </div>
+}

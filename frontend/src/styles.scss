@@ -1,0 +1,35 @@
+@use 'styles/flex';
+@use 'styles/base';
+@use 'styles/budget';
+@use 'styles/animation';
+@use 'styles/prime-override';
+
+html,
+body {
+  display: flex;
+  min-height: 100%;
+  min-width: 100%;
+  margin: 0;
+  font-family: 'Lato', sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 15px;
+  line-height: 24px;
+  color: var(--p-text-color);
+  background-color: var(--p-content-background);
+}
+
+h1, h2, h3, h4 {
+  font-family: 'Plus Jakarta Sans', 'Lato', sans-serif;
+}
+
+router-outlet + * {
+  min-width: 100%;
+}
+
+.default-layout__content > router-outlet + * {
+  position: relative;
+  z-index: 1;
+  display: block;
+  margin: 0 auto;
+}

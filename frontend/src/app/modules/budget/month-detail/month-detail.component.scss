@@ -1,0 +1,22 @@
+.month-detail {
+  &__nav {
+    margin-bottom: 16px;
+  }
+
+  &__back.p-button,
+  &__step.p-button {
+    gap: 8px;
+    font-size: 14px;
+    text-decoration: none;
+  }
+
+  &__step.p-button {
+    border-radius: 999px;
+  }
+
+  &__step-label {
+    @media (max-width: 640px) {
+      display: none;
+    }
+  }
+}

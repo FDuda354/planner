@@ -1,0 +1,36 @@
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 32px 16px;
+  text-align: center;
+
+  &__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    margin-bottom: 8px;
+    border-radius: 50%;
+    color: var(--p-primary-color);
+    background: var(--p-highlight-background);
+
+    .pi {
+      font-size: 22px;
+    }
+  }
+
+  &__title {
+    font-weight: 700;
+    font-size: 16px;
+  }
+
+  &__text {
+    max-width: 320px;
+    font-size: 14px;
+    color: var(--p-text-muted-color);
+  }
+}

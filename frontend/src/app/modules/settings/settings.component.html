@@ -1,0 +1,49 @@
+<div class="app-container settings">
+  <div class="settings__header">
+    <h1 class="page-title">Konfiguracja</h1>
+    <p class="page-subtitle">Dopasujcie kategorie, źródła dochodu i cele do Waszego domu</p>
+  </div>
+
+  <p-tabs [value]="activeTab()" (valueChange)="selectTab($event)" class="settings__tabs">
+    <p-tablist>
+      @for (option of tabs; track option.tab) {
+        <p-tab [value]="option.tab" [attr.aria-label]="option.label">
+          <i [class]="option.icon" aria-hidden="true"></i>
+          <span class="settings__tab-label">{{ option.label }}</span>
+        </p-tab>
+      }
+    </p-tablist>
+  </p-tabs>
+
+  <section class="panel settings__panel animation-fadeIn">
+    <h2 class="panel__title settings__panel-title">{{ activeLabel() }}</h2>
+    @switch (activeTab()) {
+      @case (SettingsTab.CATEGORIES) {
+        <p class="muted settings__intro">Na co wydajecie pieniądze. Kategorie widać przy dodawaniu wydatku i w podsumowaniach.</p>
+        <app-budget-item-list [kind]="TransactionType.EXPENSE" [items]="configStore.expenseCategories()" addLabel="Dodaj kategorię"/>
+      }
+      @case (SettingsTab.INCOMES) {
+        <p class="muted settings__intro">Skąd przychodzą pieniądze — pensje, premie, dodatkowe zlecenia.</p>
+        <app-budget-item-list [kind]="TransactionType.INCOME" [items]="configStore.incomeSources()" addLabel="Dodaj źródło dochodu"/>
+      }
+      @case (SettingsTab.GOALS) {
+        <p class="muted settings__intro">Na co odkładacie. Wpłaty na cele dodajecie jak zwykłą transakcję typu „Oszczędność”.</p>
+        <app-budget-item-list [kind]="TransactionType.SAVING" [items]="configStore.savingsGoals()" addLabel="Dodaj cel"/>
+      }
+      @case (SettingsTab.HOUSEHOLD) {
+        <app-household-members/>
+      }
+      @case (SettingsTab.APPEARANCE) {
+        <label class="flex flex-row items-center gap-12 settings__theme">
+          <p-toggleswitch [formField]="themeForm.darkMode" (onChange)="appearance.toggleDarkMode()"/>
+          <span class="flex flex-col">
+            <span class="settings__theme-title">Ciemny motyw</span>
+            <span class="muted settings__theme-hint">Przełącznik jest też zawsze pod ręką w prawym górnym rogu</span>
+          </span>
+        </label>
+      }
+    }
+  </section>
+</div>
+
+<app-budget-item-editor/>

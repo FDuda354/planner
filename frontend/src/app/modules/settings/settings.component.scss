@@ -1,0 +1,52 @@
+.settings {
+  &__header {
+    margin: 8px 0 20px;
+  }
+
+  &__tabs {
+    --p-tabs-tablist-background: transparent;
+    --p-tabs-tablist-border-color: var(--budget-border);
+    --p-tabs-tab-background: transparent;
+    --p-tabs-tab-hover-background: transparent;
+    --p-tabs-tab-active-background: transparent;
+    --p-tabs-tab-font-weight: 700;
+    --p-tabs-tab-padding: 12px 18px;
+    --p-tabs-tab-gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  &__intro {
+    margin: 0 0 20px;
+  }
+
+  &__panel-title {
+    display: none;
+    margin-bottom: 8px;
+  }
+
+  @media (max-width: 640px) {
+    &__tabs {
+      --p-tabs-tab-padding: 12px 14px;
+    }
+
+    &__tab-label {
+      display: none;
+    }
+
+    &__panel-title {
+      display: block;
+    }
+  }
+
+  &__theme {
+    cursor: pointer;
+  }
+
+  &__theme-title {
+    font-weight: 700;
+  }
+
+  &__theme-hint {
+    font-size: 13px;
+  }
+}

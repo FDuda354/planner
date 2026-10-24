@@ -1,0 +1,207 @@
+.transaction-form {
+  --type-color: var(--budget-expense);
+  --type-soft: var(--budget-expense-soft);
+  padding-top: 4px;
+
+  &[data-type='INCOME'] {
+    --type-color: var(--budget-income);
+    --type-soft: var(--budget-income-soft);
+  }
+
+  &[data-type='SAVING'] {
+    --type-color: var(--budget-saving);
+    --type-soft: var(--budget-saving-soft);
+  }
+
+  &__amount {
+    padding: 8px 0 4px;
+
+    ::ng-deep .transaction-form__amount-input {
+      width: 100%;
+      max-width: 340px;
+      text-align: center;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 38px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--type-color);
+      border: none;
+      border-bottom: 2px solid var(--type-soft);
+      border-radius: 0 !important;
+      background: transparent !important;
+      box-shadow: none;
+      padding: 8px 12px !important;
+      transition: border-color 0.2s ease;
+
+      &:focus {
+        border-bottom-color: var(--type-color);
+      }
+    }
+  }
+
+  ::ng-deep .transaction-form__date {
+    width: 140px;
+  }
+
+  &__actions {
+    padding-top: 4px;
+  }
+
+  &__submit-amount {
+    margin-left: 4px;
+    font-weight: 800;
+  }
+}
+
+.type-switch {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  padding: 4px;
+  border-radius: 14px;
+  background: var(--budget-surface-muted);
+  border: 1px solid var(--budget-border);
+
+  &__option {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 8px;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--p-text-muted-color);
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+      color: var(--p-text-color);
+    }
+
+    &--active {
+      color: var(--type-color);
+      background: var(--budget-surface);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+
+      &:hover {
+        color: var(--type-color);
+      }
+    }
+
+    @media (max-width: 420px) {
+      .pi {
+        display: none;
+      }
+    }
+  }
+}
+
+.item-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+  gap: 8px;
+
+  &__empty {
+    grid-column: 1 / -1;
+    padding: 14px;
+    border: 1.5px dashed var(--budget-border);
+    border-radius: 12px;
+    font-size: 13px;
+    color: var(--p-text-muted-color);
+
+    a {
+      color: var(--p-primary-color);
+      font-weight: 700;
+    }
+  }
+}
+
+.item-tile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1.5px solid var(--budget-border);
+  border-radius: 12px;
+  background: var(--budget-surface);
+  color: var(--p-text-color);
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
+
+  &:hover {
+    border-color: color-mix(in srgb, var(--item-color) 50%, transparent);
+    transform: translateY(-1px);
+  }
+
+  &--selected {
+    border-color: var(--item-color);
+    background: color-mix(in srgb, var(--item-color) 10%, transparent);
+    font-weight: 700;
+  }
+
+  &__name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+
+.period-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  color: #92400e;
+  background: #fef3c7;
+  border: 1px solid #fcd34d;
+  animation: fadeIn 0.25s ease-out;
+
+  :host-context(.my-app-dark) & {
+    color: #fcd34d;
+    background: rgba(252, 211, 77, 0.12);
+    border-color: rgba(252, 211, 77, 0.3);
+  }
+}
+
+.shared-toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border: 1.5px solid var(--budget-border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+
+  &--active {
+    border-color: var(--p-primary-color);
+    background: var(--p-highlight-background);
+  }
+
+  &__title {
+    font-weight: 700;
+    font-size: 14px;
+
+    .pi {
+      font-size: 13px;
+      margin-right: 4px;
+    }
+  }
+
+  &__hint {
+    font-size: 12px;
+    line-height: 16px;
+    color: var(--p-text-muted-color);
+  }
+}

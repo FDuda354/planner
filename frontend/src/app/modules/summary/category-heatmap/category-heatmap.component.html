@@ -1,0 +1,43 @@
+<section class="panel heatmap">
+  <div class="panel__header">
+    <div>
+      <h2 class="panel__title">Mapa wydatków</h2>
+      <p class="panel__subtitle">Im ciemniejsze pole, tym więcej wydaliście na kategorię w danym miesiącu. Kliknij pole, aby otworzyć miesiąc.</p>
+    </div>
+  </div>
+
+  @if (rows().length === 0) {
+    <ui-empty-state icon="pi-th-large" title="Brak wydatków w tym roku"/>
+  } @else {
+    <div class="heatmap__scroll">
+      <div class="heatmap__grid">
+        <span></span>
+        @for (label of monthLabels(); track $index) {
+          <span class="heatmap__month">{{ label }}</span>
+        }
+        <span class="heatmap__month heatmap__month--total">Razem</span>
+
+        @for (row of rows(); track row.item.id) {
+          <span class="flex flex-row items-center gap-8 heatmap__category">
+            <ui-item-icon [icon]="row.item.icon" [color]="row.item.color" size="sm"/>
+            <span class="heatmap__category-name">{{ row.item.name }}</span>
+          </span>
+          @for (cell of row.cells; track cell.month) {
+            @if (cell.route) {
+              <a class="heatmap__cell"
+                 [routerLink]="cell.route"
+                 [style.--item-color]="row.item.color"
+                 [style.--intensity]="cell.intensity"
+                 [pTooltip]="cell.tooltip"
+                 tooltipPosition="top"
+                 [attr.aria-label]="row.item.name + ', ' + cell.tooltip"></a>
+            } @else {
+              <span class="heatmap__cell heatmap__cell--future"></span>
+            }
+          }
+          <span class="amount heatmap__total">{{ row.total | money: 'whole' }}</span>
+        }
+      </div>
+    </div>
+  }
+</section>

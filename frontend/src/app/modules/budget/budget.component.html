@@ -1,0 +1,18 @@
+<div class="app-container budget">
+  <p-tabs [value]="activeTab()" class="budget__tabs">
+    <p-tablist>
+      <p-tab [value]="AppRoute.BUDGET" [routerLink]="AppRoute.BUDGET">
+        <i class="pi pi-calendar" aria-hidden="true"></i>
+        Ten miesiąc
+      </p-tab>
+      <p-tab [value]="AppRoute.HISTORY" [routerLink]="AppRoute.HISTORY">
+        <i class="pi pi-history" aria-hidden="true"></i>
+        Poprzednie miesiące
+      </p-tab>
+    </p-tablist>
+  </p-tabs>
+
+  <div class="budget__content">
+    <router-outlet></router-outlet>
+  </div>
+</div>

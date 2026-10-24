@@ -1,0 +1,47 @@
+:host {
+  display: block;
+}
+
+.pace {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
+
+  &__chart {
+    position: relative;
+    flex: 1;
+    min-height: 280px;
+
+    @media (max-width: 640px) {
+      min-height: 220px;
+    }
+  }
+
+  &__legend {
+    flex-wrap: wrap;
+    font-size: 13px;
+    color: var(--p-text-muted-color);
+  }
+
+  &__legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  &__swatch {
+    display: inline-block;
+    width: 16px;
+    height: 3px;
+    border-radius: 2px;
+
+    &--current {
+      background: var(--budget-expense);
+    }
+
+    &--previous {
+      background: repeating-linear-gradient(90deg, var(--p-text-muted-color) 0 4px, transparent 4px 7px);
+    }
+  }
+}

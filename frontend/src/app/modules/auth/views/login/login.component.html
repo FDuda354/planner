@@ -1,0 +1,49 @@
+<div class="login-page">
+  <section class="login-page__hero">
+    <div class="flex flex-row items-center gap-12">
+      <span class="login-page__logo"><i class="pi pi-wallet" aria-hidden="true"></i></span>
+      <span class="login-page__brand">Budżet domowy</span>
+    </div>
+
+    <div class="login-page__pitch animation-fadeInUp">
+      <h2 class="login-page__headline">Wspólne pieniądze,<br/>jasna sytuacja.</h2>
+      <p class="login-page__lead">Zapisujcie wydatki we dwoje i zawsze wiedzcie, na co naprawdę idą pieniądze — bez arkuszy i formułek.</p>
+    </div>
+
+    <div class="login-page__preview animation-fadeInUp-delayed" aria-hidden="true">
+      <div class="preview-card">
+        <span class="overline preview-card__overline">Zostało w tym miesiącu</span>
+        <span class="preview-card__amount">4 182 zł</span>
+        <div class="preview-card__bar">
+          <span style="width: 46%; background: #a7f3d0"></span>
+          <span style="width: 18%; background: #7dd3fc"></span>
+        </div>
+      </div>
+      <div class="preview-chip preview-chip--food"><i class="pi pi-shopping-cart"></i> Jedzenie · 1 840 zł</div>
+      <div class="preview-chip preview-chip--goal"><i class="pi pi-sun"></i> Japonia · 64%</div>
+    </div>
+  </section>
+
+  <section class="login-page__form">
+    <button pButton
+            type="button"
+            severity="secondary"
+            variant="text"
+            [rounded]="true"
+            [iconOnly]="true"
+            class="login-page__theme"
+            [attr.aria-label]="appearance.darkMode() ? 'Włącz jasny motyw' : 'Włącz ciemny motyw'"
+            (click)="appearance.toggleDarkMode()">
+      <i [class]="appearance.darkMode() ? 'pi pi-sun' : 'pi pi-moon'" aria-hidden="true"></i>
+    </button>
+    <div class="flex flex-col items-center gap-8 login-page__mobile-brand">
+      <span class="login-page__mobile-logo"><i class="pi pi-wallet" aria-hidden="true"></i></span>
+      <span class="login-page__brand">Budżet domowy</span>
+    </div>
+    @if (mode() === 'login') {
+      <app-login-form class="animation-fadeIn" (switchToRegister)="mode.set('register')"/>
+    } @else {
+      <app-register-form class="animation-fadeIn" (switchToLogin)="mode.set('login')"/>
+    }
+  </section>
+</div>

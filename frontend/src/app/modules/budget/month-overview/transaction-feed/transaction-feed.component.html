@@ -1,0 +1,133 @@
+<section class="panel feed">
+  <div class="flex flex-row flex-wrap items-center justify-between gap-12 feed__header">
+    <div>
+      <h2 class="panel__title">Transakcje</h2>
+      <p class="panel__subtitle">
+        @if (store.hasActiveFilters()) {
+          {{ store.filteredTransactions().length }} z {{ store.transactions().length }} pasujących
+        } @else {
+          {{ store.transactions().length }} w tym miesiącu
+        }
+      </p>
+    </div>
+    <p-iconfield class="feed__search">
+      <p-inputicon class="pi pi-search"/>
+      <input pInputText type="search" placeholder="Szukaj…" aria-label="Szukaj transakcji"
+             [value]="store.search()" (input)="onSearch($event)"/>
+    </p-iconfield>
+  </div>
+
+  <div class="flex flex-row flex-wrap items-center gap-8 feed__filters">
+    <div class="feed__scroll">
+      <div class="segmented" role="radiogroup" aria-label="Rodzaj transakcji">
+        @for (option of filterOptions; track option.filter) {
+          <button type="button"
+                  role="radio"
+                  class="segmented__option"
+                  [class.segmented__option--active]="store.feedFilter() === option.filter"
+                  [attr.aria-checked]="store.feedFilter() === option.filter"
+                  (click)="store.setFeedFilter(option.filter)">
+            {{ option.label }}
+          </button>
+        }
+      </div>
+    </div>
+    <div class="flex flex-row items-center gap-4 feed__members" role="radiogroup" aria-label="Kto płacił">
+      <button type="button" role="radio" class="choice-chip"
+              [class.choice-chip--active]="store.memberFilter() === null"
+              [attr.aria-checked]="store.memberFilter() === null"
+              (click)="store.setMemberFilter(null)">
+        Wszyscy
+      </button>
+      @for (member of householdStore.members(); track member.id) {
+        <button type="button" role="radio" class="choice-chip choice-chip--member"
+                [class.choice-chip--active]="store.memberFilter() === member.id"
+                [attr.aria-checked]="store.memberFilter() === member.id"
+                (click)="store.setMemberFilter(member.id)">
+          <ui-member-avatar [member]="member" size="xs"/>
+          {{ member.firstName }}
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (store.hasActiveFilters()) {
+    <div class="flex flex-row flex-wrap items-center gap-8 feed__active-filters">
+      @if (selectedCategory(); as category) {
+        <button type="button" class="choice-chip choice-chip--active" (click)="store.toggleCategoryFilter(category.id)">
+          <i class="pi" [class]="category.icon" aria-hidden="true"></i>
+          {{ category.name }}
+          <i class="pi pi-times" aria-label="Usuń filtr"></i>
+        </button>
+      }
+      <button pButton type="button" variant="text" severity="secondary" class="feed__clear" (click)="store.clearFilters()">
+        Wyczyść filtry
+      </button>
+    </div>
+  }
+
+  @if (isFirstLoad()) {
+    <div class="flex flex-col gap-12">
+      @for (row of [1, 2, 3, 4, 5]; track row) {
+        <div class="flex flex-row items-center gap-12">
+          <p-skeleton shape="circle" size="40px"/>
+          <div class="flex flex-col gap-4 flex-1">
+            <p-skeleton width="40%" height="14px"/>
+            <p-skeleton width="25%" height="12px"/>
+          </div>
+          <p-skeleton width="90px" height="16px"/>
+        </div>
+      }
+    </div>
+  } @else if (store.transactions().length === 0) {
+    <ui-empty-state icon="pi-receipt" title="Pusto tutaj" text="Ten miesiąc nie ma jeszcze żadnych transakcji.">
+      <button pButton type="button" class="action-button--solid feed__empty-action" (click)="editor.create()">
+        <i class="pi pi-plus" aria-hidden="true"></i>
+        Dodaj pierwszą transakcję
+      </button>
+    </ui-empty-state>
+  } @else if (store.dayGroups().length === 0) {
+    <ui-empty-state icon="pi-filter-slash" title="Nic nie pasuje do filtrów" text="Zmień albo wyczyść filtry, aby zobaczyć transakcje.">
+      <button pButton type="button" variant="outlined" (click)="store.clearFilters()">Wyczyść filtry</button>
+    </ui-empty-state>
+  } @else {
+    <div class="flex flex-col gap-20">
+      @for (group of store.dayGroups(); track group.date) {
+        <div class="day">
+          <div class="flex flex-row items-center justify-between day__header">
+            <span class="day__label">{{ group.label }}</span>
+            @if (group.expenses > 0) {
+              <span class="day__total">−{{ group.expenses | money }}</span>
+            }
+          </div>
+          <div class="flex flex-col">
+            @for (transaction of group.transactions; track transaction.id) {
+              @let item = itemOf(transaction);
+              <button type="button" class="tx-row" (click)="editor.edit(transaction)">
+                <ui-item-icon [icon]="item?.icon ?? 'pi-question'" [color]="item?.color ?? '#94a3b8'"/>
+                <div class="flex flex-col tx-row__body">
+                  <span class="tx-row__title">{{ transaction.note || item?.name }}</span>
+                  <span class="flex flex-row items-center gap-4 tx-row__meta">
+                    @if (transaction.note) {
+                      <span>{{ item?.name }}</span>
+                      <span aria-hidden="true">·</span>
+                    }
+                    <ui-member-avatar [member]="memberOf(transaction)" size="xs"/>
+                    <span>{{ memberOf(transaction)?.firstName }}</span>
+                    @if (transaction.shared) {
+                      <span class="tx-row__shared"><i class="pi pi-home" aria-hidden="true"></i>wspólne</span>
+                    }
+                  </span>
+                </div>
+                <span class="amount tx-row__amount" [class]="'amount--' + transaction.type.toLowerCase()">
+                  {{ signOf(transaction) }}{{ transaction.amount | money }}
+                </span>
+                <i class="pi pi-pencil tx-row__edit" aria-hidden="true"></i>
+              </button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</section>

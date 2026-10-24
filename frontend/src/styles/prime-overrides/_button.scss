@@ -1,0 +1,94 @@
+
+.p-button:not(.p-button-icon-only) {
+  justify-content: flex-start;
+}
+
+// Ukrycie pustego elementu <i class="none"> renderowanego przez PrimeNG gdy icon='none'
+.p-button i.none {
+  display: none;
+}
+
+// Selektor przycisku Primary (bez dodatkowych wariantów kolorystycznych i bez icon-only)
+$primary-button-selector: ".p-button:not(.p-button-outlined):not(.p-button-text):not(.p-button-link):not(.p-button-secondary):not(.p-button-success):not(.p-button-info):not(.p-button-warn):not(.p-button-help):not(.p-button-danger):not(.p-button-icon-only)";
+
+#{$primary-button-selector} {
+  background-color: var(--p-primary-color);
+  border: 1.7px solid var(--p-primary-color);
+  color: var(--p-primary-contrast-color);
+  transition: background-color 0.3s;
+  font-size: 17px;
+
+  &:hover:not(:disabled):not(.p-disabled) {
+    background-color: var(--p-content-background);
+    color: var(--p-primary-color);
+    border: 1.7px solid var(--p-primary-color);
+    cursor: pointer;
+  }
+}
+
+.primary-button.p-button,
+.primary-button .p-button,
+.primary-button-stroked.p-button,
+.primary-button-stroked .p-button {
+  font-size: 17px;
+  padding: 10px 20px;
+}
+
+.p-button-icon-only {
+  width: 24px !important;
+  height: 24px !important;
+}
+
+.action-button.p-button,
+.action-button .p-button {
+  width: 200px;
+  font-size: 16px;
+}
+
+// Modyfikator: przyciski akcji na pełną szerokość
+.action-button--full {
+  display: block;
+  width: 100%;
+
+  max-width: 300px;
+
+  .p-button {
+    width: 100%;
+  }
+}
+
+.action-button--centered.p-button,
+.action-button--centered .p-button {
+  justify-content: center;
+}
+
+// Modyfikator: utrzymanie wypełnionego tła przy hover (lekkie przyciemnienie zamiast inwersji kolorów)
+.action-button--solid#{$primary-button-selector},
+.action-button--solid #{$primary-button-selector} {
+  &:hover:not(:disabled):not(.p-disabled) {
+    background-color: var(--p-button-primary-hover-background);
+    color: var(--p-button-primary-hover-color);
+    border-color: var(--p-button-primary-hover-border-color);
+  }
+}
+
+// Globalne powiększenie przycisków outlined (wyrównanie z przyciskami primary)
+.p-button.p-button-outlined {
+  font-size: 17px;
+}
+
+// Selektor przycisku Outlined Primary
+.p-button.p-button-outlined:not(.p-button-secondary):not(.p-button-success):not(.p-button-info):not(.p-button-warn):not(.p-button-help):not(.p-button-danger) {
+  border: 1.7px solid var(--p-primary-color);
+  color: var(--p-primary-color);
+  background-color: transparent;
+  transition: background-color 0.3s;
+
+  &:hover,
+  &:active,
+  &.active {
+    background-color: var(--p-content-hover-background);
+    color: var(--p-primary-color);
+    border-color: var(--p-primary-color);
+  }
+}

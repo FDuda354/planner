@@ -1,0 +1,82 @@
+<section class="panel balance" [class.balance--overspent]="isOverspent()">
+  <div class="flex flex-row justify-between items-start gap-12 balance__top">
+    <div class="flex flex-col">
+      <h1 class="balance__month">{{ title() }}</h1>
+      <span class="balance__progress">
+        @if (store.isCurrentMonth()) {
+          Dzień {{ store.elapsedDays() }} z {{ store.daysInMonth() }}
+        } @else {
+          Miesiąc zamknięty
+        }
+      </span>
+    </div>
+    @if (store.data.isLoading()) {
+      <i class="pi pi-spin pi-spinner muted" aria-label="Ładowanie"></i>
+    }
+  </div>
+
+  <div class="flex flex-col balance__hero">
+    <span class="overline">{{ isOverspent() ? 'Wydaliście więcej niż wpłynęło' : (store.isCurrentMonth() ? 'Zostało do dyspozycji' : 'Zostało na koniec miesiąca') }}</span>
+    <span class="balance__amount">{{ store.balance() | money }}</span>
+  </div>
+
+  <div class="flex flex-col gap-8">
+    <div class="flex flex-row items-center justify-between gap-8 balance__income">
+      <span class="flex flex-row items-center gap-8">
+        <span class="balance__income-icon"><i class="pi pi-arrow-down-left" aria-hidden="true"></i></span>
+        Wpływy
+      </span>
+      <span class="amount amount--income">{{ store.income() | money }}</span>
+    </div>
+    <div class="balance__flow" role="img"
+         [attr.aria-label]="'Z wpływów: wydatki ' + (spentShare() | percent) + ', odłożone ' + (savedShare() | percent) + ', zostało ' + (freeShare() | percent)">
+      @for (segment of flow(); track segment.kind) {
+        <span class="balance__flow-segment" [class]="'balance__flow-segment--' + segment.kind"
+              [style.width.%]="segment.share * 100"></span>
+      }
+    </div>
+  </div>
+
+  <div class="balance__stats">
+    <div class="stat stat--expense">
+      <span class="stat__dot" aria-hidden="true"></span>
+      <div class="flex flex-col stat__body">
+        <span class="stat__label">Wydatki · {{ spentShare() | percent }}</span>
+        <span class="amount stat__value">{{ store.expenses() | money }}</span>
+      </div>
+    </div>
+    <div class="stat stat--saving">
+      <span class="stat__dot" aria-hidden="true"></span>
+      <div class="flex flex-col stat__body">
+        <span class="stat__label">Odłożone · {{ savedShare() | percent }}</span>
+        <span class="amount stat__value">{{ store.savings() | money }}</span>
+      </div>
+    </div>
+    <div class="stat stat--free">
+      <span class="stat__dot" aria-hidden="true"></span>
+      <div class="flex flex-col stat__body">
+        <span class="stat__label">Zostało · {{ freeShare() | percent }}</span>
+        <span class="amount stat__value">{{ store.balance() | money }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex flex-row flex-wrap gap-8 balance__insights">
+    <span class="insight">
+      <i class="pi pi-calendar" aria-hidden="true"></i>
+      Średnio <strong>{{ store.averageDailyExpenses() | money: 'whole' }}</strong> dziennie
+    </span>
+    @if (store.expensesChange(); as change) {
+      <span class="insight" [class.insight--good]="change < 0" [class.insight--bad]="change > 0">
+        <i [class]="change < 0 ? 'pi pi-arrow-down' : 'pi pi-arrow-up'" aria-hidden="true"></i>
+        <strong>{{ changeAbs() | percent }}</strong> {{ change < 0 ? 'mniej' : 'więcej' }} niż {{ store.isCurrentMonth() ? 'o tej porze ' : '' }}{{ previousMonthInLocative() }}
+      </span>
+    }
+    @if (store.biggestExpense(); as biggest) {
+      <span class="insight">
+        <i class="pi pi-bolt" aria-hidden="true"></i>
+        Największy wydatek: <strong>{{ biggest.note || biggestExpenseItem()?.name }}</strong> · {{ biggest.amount | money: 'whole' }}
+      </span>
+    }
+  </div>
+</section>

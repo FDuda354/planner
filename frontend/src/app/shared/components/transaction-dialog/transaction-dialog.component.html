@@ -1,0 +1,139 @@
+<p-dialog [visible]="state().visible"
+          (visibleChange)="onVisibleChange($event)"
+          [header]="isEdit() ? 'Edytuj transakcję' : 'Nowa transakcja'"
+          [modal]="true"
+          [draggable]="false"
+          [resizable]="false"
+          [dismissableMask]="true"
+          [focusOnShow]="false"
+          (onShow)="focusAmount()"
+          [style]="{width: '580px', maxWidth: 'calc(100vw - 24px)'}"
+          appendTo="body">
+  <form [formRoot]="transactionForm" (submit)="save($event)"
+        class="flex flex-col gap-20 transaction-form"
+        [attr.data-type]="model().type">
+
+    <div class="type-switch" role="radiogroup" aria-label="Rodzaj transakcji">
+      @for (option of typeOptions; track option.type) {
+        <button type="button"
+                role="radio"
+                class="type-switch__option"
+                [attr.data-type]="option.type"
+                [attr.aria-checked]="model().type === option.type"
+                [class.type-switch__option--active]="model().type === option.type"
+                (click)="selectType(option.type)">
+          <i [class]="option.icon" aria-hidden="true"></i>
+          {{ option.label }}
+        </button>
+      }
+    </div>
+
+    @if (pastMonthLabel(); as month) {
+      <div class="period-badge" role="status">
+        <i class="pi pi-calendar-clock" aria-hidden="true"></i>
+        <span>{{ isEdit() ? 'Transakcja z poprzedniego miesiąca:' : 'Dodajesz do poprzedniego miesiąca:' }}</span>
+        <strong>{{ month }}</strong>
+      </div>
+    }
+
+    <div class="flex flex-col items-center gap-4 transaction-form__amount">
+      <p-inputnumber [formField]="transactionForm.amount"
+                     inputId="transaction-amount"
+                     mode="currency"
+                     currency="PLN"
+                     locale="pl-PL"
+                     placeholder="0,00 zł"
+                     inputStyleClass="transaction-form__amount-input"
+                     ariaLabel="Kwota"/>
+      @if (showErrors() && transactionForm.amount().invalid()) {
+        <small class="p-error">{{ transactionForm.amount().errors()[0].message }}</small>
+      }
+    </div>
+
+    <div class="flex flex-col gap-8">
+      <span class="overline">{{ itemLabel() }}</span>
+      <div class="item-grid">
+        @for (item of items(); track item.id) {
+          <button type="button"
+                  class="item-tile"
+                  [style.--item-color]="item.color"
+                  [class.item-tile--selected]="model().itemId === item.id"
+                  [attr.aria-pressed]="model().itemId === item.id"
+                  (click)="selectItem(item.id)">
+            <ui-item-icon [icon]="item.icon" [color]="item.color" size="sm"/>
+            <span class="item-tile__name">{{ item.name }}</span>
+          </button>
+        } @empty {
+          <div class="item-grid__empty">
+            Brak aktywnych pozycji tego rodzaju.
+            <a [routerLink]="AppRoute.SETTINGS" (click)="onVisibleChange(false)">Dodaj je w konfiguracji</a>
+          </div>
+        }
+      </div>
+      @if (showErrors() && transactionForm.itemId().invalid()) {
+        <small class="p-error">{{ transactionForm.itemId().errors()[0].message }}</small>
+      }
+    </div>
+
+    <div class="flex flex-col gap-8">
+      <span class="overline">Kiedy</span>
+      <div class="flex flex-row flex-wrap items-center gap-8">
+        @for (quickDate of quickDates; track quickDate.daysAgo) {
+          <button type="button"
+                  class="choice-chip"
+                  [class.choice-chip--active]="isQuickDateSelected(quickDate)"
+                  (click)="selectQuickDate(quickDate)">
+            {{ quickDate.label }}
+          </button>
+        }
+        <p-datepicker [formField]="transactionForm.date"
+                      dateFormat="dd.mm.yy"
+                      [maxDate]="today()"
+                      appendTo="body"
+                      [showIcon]="true"
+                      iconDisplay="input"
+                      inputStyleClass="transaction-form__date"
+                      ariaLabel="Data"/>
+      </div>
+    </div>
+
+    @if (isExpense()) {
+      <label class="shared-toggle" [class.shared-toggle--active]="model().shared">
+        <p-checkbox [formField]="transactionForm.shared" [binary]="true" inputId="transaction-shared"/>
+        <span class="flex flex-col">
+          <span class="shared-toggle__title"><i class="pi pi-home" aria-hidden="true"></i> Na dobro wspólne</span>
+          <span class="shared-toggle__hint">Np. rachunki, czynsz, wspólne zakupy — nie liczy się do niczyich osobistych wydatków</span>
+        </span>
+      </label>
+    }
+
+    <input pInputText
+           type="text"
+           [formField]="transactionForm.note"
+           placeholder="Notatka (opcjonalnie), np. Biedronka"
+           aria-label="Notatka"/>
+
+    <div class="flex flex-row items-center justify-between gap-12 transaction-form__actions">
+      @if (isEdit()) {
+        <button pButton type="button" severity="danger" variant="text" [disabled]="isWorking()"
+                (click)="deleteTransaction($event)">
+          <i class="pi pi-trash" aria-hidden="true"></i>
+          Usuń
+        </button>
+      } @else {
+        <button pButton type="button" severity="secondary" variant="text" [disabled]="isWorking()"
+                (click)="saveAndAddNext()">
+          <i class="pi pi-plus" aria-hidden="true"></i>
+          Zapisz i dodaj kolejną
+        </button>
+      }
+      <button pButton type="submit" class="transaction-form__submit" [disabled]="isWorking()">
+        <i [class]="isWorking() ? 'pi pi-spin pi-spinner' : 'pi pi-check'" aria-hidden="true"></i>
+        {{ submitLabel() }}
+        @if (model().amount) {
+          <span class="transaction-form__submit-amount">{{ model().amount! | money }}</span>
+        }
+      </button>
+    </div>
+  </form>
+</p-dialog>

@@ -1,0 +1,341 @@
+// Global animation
+.animation-flip-horizontal {
+  display: inline-block;
+  transform-style: preserve-3d;
+  animation: flip-horizontal 1.2s ease-out 1;
+}
+
+@keyframes flip-horizontal {
+  100% {
+    transform: rotateY(360deg);
+  }
+}
+
+.animation-fadeIn {
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animation-bounce {
+  transform-origin: center;
+  animation: jelly-bounce 1.5s ease-in-out 1s forwards;
+}
+
+@keyframes jelly-bounce {
+  0% {
+    transform: translateY(0) scale(1, 1);
+  }
+  15% {
+    transform: translateY(0) scale(1, 0.8);
+  }
+  35% {
+    transform: translateY(-15px) scale(0.94, 1);
+  }
+  55% {
+    transform: translateY(0) scale(1, 0.96);
+  }
+  75% {
+    transform: translateY(-4px) scale(0.98, 1);
+  }
+  100% {
+    transform: translateY(0) scale(1, 1);
+  }
+}
+
+.animation-from-up {
+  animation: slide-in-from-up 0.7s ease-out forwards;
+}
+
+@keyframes slide-in-from-up {
+  from {
+    transform: translateY(-110%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0%);
+    opacity: 1;
+  }
+}
+
+.animation-from-right {
+  animation: slide-in-from-right 1s ease-out forwards;
+}
+
+@keyframes slide-in-from-right {
+  from {
+    transform: translateX(50%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0%);
+    opacity: 1;
+  }
+}
+
+.ui-panel__content--expanded {
+  opacity: 0;
+  transform: translateY(-70%);
+  animation: ui-panel-slide-in-from-up 0.4s ease-out forwards;
+}
+
+
+@keyframes ui-panel-slide-in-from-up {
+  0% {
+    transform: translateY(-70%);
+    opacity: 0;
+  }
+  40% {
+    opacity: 0;
+  }
+
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+// Animacje rozwijania/zwijania wierszy tabeli
+@keyframes expand-row {
+  from {
+    grid-template-rows: 0fr;
+    opacity: 0;
+  }
+  to {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+}
+
+@keyframes collapse-row {
+  from {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+  to {
+    grid-template-rows: 0fr;
+    opacity: 0;
+  }
+}
+
+// ============================================================
+// Slide-in / fade-in helpers used for filters / lists / paginators
+// ============================================================
+
+.animation-slideInDown {
+  animation: slideInDown 0.45s ease-out both;
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animation-fadeInUp {
+  animation: fadeInUp 0.5s ease-out both;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animation-fadeInUp-delayed {
+  animation: fadeInUp 0.55s ease-out both;
+  animation-delay: 0.12s;
+}
+
+.animation-fadeIn-delayed {
+  animation: fadeIn 0.55s ease-out both;
+  animation-delay: 0.2s;
+}
+
+// ============================================================
+// Stagger — apply to a parent; each direct child fades-in-up
+// with a small offset so the list "rolls in" instead of popping.
+// ============================================================
+
+.animation-stagger-children > * {
+  opacity: 0;
+  animation: fadeInUp 0.45s ease-out forwards;
+}
+
+.animation-stagger-children > *:nth-child(1) {
+  animation-delay: 0.04s;
+}
+
+.animation-stagger-children > *:nth-child(2) {
+  animation-delay: 0.08s;
+}
+
+.animation-stagger-children > *:nth-child(3) {
+  animation-delay: 0.12s;
+}
+
+.animation-stagger-children > *:nth-child(4) {
+  animation-delay: 0.16s;
+}
+
+.animation-stagger-children > *:nth-child(5) {
+  animation-delay: 0.20s;
+}
+
+.animation-stagger-children > *:nth-child(6) {
+  animation-delay: 0.24s;
+}
+
+.animation-stagger-children > *:nth-child(7) {
+  animation-delay: 0.28s;
+}
+
+.animation-stagger-children > *:nth-child(8) {
+  animation-delay: 0.32s;
+}
+
+.animation-stagger-children > *:nth-child(9) {
+  animation-delay: 0.36s;
+}
+
+.animation-stagger-children > *:nth-child(10) {
+  animation-delay: 0.40s;
+}
+
+.animation-stagger-children > *:nth-child(11) {
+  animation-delay: 0.44s;
+}
+
+.animation-stagger-children > *:nth-child(12) {
+  animation-delay: 0.48s;
+}
+
+.animation-stagger-children > *:nth-child(n+13) {
+  animation-delay: 0.5s;
+}
+
+// ============================================================
+// Stagger for table rows — needs tr-specific selectors because
+// p-table wraps rows in tbody and frame-classes don't bubble.
+// ============================================================
+
+.animation-stagger-rows tbody > tr {
+  opacity: 0;
+  animation: fadeInUp 0.4s ease-out forwards;
+}
+
+.animation-stagger-rows tbody > tr:nth-child(1) {
+  animation-delay: 0.04s;
+}
+
+.animation-stagger-rows tbody > tr:nth-child(2) {
+  animation-delay: 0.08s;
+}
+
+.animation-stagger-rows tbody > tr:nth-child(3) {
+  animation-delay: 0.12s;
+}
+
+.animation-stagger-rows tbody > tr:nth-child(4) {
+  animation-delay: 0.16s;
+}
+
+.animation-stagger-rows tbody > tr:nth-child(5) {
+  animation-delay: 0.20s;
+}
+
+.animation-stagger-rows tbody > tr:nth-child(6) {
+  animation-delay: 0.24s;
+}
+
+.animation-stagger-rows tbody > tr:nth-child(7) {
+  animation-delay: 0.28s;
+}
+
+.animation-stagger-rows tbody > tr:nth-child(8) {
+  animation-delay: 0.32s;
+}
+
+.animation-stagger-rows tbody > tr:nth-child(9) {
+  animation-delay: 0.36s;
+}
+
+.animation-stagger-rows tbody > tr:nth-child(10) {
+  animation-delay: 0.40s;
+}
+
+.animation-stagger-rows tbody > tr:nth-child(n+11) {
+  animation-delay: 0.44s;
+}
+
+// ============================================================
+// Hover micro-interactions — make cards / rows feel alive.
+// .card-elevated already has a box-shadow transition; we add
+// a gentle lift on top and apply transitions to known row classes.
+// ============================================================
+
+.card-elevated {
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes soft-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(0.92);
+  }
+}
+
+.animation-soft-pulse {
+  animation: soft-pulse 1.8s ease-in-out infinite;
+}
+
+// Respect reduced-motion preference.
+@media (prefers-reduced-motion: reduce) {
+  .animation-fadeIn,
+  .animation-fadeIn-delayed,
+  .animation-fadeInUp,
+  .animation-fadeInUp-delayed,
+  .animation-slideInDown,
+  .animation-from-up,
+  .animation-from-right,
+  .animation-bounce,
+  .animation-flip-horizontal,
+  .animation-soft-pulse,
+  .animation-stagger-children > *,
+  .animation-stagger-rows tbody > tr {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .card-elevated:hover {
+    transform: none;
+  }
+}

@@ -1,0 +1,64 @@
+<div class="app-container goals">
+  <div class="flex flex-row flex-wrap items-end justify-between gap-12 goals__header">
+    <div>
+      <h1 class="page-title">Cele oszczędnościowe</h1>
+      <p class="page-subtitle">
+        Razem odłożone: <strong class="amount amount--saving">{{ store.totalSaved() | money: 'whole' }}</strong>
+        z {{ store.totalTarget() | money: 'whole' }}
+      </p>
+    </div>
+    <a pButton variant="outlined" [routerLink]="AppRoute.SETTINGS" [queryParams]="{tab: 'goals'}">
+      <i class="pi pi-sliders-h" aria-hidden="true"></i>
+      Zarządzaj celami
+    </a>
+  </div>
+
+  <div class="flex flex-row flex-wrap items-center gap-8 goals__filters" role="radiogroup" aria-label="Czyje cele">
+    <button type="button" role="radio" class="choice-chip" [class.choice-chip--active]="store.ownerFilter() === 'ALL'"
+            [attr.aria-checked]="store.ownerFilter() === 'ALL'" (click)="store.setOwnerFilter('ALL')">
+      Wszystkie
+    </button>
+    <button type="button" role="radio" class="choice-chip" [class.choice-chip--active]="store.ownerFilter() === 'SHARED'"
+            [attr.aria-checked]="store.ownerFilter() === 'SHARED'" (click)="store.setOwnerFilter('SHARED')">
+      <i class="pi pi-home" aria-hidden="true"></i>
+      Wspólne
+    </button>
+    @for (member of householdStore.members(); track member.id) {
+      <button type="button" role="radio" class="choice-chip choice-chip--member" [class.choice-chip--active]="store.ownerFilter() === member.id"
+              [attr.aria-checked]="store.ownerFilter() === member.id" (click)="store.setOwnerFilter(member.id)">
+        <ui-member-avatar [member]="member" size="xs"/>
+        {{ member.firstName }}
+      </button>
+    }
+  </div>
+
+  @if (store.data.isLoading() && store.data.value().length === 0) {
+    <div class="goals__grid">
+      @for (placeholder of [1, 2, 3]; track placeholder) {
+        <p-skeleton height="380px" borderRadius="20px"/>
+      }
+    </div>
+  } @else if (store.activeGoals().length === 0) {
+    <section class="panel">
+      <ui-empty-state icon="pi-bullseye" [title]="store.ownerFilter() === 'ALL' ? 'Nie macie jeszcze celów' : 'Brak celów w tym widoku'"
+                      text="Dodajcie cel w konfiguracji — np. poduszkę finansową albo wakacje.">
+        <a pButton class="action-button--solid" [routerLink]="AppRoute.SETTINGS" [queryParams]="{tab: 'goals'}">Dodaj cel</a>
+      </ui-empty-state>
+    </section>
+  } @else {
+    <div class="goals__grid animation-stagger-children">
+      @for (view of store.activeGoals(); track view.goal.id) {
+        <app-goal-card [view]="view"/>
+      }
+    </div>
+  }
+
+  @if (store.pausedGoals().length > 0) {
+    <h2 class="goals__paused-title">Wstrzymane</h2>
+    <div class="goals__grid goals__grid--paused">
+      @for (view of store.pausedGoals(); track view.goal.id) {
+        <app-goal-card [view]="view"/>
+      }
+    </div>
+  }
+</div>

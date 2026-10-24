@@ -1,0 +1,32 @@
+:host {
+  display: inline-flex;
+}
+
+.progress-ring {
+  position: relative;
+
+  svg {
+    transform: rotate(-90deg);
+  }
+
+  &__track {
+    fill: none;
+    stroke: var(--budget-border);
+  }
+
+  &__value {
+    fill: none;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  &__content {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+}

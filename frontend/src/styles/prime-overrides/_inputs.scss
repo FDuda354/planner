@@ -1,0 +1,62 @@
+// Stylizacja tła, border-radius i paddingu dla wszystkich komponentów typu input i wybór (Select, MultiSelect itd.)
+// Wykorzystuje zmienną --p-primary-contrast-color, która w projekcie zmienia się zależnie od trybu jasny/ciemny.
+
+.p-inputtext,
+.p-select,
+.p-textarea,
+.p-inputpassword,
+.p-inputnumber-input,
+.p-datepicker-input,
+.p-datepicker .p-inputtext {
+  background: var(--p-primary-contrast-color) !important;
+  border-radius: 4px !important;
+}
+
+.p-checkbox:not(.p-checkbox-checked) .p-checkbox-box,
+.p-radiobutton-box {
+  background: var(--p-primary-contrast-color) !important;
+}
+
+// Wyrównanie wysokości inputów do selectów
+.p-inputtext,
+.p-datepicker-input,
+.p-datepicker .p-inputtext {
+  padding: 12px 12px !important;
+}
+
+// Dodatkowy padding-left dla inputów z ikoną po lewej stronie (p-iconfield)
+p-iconfield:has(> p-inputicon:first-child) .p-inputtext {
+  padding-left: 40px !important;
+}
+
+.p-inputtext.p-inputtext-clearable {
+  padding-right: 40px !important;
+}
+
+@each $component in inputtext, textarea, select {
+  .ng-untouched.p-#{$component},
+  .ng-untouched .p-#{$component} {
+    --p-#{$component}-invalid-border-color: var(--p-#{$component}-border-color);
+    --p-#{$component}-invalid-placeholder-color: var(--p-#{$component}-placeholder-color);
+
+    &:not(:disabled):not(.p-disabled):hover {
+      --p-#{$component}-invalid-border-color: var(--p-#{$component}-hover-border-color);
+    }
+
+    &:not(:disabled):not(.p-disabled):is(:focus, .p-focus) {
+      --p-#{$component}-invalid-border-color: var(--p-#{$component}-focus-border-color);
+    }
+  }
+}
+
+.p-floatlabel:has(> .ng-untouched) {
+  --p-floatlabel-invalid-color: var(--p-floatlabel-color);
+
+  &:has(input.p-filled, textarea.p-filled, .p-inputwrapper-filled) {
+    --p-floatlabel-invalid-color: var(--p-floatlabel-active-color);
+  }
+
+  &:has(input:focus, textarea:focus, .p-inputwrapper-focus) {
+    --p-floatlabel-invalid-color: var(--p-floatlabel-focus-color);
+  }
+}

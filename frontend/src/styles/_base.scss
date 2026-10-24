@@ -1,0 +1,41 @@
+dl,
+dd {
+  margin: 0;
+}
+
+.p-error {
+  color: var(--p-red-500, #ef4444);
+  font-size: 14px;
+}
+
+.app-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.overline {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 16px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--p-text-muted-color);
+}
+
+.muted {
+  color: var(--p-text-muted-color);
+}
+
+.input-icon-button {
+  display: flex;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+a.p-button {
+  text-decoration: none;
+}

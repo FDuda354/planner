@@ -1,0 +1,75 @@
+<div class="flex flex-col gap-20 household">
+  <p class="muted household__intro">
+    Każdy domownik loguje się na swoje konto, ale widzicie i uzupełniacie ten sam budżet. Żeby kogoś dodać, wpisz jego adres e-mail poniżej — ta osoba zakłada konto na ten adres i od razu dołącza do Waszego budżetu.
+  </p>
+
+  <div class="flex flex-col gap-8">
+    @for (member of householdStore.members(); track member.id) {
+      <div class="flex flex-row items-center gap-12 member">
+        <ui-member-avatar [member]="member" size="lg"/>
+        <div class="flex flex-col flex-1">
+          <span class="member__name">{{ member.firstName }}</span>
+          <span class="muted member__email">{{ member.email }}</span>
+        </div>
+        @if (member.id === currentMember()?.id) {
+          <p-tag value="To Ty" severity="success" [rounded]="true"/>
+        } @else {
+          <button pButton type="button" variant="text" severity="danger" class="member__remove"
+                  [attr.aria-label]="'Usuń ' + member.firstName + ' z budżetu'" (click)="removeMember(member)">
+            <i class="pi pi-user-minus" aria-hidden="true"></i>
+            <span class="member__remove-label">Usuń</span>
+          </button>
+        }
+      </div>
+    }
+    @for (invitation of householdStore.household.value().pendingInvitations; track invitation) {
+      <div class="flex flex-row items-center gap-12 member member--pending">
+        <span class="member__pending-icon"><i class="pi pi-envelope" aria-hidden="true"></i></span>
+        <div class="flex flex-col flex-1">
+          <span class="member__name">{{ invitation }}</span>
+          <span class="muted member__email">Czeka, aż ta osoba założy konto na ten adres</span>
+        </div>
+        <button pButton type="button" variant="text" severity="secondary" (click)="cancelInvitation(invitation)">Anuluj</button>
+      </div>
+    }
+  </div>
+
+  @if (householdStore.household.value().formerMembers.length > 0) {
+    <div class="flex flex-col gap-8">
+      <span class="overline">Usunięci z budżetu</span>
+      @for (member of householdStore.household.value().formerMembers; track member.id) {
+        <div class="flex flex-row items-center gap-12 member member--former">
+          <ui-member-avatar [member]="member" size="lg"/>
+          <div class="flex flex-col flex-1">
+            <span class="member__name">{{ member.firstName }}</span>
+            <span class="muted member__email">{{ member.email }} · nie ma dostępu</span>
+          </div>
+          <button pButton type="button" variant="text" class="member__restore"
+                  [attr.aria-label]="'Przywróć dostęp dla ' + member.firstName" (click)="restoreMember(member)">
+            <i class="pi pi-replay" aria-hidden="true"></i>
+            <span class="member__remove-label">Przywróć dostęp</span>
+          </button>
+        </div>
+      }
+    </div>
+  }
+
+  <form [formRoot]="invitationForm" (submit)="invite($event)" class="flex flex-col gap-8 household__invite">
+    <span class="overline">Zaproś domownika</span>
+    <div class="flex flex-row gap-8 md-down:flex-col">
+      <p-iconfield class="flex-1">
+        <p-inputicon class="pi pi-envelope"/>
+        <input pInputText type="email" class="household__email" placeholder="adres@email.pl"
+               aria-label="E-mail osoby zapraszanej" [formField]="invitationForm.email"
+               (change)="trimEmail()"/>
+      </p-iconfield>
+      <button pButton type="submit" class="action-button--solid" [disabled]="isWorking()">
+        <i [class]="isWorking() ? 'pi pi-spin pi-spinner' : 'pi pi-user-plus'" aria-hidden="true"></i>
+        Zaproś
+      </button>
+    </div>
+    @if (invitationForm.email().touched() && invitationForm.email().invalid()) {
+      <small class="p-error">{{ invitationForm.email().errors()[0].message }}</small>
+    }
+  </form>
+</div>

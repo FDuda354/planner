@@ -1,0 +1,57 @@
+.household {
+  max-width: 640px;
+
+  &__intro {
+    margin: 0;
+  }
+
+  &__email {
+    width: 100%;
+  }
+
+  &__invite {
+    padding: 16px;
+    border-radius: var(--budget-radius-sm);
+    background: var(--budget-surface-muted);
+  }
+}
+
+.member {
+  padding: 12px 16px;
+  border: 1px solid var(--budget-border);
+  border-radius: var(--budget-radius-sm);
+
+  &--pending {
+    border-style: dashed;
+  }
+
+  &__name {
+    font-weight: 700;
+  }
+
+  &__email {
+    font-size: 13px;
+  }
+
+  &__pending-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    color: var(--p-text-muted-color);
+    background: var(--budget-surface-muted);
+  }
+}
+
+.member__remove-label {
+  @media (max-width: 640px) {
+    display: none;
+  }
+}
+
+.member--former {
+  opacity: 0.75;
+  border-style: dashed;
+}

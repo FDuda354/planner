@@ -1,0 +1,41 @@
+<div class="flex flex-row items-center justify-between header-bar">
+  <div class="flex flex-row items-center gap-8 header-bar__brand">
+    <span class="header-bar__logo"><i class="pi pi-wallet" aria-hidden="true"></i></span>
+    <span class="header-bar__name">Budżet</span>
+  </div>
+
+  <div class="flex flex-row items-center gap-8 header-bar__right">
+    <button pButton
+            type="button"
+            severity="secondary"
+            variant="text"
+            [rounded]="true"
+            [iconOnly]="true"
+            class="header-bar__icon-button"
+            [pTooltip]="appearance.darkMode() ? 'Jasny motyw' : 'Ciemny motyw'"
+            tooltipPosition="bottom"
+            [attr.aria-label]="appearance.darkMode() ? 'Włącz jasny motyw' : 'Włącz ciemny motyw'"
+            (click)="appearance.toggleDarkMode()">
+      <i [class]="appearance.darkMode() ? 'pi pi-sun' : 'pi pi-moon'" aria-hidden="true"></i>
+    </button>
+
+    <div class="flex flex-row items-center gap-8 header-bar__member">
+      <ui-member-avatar [member]="member() ?? undefined" size="md"/>
+      <div class="flex flex-col header-bar__member-info">
+        <span class="header-bar__member-name">{{ member()?.firstName }}</span>
+        <span class="header-bar__member-email">{{ member()?.email }}</span>
+      </div>
+    </div>
+
+    <button pButton
+            type="button"
+            variant="text"
+            severity="secondary"
+            class="header-bar__logout"
+            aria-label="Wyloguj"
+            (click)="logOut()">
+      <i class="pi pi-sign-out" aria-hidden="true"></i>
+      <span class="header-bar__logout-label">Wyloguj</span>
+    </button>
+  </div>
+</div>

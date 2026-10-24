@@ -1,0 +1,26 @@
+.item-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
+  gap: 12px;
+
+  &__add {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 68px;
+    border: 1.5px dashed var(--budget-border);
+    border-radius: var(--budget-radius-sm);
+    background: transparent;
+    color: var(--p-text-muted-color);
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease;
+
+    &:hover {
+      border-color: var(--p-primary-color);
+      color: var(--p-primary-color);
+    }
+  }
+}

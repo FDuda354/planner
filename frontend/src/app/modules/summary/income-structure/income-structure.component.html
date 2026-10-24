@@ -1,0 +1,47 @@
+<section class="panel income">
+  <div class="panel__header">
+    <div>
+      <h2 class="panel__title">Skąd pieniądze</h2>
+      <p class="panel__subtitle">Struktura wpływów w {{ store.year() }}</p>
+    </div>
+  </div>
+
+  @if (store.incomeSources().length === 0) {
+    <ui-empty-state icon="pi-wallet" title="Brak wpływów w tym roku"/>
+  } @else {
+    <div class="income__chart">
+      <canvas [uiChart]="chart()"></canvas>
+    </div>
+    <div class="flex flex-col gap-8">
+      @for (source of store.incomeSources(); track source.item.id) {
+        <div class="flex flex-row items-center gap-12">
+          <ui-item-icon [icon]="source.item.icon" [color]="source.item.color" size="sm"/>
+          <span class="income__name">{{ source.item.name }}</span>
+          <span class="muted income__share">{{ source.share | percent }}</span>
+          <span class="amount">{{ source.total | money: 'whole' }}</span>
+        </div>
+      }
+    </div>
+  }
+
+  <p-divider/>
+
+  <div class="flex flex-col gap-12">
+    <span class="overline">Kto ile wydał na siebie w tym roku</span>
+    @for (total of store.memberTotals(); track total.member.id) {
+      <div class="flex flex-col gap-4">
+        <div class="flex flex-row items-center gap-8">
+          <ui-member-avatar [member]="total.member" size="sm"/>
+          <span class="income__name">{{ total.member.firstName }}</span>
+          <span class="amount">{{ total.total | money: 'whole' }}</span>
+        </div>
+        <span class="income__track"><span [style.width.%]="total.share * 100" [style.background]="total.member.color"></span></span>
+      </div>
+    }
+    <div class="flex flex-row items-center gap-8 income__shared">
+      <i class="pi pi-home" aria-hidden="true"></i>
+      <span class="income__name">Wspólne wydatki</span>
+      <span class="amount">{{ store.sharedExpenses() | money: 'whole' }}</span>
+    </div>
+  </div>
+</section>

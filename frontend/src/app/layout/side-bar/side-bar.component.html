@@ -1,0 +1,36 @@
+<div class="flex flex-col sidebar">
+  <div class="flex flex-row items-center gap-12 sidebar__brand">
+    <span class="sidebar__logo"><i class="pi pi-wallet" aria-hidden="true"></i></span>
+    <div class="flex flex-col">
+      <span class="sidebar__name">Budżet</span>
+      <span class="sidebar__tagline">domowy</span>
+    </div>
+  </div>
+
+  <div class="flex flex-col gap-4 sidebar__menu">
+    @for (menuItem of menuItems(); track $index) {
+      @if (menuItem.separator) {
+        <p-divider class="sidebar__divider"/>
+      } @else {
+        <a class="menu-item"
+           [routerLink]="menuItem.routerLink"
+           routerLinkActive="active">
+          <i [class]="menuItem.icon" aria-hidden="true"></i>
+          <span>{{ menuItem.label }}</span>
+        </a>
+      }
+    }
+  </div>
+
+  <a class="flex flex-row items-center gap-12 sidebar__household" [routerLink]="AppRoute.SETTINGS" [queryParams]="{tab: 'household'}">
+    <div class="flex flex-row sidebar__avatars">
+      @for (member of householdStore.members(); track member.id) {
+        <ui-member-avatar [member]="member" size="sm"/>
+      }
+    </div>
+    <div class="flex flex-col">
+      <span class="sidebar__household-name">{{ householdStore.household.value().name }}</span>
+      <span class="sidebar__household-members">{{ householdStore.members().length }} os. we wspólnym budżecie</span>
+    </div>
+  </a>
+</div>

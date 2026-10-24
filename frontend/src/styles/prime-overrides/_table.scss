@@ -1,0 +1,32 @@
+.p-datatable-table-container {
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 0 10px var(--p-content-border-color);
+
+  .p-datatable-thead > tr > th {
+    background-color: var(--p-content-background) !important;
+  }
+
+  .p-datatable-tbody > tr {
+    background-color: var(--p-content-hover-background) !important;
+
+    &:nth-child(even) {
+      background-color: var(--p-content-background) !important;
+    }
+
+    &:not(.p-datatable-row-expansion):hover {
+      background-color: var(--p-content-hover-color) !important;
+    }
+
+    &.p-datatable-row-expansion {
+      background-color: var(--p-content-background) !important;
+    }
+  }
+}
+
+// Wspólny styl kontenera rozwiniętego wiersza
+.expanded-container {
+  border: 1.5px solid var(--p-content-border-color);
+  background-color: var(--p-content-hover-background);
+  border-radius: 4px;
+}

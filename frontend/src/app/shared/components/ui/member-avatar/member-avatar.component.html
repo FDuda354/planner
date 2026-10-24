@@ -1,0 +1,5 @@
+<span class="member-avatar" [class]="'member-avatar--' + size()"
+      [style.--member-color]="member()?.color ?? 'var(--p-text-muted-color)'"
+      [attr.aria-label]="member()?.firstName">
+  {{ initial() }}
+</span>

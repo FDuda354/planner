@@ -1,0 +1,54 @@
+<div class="app-container summary">
+  <div class="flex flex-row flex-wrap items-end justify-between gap-12 summary__header">
+    <div>
+      <h1 class="page-title">Podsumowanie roku</h1>
+      <p class="page-subtitle">Cały rok w jednym miejscu — skąd przychodzą i dokąd odpływają pieniądze</p>
+    </div>
+    <div class="flex flex-row items-center gap-8 year-switch">
+      <button pButton type="button" variant="text" severity="secondary" [rounded]="true" [iconOnly]="true"
+              aria-label="Poprzedni rok" class="year-switch__button"
+              [disabled]="!store.canGoBack()" (click)="store.previousYear()">
+        <i class="pi pi-chevron-left" aria-hidden="true"></i>
+      </button>
+      <span class="year-switch__year">{{ store.year() }}</span>
+      <button pButton type="button" variant="text" severity="secondary" [rounded]="true" [iconOnly]="true"
+              aria-label="Następny rok" class="year-switch__button"
+              [disabled]="!store.canGoForward()" (click)="store.nextYear()">
+        <i class="pi pi-chevron-right" aria-hidden="true"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="summary__kpis animation-stagger-children">
+    <div class="panel kpi kpi--income">
+      <span class="kpi__icon"><i class="pi pi-arrow-down-left" aria-hidden="true"></i></span>
+      <span class="overline">Wpływy</span>
+      <span class="amount kpi__value">{{ store.income() | money: 'whole' }}</span>
+      <span class="kpi__hint">średnio {{ store.averageIncome() | money: 'whole' }} / mies.</span>
+    </div>
+    <div class="panel kpi kpi--expense">
+      <span class="kpi__icon"><i class="pi pi-arrow-up-right" aria-hidden="true"></i></span>
+      <span class="overline">Wydatki</span>
+      <span class="amount kpi__value">{{ store.expenses() | money: 'whole' }}</span>
+      <span class="kpi__hint">średnio {{ store.averageExpenses() | money: 'whole' }} / mies.</span>
+    </div>
+    <div class="panel kpi kpi--saving">
+      <span class="kpi__icon"><i class="pi pi-shield" aria-hidden="true"></i></span>
+      <span class="overline">Odłożone na cele</span>
+      <span class="amount kpi__value">{{ store.savings() | money: 'whole' }}</span>
+      <span class="kpi__hint">{{ store.savingsRate() | percent: '1.0-1' }} wszystkich wpływów</span>
+    </div>
+    <div class="panel kpi kpi--balance" [class.kpi--negative]="store.balance() < 0">
+      <span class="kpi__icon"><i class="pi pi-wallet" aria-hidden="true"></i></span>
+      <span class="overline">Wolne środki</span>
+      <span class="amount kpi__value">{{ store.balance() | money: 'whole' }}</span>
+      <span class="kpi__hint">to, co nie zostało wydane ani odłożone</span>
+    </div>
+  </div>
+
+  <div class="summary__grid">
+    <app-cashflow-chart class="summary__cashflow"/>
+    <app-income-structure class="summary__income"/>
+    <app-category-heatmap class="summary__heatmap"/>
+  </div>
+</div>

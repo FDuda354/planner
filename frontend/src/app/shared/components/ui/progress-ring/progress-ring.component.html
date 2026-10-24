@@ -1,0 +1,16 @@
+<div class="progress-ring" [style.width.px]="size()" [style.height.px]="size()">
+  <svg [attr.width]="size()" [attr.height]="size()" [attr.viewBox]="'0 0 ' + size() + ' ' + size()">
+    <circle class="progress-ring__track"
+            [attr.cx]="size() / 2" [attr.cy]="size() / 2" [attr.r]="radius()"
+            [attr.stroke-width]="stroke()"/>
+    <circle class="progress-ring__value"
+            [attr.cx]="size() / 2" [attr.cy]="size() / 2" [attr.r]="radius()"
+            [attr.stroke-width]="stroke()"
+            [attr.stroke]="color()"
+            [attr.stroke-dasharray]="circumference()"
+            [attr.stroke-dashoffset]="dashOffset()"/>
+  </svg>
+  <div class="progress-ring__content">
+    <ng-content/>
+  </div>
+</div>

@@ -1,0 +1,52 @@
+<section class="panel breakdown">
+  <div class="panel__header">
+    <div>
+      <h2 class="panel__title">Na co idą pieniądze</h2>
+      <p class="panel__subtitle">Kliknij kategorię, aby przefiltrować transakcje</p>
+    </div>
+  </div>
+
+  @if (store.categoryShares().length === 0) {
+    <ui-empty-state icon="pi-chart-pie" title="Brak wydatków" text="Gdy dodacie pierwszy wydatek, zobaczycie tu jego rozkład."/>
+  } @else {
+    <div class="breakdown__chart">
+      <canvas [uiChart]="chart()"></canvas>
+      <div class="breakdown__center">
+        <span class="overline">Wydatki</span>
+        <span class="amount breakdown__total">{{ store.expenses() | money: 'whole' }}</span>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-4">
+      @for (share of visibleShares(); track share.item.id) {
+        <button type="button"
+                class="category-row"
+                [style.--item-color]="share.item.color"
+                [class.category-row--active]="store.categoryFilter() === share.item.id"
+                [class.category-row--dimmed]="store.categoryFilter() !== null && store.categoryFilter() !== share.item.id"
+                [attr.aria-pressed]="store.categoryFilter() === share.item.id"
+                (click)="store.toggleCategoryFilter(share.item.id)">
+          <ui-item-icon [icon]="share.item.icon" [color]="share.item.color" size="sm"/>
+          <div class="flex flex-col category-row__body">
+            <div class="flex flex-row justify-between items-center gap-8">
+              <span class="category-row__name">{{ share.item.name }}</span>
+              <span class="amount category-row__amount">{{ share.amount | money }}</span>
+            </div>
+            <div class="flex flex-row items-center gap-8">
+              <span class="category-row__track"><span [style.width.%]="share.share * 100"></span></span>
+              <span class="category-row__meta">{{ share.share | percent }}</span>
+            </div>
+          </div>
+        </button>
+      }
+    </div>
+
+    @if (hiddenCount() > 0) {
+      <button pButton type="button" variant="text" severity="secondary" class="breakdown__more"
+              (click)="expanded.set(!expanded())">
+        <i [class]="expanded() ? 'pi pi-chevron-up' : 'pi pi-chevron-down'" aria-hidden="true"></i>
+        {{ expanded() ? 'Zwiń' : 'Pokaż jeszcze ' + hiddenCount() }}
+      </button>
+    }
+  }
+</section>

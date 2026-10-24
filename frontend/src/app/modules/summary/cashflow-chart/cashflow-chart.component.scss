@@ -1,0 +1,13 @@
+:host {
+  display: block;
+}
+
+.cashflow {
+  height: 100%;
+  box-sizing: border-box;
+
+  &__chart {
+    position: relative;
+    height: 340px;
+  }
+}

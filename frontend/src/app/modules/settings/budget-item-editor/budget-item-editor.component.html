@@ -1,0 +1,115 @@
+<p-dialog [visible]="state().visible"
+          (visibleChange)="onVisibleChange($event)"
+          [header]="header()"
+          [modal]="true"
+          [draggable]="false"
+          [resizable]="false"
+          [dismissableMask]="true"
+          [style]="{width: '560px', maxWidth: 'calc(100vw - 24px)'}"
+          appendTo="body">
+  <form [formRoot]="itemForm" (submit)="save($event)" class="flex flex-col gap-20 item-form">
+    <div class="flex flex-row items-center gap-12 item-form__preview" [style.--item-color]="model().color">
+      <ui-item-icon [icon]="model().icon" [color]="model().color" size="lg"/>
+      <div class="flex flex-col flex-1">
+        <input pInputText
+               type="text"
+               class="item-form__name"
+               [formField]="itemForm.name"
+               [placeholder]="placeholder()"
+               [pAutoFocus]="true"
+               aria-label="Nazwa"/>
+        @if (itemForm.name().touched() && itemForm.name().invalid()) {
+          <small class="p-error">{{ itemForm.name().errors()[0].message }}</small>
+        }
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-8">
+      <span class="overline">Ikona</span>
+      <div class="icon-grid">
+        @for (icon of icons; track icon) {
+          <button type="button"
+                  class="icon-grid__option"
+                  [class.icon-grid__option--active]="model().icon === icon"
+                  [style.--item-color]="model().color"
+                  [attr.aria-label]="icon"
+                  [attr.aria-pressed]="model().icon === icon"
+                  (click)="selectIcon(icon)">
+            <i class="pi" [class]="icon" aria-hidden="true"></i>
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-8">
+      <span class="overline">Kolor</span>
+      <div class="flex flex-row flex-wrap gap-8">
+        @for (color of colors; track color) {
+          <button type="button"
+                  class="color-swatch"
+                  [class.color-swatch--active]="model().color === color"
+                  [style.background]="color"
+                  [attr.aria-label]="'Kolor ' + color"
+                  [attr.aria-pressed]="model().color === color"
+                  (click)="selectColor(color)">
+            @if (model().color === color) {
+              <i class="pi pi-check" aria-hidden="true"></i>
+            }
+          </button>
+        }
+      </div>
+    </div>
+
+    @if (isGoal()) {
+      <div class="flex flex-col gap-8">
+        <span class="overline">Czyj to cel</span>
+        <div class="flex flex-row flex-wrap gap-8">
+          <button type="button" class="choice-chip" [class.choice-chip--active]="model().ownerId === null" (click)="selectOwner(null)">
+            <i class="pi pi-home" aria-hidden="true"></i>
+            Wspólny
+          </button>
+          @for (member of householdStore.members(); track member.id) {
+            <button type="button" class="choice-chip choice-chip--member" [class.choice-chip--active]="model().ownerId === member.id"
+                    (click)="selectOwner(member.id)">
+              <ui-member-avatar [member]="member" size="xs"/>
+              {{ member.firstName }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="flex flex-row gap-12 md-down:flex-col">
+        <div class="flex flex-col gap-8 flex-1">
+          <label class="overline" for="goal-target">Kwota celu</label>
+          <p-inputnumber [formField]="itemForm.targetAmount" inputId="goal-target" mode="currency" currency="PLN" locale="pl-PL"
+                         [maxFractionDigits]="0" placeholder="np. 20 000 zł" [fluid]="true"/>
+          @if (itemForm.targetAmount().touched() && itemForm.targetAmount().invalid()) {
+            <small class="p-error">{{ itemForm.targetAmount().errors()[0].message }}</small>
+          }
+        </div>
+        <div class="flex flex-col gap-8 flex-1">
+          <label class="overline" for="goal-initial">Już odłożone na start</label>
+          <p-inputnumber [formField]="itemForm.initialAmount" inputId="goal-initial" mode="currency" currency="PLN" locale="pl-PL"
+                         [maxFractionDigits]="0" [fluid]="true"/>
+        </div>
+      </div>
+      <input pInputText type="text" [formField]="itemForm.note" placeholder="Notatka, np. wkład własny na mieszkanie" aria-label="Notatka"/>
+    }
+
+    <label class="flex flex-row items-center gap-12 item-form__switch">
+      <p-toggleswitch [formField]="itemForm.active"/>
+      <span class="flex flex-col">
+        <span class="item-form__switch-title">{{ model().active ? 'Aktywna' : 'Wstrzymana' }}</span>
+        <span class="muted item-form__switch-hint">Wstrzymane pozycje nie pojawiają się przy dodawaniu transakcji, ale zostają w historii</span>
+      </span>
+    </label>
+
+    <div class="flex flex-row justify-end gap-8">
+      <button pButton type="button" variant="text" severity="secondary" (click)="onVisibleChange(false)">Anuluj</button>
+      <button pButton type="submit" class="action-button--solid" [disabled]="isWorking()">
+        <i [class]="isWorking() ? 'pi pi-spin pi-spinner' : 'pi pi-check'" aria-hidden="true"></i>
+        Zapisz
+      </button>
+    </div>
+  </form>
+</p-dialog>

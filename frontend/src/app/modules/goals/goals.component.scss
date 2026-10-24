@@ -1,0 +1,25 @@
+.goals {
+  &__header {
+    margin: 8px 0 16px;
+  }
+
+  &__filters {
+    margin-bottom: 20px;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr));
+    gap: 20px;
+
+    &--paused {
+      opacity: 0.6;
+    }
+  }
+
+  &__paused-title {
+    margin: 32px 0 16px;
+    font-size: 17px;
+    color: var(--p-text-muted-color);
+  }
+}

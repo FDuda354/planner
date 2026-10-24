@@ -1,0 +1,80 @@
+<article class="panel goal-card" [style.--goal-color]="view().goal.color">
+  <div class="flex flex-row items-center gap-12">
+    <ui-item-icon [icon]="view().goal.icon" [color]="view().goal.color"/>
+    <div class="flex flex-col goal-card__title">
+      <h2 class="goal-card__name">{{ view().goal.name }}</h2>
+      @if (view().goal.note) {
+        <span class="goal-card__note">{{ view().goal.note }}</span>
+      }
+    </div>
+    <span class="goal-card__owner">
+      @if (owner(); as member) {
+        <ui-member-avatar [member]="member" size="xs"/>
+        {{ member.firstName }}
+      } @else {
+        <i class="pi pi-home" aria-hidden="true"></i>
+        Wspólny
+      }
+    </span>
+  </div>
+
+  <div class="flex flex-row items-center gap-20 goal-card__progress">
+    <ui-progress-ring [progress]="view().progress" [color]="view().goal.color" [size]="128" [stroke]="12">
+      <span class="goal-card__percent">{{ view().progress | percent }}</span>
+      <span class="goal-card__percent-label">celu</span>
+    </ui-progress-ring>
+    <div class="flex flex-col gap-8">
+      <div class="flex flex-col">
+        <span class="overline">Odłożone</span>
+        <span class="amount goal-card__saved">{{ view().saved | money: 'whole' }}</span>
+        <span class="muted goal-card__target">z {{ view().goal.targetAmount | money: 'whole' }}</span>
+      </div>
+      @if (!isReached()) {
+        <div class="flex flex-col">
+          <span class="overline">Brakuje</span>
+          <span class="amount">{{ view().remaining | money: 'whole' }}</span>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="goal-card__forecast">
+    @if (isReached()) {
+      <i class="pi pi-trophy" aria-hidden="true"></i>
+      <span>Cel osiągnięty — gratulacje!</span>
+    } @else if (view().forecast) {
+      <i class="pi pi-flag" aria-hidden="true"></i>
+      <span>Odkładając średnio <strong>{{ view().monthlyAverage | money: 'whole' }}</strong> miesięcznie, osiągniecie cel około <strong>{{ view().forecast }}</strong></span>
+    } @else {
+      <i class="pi pi-info-circle" aria-hidden="true"></i>
+      <span>W ostatnich miesiącach nic nie wpłynęło na ten cel</span>
+    }
+  </div>
+
+  <div class="flex flex-col gap-8">
+    <span class="overline">Wpłaty w ostatnich miesiącach</span>
+    <div class="goal-card__history">
+      @for (contribution of view().history; track contribution.month) {
+        <div class="flex flex-col items-center gap-4 goal-card__history-column"
+             [pTooltip]="contribution.amount | money" tooltipPosition="top">
+          <span class="goal-card__history-bar">
+            <span [style.height.%]="contribution.amount / historyPeak() * 100"></span>
+          </span>
+          <span class="goal-card__history-label">{{ contribution.label }}</span>
+        </div>
+      }
+    </div>
+  </div>
+
+  @if (view().goal.active) {
+    <button pButton type="button" class="goal-card__deposit action-button--solid" (click)="deposit()">
+      <i class="pi pi-plus" aria-hidden="true"></i>
+      Wpłać na cel
+    </button>
+  } @else {
+    <a pButton variant="outlined" class="goal-card__deposit" [routerLink]="AppRoute.SETTINGS" [queryParams]="{tab: 'goals'}">
+      <i class="pi pi-replay" aria-hidden="true"></i>
+      Wstrzymany — przywróć w konfiguracji
+    </a>
+  }
+</article>

@@ -1,0 +1,10 @@
+:root {
+  --p-progressspinner-color-one: var(--p-primary-700);
+  --p-progressspinner-color-two: var(--p-primary-700);
+  --p-progressspinner-color-three: var(--p-primary-700);
+  --p-progressspinner-color-four: var(--p-primary-700);
+}
+
+.p-progressspinner-circle {
+  stroke: var(--p-primary-700) !important;
+}

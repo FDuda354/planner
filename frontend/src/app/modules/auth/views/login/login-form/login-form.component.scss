@@ -1,0 +1,67 @@
+.login-form {
+  display: flex;
+  flex-direction: column;
+  width: 380px;
+  max-width: 100%;
+  gap: 28px;
+
+  &__title {
+    margin: 0;
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  &__subtitle {
+    margin: 6px 0 0;
+    color: var(--p-text-muted-color);
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__label {
+    margin-top: 8px;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  &__input {
+    width: 100%;
+  }
+
+  &__error {
+    display: block;
+  }
+
+  &__submit.p-button {
+    justify-content: center;
+    height: 52px;
+    border-radius: 14px;
+    font-weight: 700;
+  }
+}
+
+.login-form__switch {
+  margin: 0;
+  text-align: center;
+  font-size: 14px;
+  color: var(--p-text-muted-color);
+}
+
+.login-form__link {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--p-primary-color);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
