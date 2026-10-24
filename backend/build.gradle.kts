@@ -85,8 +85,7 @@ val coverageExcludes = listOf(
     "**/model/**",
     "**/dto/**",
     "**/config/**",
-    "**/exception/*.class",
-    "**/dev/**"
+    "**/exception/*.class"
 )
 
 tasks.named<JacocoReport>("jacocoTestReport") {

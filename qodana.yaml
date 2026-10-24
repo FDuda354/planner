@@ -21,7 +21,6 @@ exclude:
   - name: HardcodedPasswords
     paths:
       - backend/src/main/resources/application.yml
-      - backend/src/main/java/pl/dudios/planner/dev
   - name: JvmTaintAnalysis
     paths:
       - backend/src/main/java/pl/dudios/planner/exception/handler/DefaultExceptionHandler.java
