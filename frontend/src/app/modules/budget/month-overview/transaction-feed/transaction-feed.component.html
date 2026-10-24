@@ -21,32 +21,24 @@
     <div class="feed__scroll">
       <div class="segmented" role="radiogroup" aria-label="Rodzaj transakcji">
         @for (option of filterOptions; track option.filter) {
-          <button type="button"
-                  role="radio"
-                  class="segmented__option"
-                  [class.segmented__option--active]="store.feedFilter() === option.filter"
-                  [attr.aria-checked]="store.feedFilter() === option.filter"
-                  (click)="store.setFeedFilter(option.filter)">
+          <label class="segmented__option radio-option" [class.segmented__option--active]="store.feedFilter() === option.filter">
+            <input type="radio" name="feed-type" [checked]="store.feedFilter() === option.filter" (change)="store.setFeedFilter(option.filter)">
             {{ option.label }}
-          </button>
+          </label>
         }
       </div>
     </div>
     <div class="flex flex-row items-center gap-4 feed__members" role="radiogroup" aria-label="Kto płacił">
-      <button type="button" role="radio" class="choice-chip"
-              [class.choice-chip--active]="store.memberFilter() === null"
-              [attr.aria-checked]="store.memberFilter() === null"
-              (click)="store.setMemberFilter(null)">
+      <label class="choice-chip radio-option" [class.choice-chip--active]="store.memberFilter() === null">
+        <input type="radio" name="feed-member" [checked]="store.memberFilter() === null" (change)="store.setMemberFilter(null)">
         Wszyscy
-      </button>
+      </label>
       @for (member of householdStore.members(); track member.id) {
-        <button type="button" role="radio" class="choice-chip choice-chip--member"
-                [class.choice-chip--active]="store.memberFilter() === member.id"
-                [attr.aria-checked]="store.memberFilter() === member.id"
-                (click)="store.setMemberFilter(member.id)">
+        <label class="choice-chip choice-chip--member radio-option" [class.choice-chip--active]="store.memberFilter() === member.id">
+          <input type="radio" name="feed-member" [checked]="store.memberFilter() === member.id" (change)="store.setMemberFilter(member.id)">
           <ui-member-avatar [member]="member" size="xs"/>
           {{ member.firstName }}
-        </button>
+        </label>
       }
     </div>
   </div>

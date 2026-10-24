@@ -34,8 +34,8 @@
         <app-household-members/>
       }
       @case (SettingsTab.APPEARANCE) {
-        <label class="flex flex-row items-center gap-12 settings__theme">
-          <p-toggleswitch [formField]="themeForm.darkMode" (onChange)="appearance.toggleDarkMode()"/>
+        <label class="flex flex-row items-center gap-12 settings__theme" [for]="darkModeInputId">
+          <p-toggleswitch [formField]="themeForm.darkMode" [inputId]="darkModeInputId" (onChange)="appearance.toggleDarkMode()"/>
           <span class="flex flex-col">
             <span class="settings__theme-title">Ciemny motyw</span>
             <span class="muted settings__theme-hint">Przełącznik jest też zawsze pod ręką w prawym górnym rogu</span>

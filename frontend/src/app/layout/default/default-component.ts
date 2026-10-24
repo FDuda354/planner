@@ -8,7 +8,7 @@ import {TransactionEditorStore} from '../../stores/transaction-editor.store';
 import {monthLabelInGenitive} from '../../shared/utils/month';
 import {CalendarStore} from '../../stores/calendar.store';
 
-const TYPING_TARGETS = ['INPUT', 'TEXTAREA', 'SELECT'];
+const TYPING_TARGETS = new Set(['INPUT', 'TEXTAREA', 'SELECT']);
 
 @Component({
   selector: 'app-default',
@@ -61,7 +61,7 @@ export class DefaultComponent {
     const target = event.target as HTMLElement;
     return event.key.toLowerCase() === 'n'
       && !event.ctrlKey && !event.metaKey && !event.altKey
-      && !TYPING_TARGETS.includes(target.tagName)
+      && !TYPING_TARGETS.has(target.tagName)
       && !target.isContentEditable
       && !this.editor.state().visible;
   }

@@ -14,21 +14,21 @@
   </div>
 
   <div class="flex flex-row flex-wrap items-center gap-8 goals__filters" role="radiogroup" aria-label="Czyje cele">
-    <button type="button" role="radio" class="choice-chip" [class.choice-chip--active]="store.ownerFilter() === 'ALL'"
-            [attr.aria-checked]="store.ownerFilter() === 'ALL'" (click)="store.setOwnerFilter('ALL')">
+    <label class="choice-chip radio-option" [class.choice-chip--active]="store.ownerFilter() === 'ALL'">
+      <input type="radio" name="goal-owner" [checked]="store.ownerFilter() === 'ALL'" (change)="store.setOwnerFilter('ALL')">
       Wszystkie
-    </button>
-    <button type="button" role="radio" class="choice-chip" [class.choice-chip--active]="store.ownerFilter() === 'SHARED'"
-            [attr.aria-checked]="store.ownerFilter() === 'SHARED'" (click)="store.setOwnerFilter('SHARED')">
+    </label>
+    <label class="choice-chip radio-option" [class.choice-chip--active]="store.ownerFilter() === 'SHARED'">
+      <input type="radio" name="goal-owner" [checked]="store.ownerFilter() === 'SHARED'" (change)="store.setOwnerFilter('SHARED')">
       <i class="pi pi-home" aria-hidden="true"></i>
       Wspólne
-    </button>
+    </label>
     @for (member of householdStore.members(); track member.id) {
-      <button type="button" role="radio" class="choice-chip choice-chip--member" [class.choice-chip--active]="store.ownerFilter() === member.id"
-              [attr.aria-checked]="store.ownerFilter() === member.id" (click)="store.setOwnerFilter(member.id)">
+      <label class="choice-chip choice-chip--member radio-option" [class.choice-chip--active]="store.ownerFilter() === member.id">
+        <input type="radio" name="goal-owner" [checked]="store.ownerFilter() === member.id" (change)="store.setOwnerFilter(member.id)">
         <ui-member-avatar [member]="member" size="xs"/>
         {{ member.firstName }}
-      </button>
+      </label>
     }
   </div>
 

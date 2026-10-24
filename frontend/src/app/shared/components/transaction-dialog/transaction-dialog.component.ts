@@ -45,6 +45,7 @@ export class TransactionDialogComponent {
   private readonly amountInput = viewChild(InputNumber);
 
   readonly typeOptions = TRANSACTION_TYPE_OPTIONS;
+  readonly sharedInputId = 'transaction-shared';
   readonly quickDates: QuickDate[] = [
     {label: 'Dziś', daysAgo: 0},
     {label: 'Wczoraj', daysAgo: 1},

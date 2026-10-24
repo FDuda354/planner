@@ -15,21 +15,18 @@
 
     <div class="type-switch" role="radiogroup" aria-label="Rodzaj transakcji">
       @for (option of typeOptions; track option.type) {
-        <button type="button"
-                role="radio"
-                class="type-switch__option"
-                [attr.data-type]="option.type"
-                [attr.aria-checked]="model().type === option.type"
-                [class.type-switch__option--active]="model().type === option.type"
-                (click)="selectType(option.type)">
+        <label class="type-switch__option radio-option"
+               [attr.data-type]="option.type"
+               [class.type-switch__option--active]="model().type === option.type">
+          <input type="radio" name="transaction-type" [checked]="model().type === option.type" (change)="selectType(option.type)">
           <i [class]="option.icon" aria-hidden="true"></i>
           {{ option.label }}
-        </button>
+        </label>
       }
     </div>
 
     @if (pastMonthLabel(); as month) {
-      <div class="period-badge" role="status">
+      <div class="period-badge" aria-live="polite">
         <i class="pi pi-calendar-clock" aria-hidden="true"></i>
         <span>{{ isEdit() ? 'Transakcja z poprzedniego miesiąca:' : 'Dodajesz do poprzedniego miesiąca:' }}</span>
         <strong>{{ month }}</strong>
@@ -98,8 +95,8 @@
     </div>
 
     @if (isExpense()) {
-      <label class="shared-toggle" [class.shared-toggle--active]="model().shared">
-        <p-checkbox [formField]="transactionForm.shared" [binary]="true" inputId="transaction-shared"/>
+      <label class="shared-toggle" [class.shared-toggle--active]="model().shared" [for]="sharedInputId">
+        <p-checkbox [formField]="transactionForm.shared" [binary]="true" [inputId]="sharedInputId"/>
         <span class="flex flex-col">
           <span class="shared-toggle__title"><i class="pi pi-home" aria-hidden="true"></i> Na dobro wspólne</span>
           <span class="shared-toggle__hint">Np. rachunki, czynsz, wspólne zakupy — nie liczy się do niczyich osobistych wydatków</span>

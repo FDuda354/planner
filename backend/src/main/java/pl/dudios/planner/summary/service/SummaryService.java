@@ -15,7 +15,7 @@ import pl.dudios.planner.summary.repository.SummaryRepository;
 import pl.dudios.planner.transaction.model.TransactionType;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.Year;
 import java.time.YearMonth;
 import java.util.Comparator;
 import java.util.List;
@@ -44,7 +44,7 @@ public class SummaryService {
 
   @Transactional(readOnly = true)
   public List<MonthSummaryDTO> getYearSummary(Long householdId, int year) {
-    List<MonthlyAmount> amounts = summaryRepository.findMonthlyAmountsBetween(householdId, LocalDate.of(year, 1, 1), LocalDate.of(year + 1, 1, 1));
+    List<MonthlyAmount> amounts = summaryRepository.findMonthlyAmountsBetween(householdId, Year.of(year).atDay(1), Year.of(year + 1).atDay(1));
     Map<YearMonth, List<MonthlyAmount>> byMonth = groupByMonth(amounts);
     return IntStream.rangeClosed(1, 12)
       .mapToObj(month -> YearMonth.of(year, month))

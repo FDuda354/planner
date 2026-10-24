@@ -96,8 +96,8 @@
       <input pInputText type="text" [formField]="itemForm.note" placeholder="Notatka, np. wkład własny na mieszkanie" aria-label="Notatka"/>
     }
 
-    <label class="flex flex-row items-center gap-12 item-form__switch">
-      <p-toggleswitch [formField]="itemForm.active"/>
+    <label class="flex flex-row items-center gap-12 item-form__switch" [for]="activeInputId">
+      <p-toggleswitch [formField]="itemForm.active" [inputId]="activeInputId"/>
       <span class="flex flex-col">
         <span class="item-form__switch-title">{{ model().active ? 'Aktywna' : 'Wstrzymana' }}</span>
         <span class="muted item-form__switch-hint">Wstrzymane pozycje nie pojawiają się przy dodawaniu transakcji, ale zostają w historii</span>

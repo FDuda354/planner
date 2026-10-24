@@ -69,7 +69,8 @@ class AuthServiceTest {
 
     // When
     for (int attempt = 0; attempt < ALLOWED_FAILURES; attempt++) {
-      assertThatThrownBy(() -> authService.login(new AuthRequest(EMAIL, "wrong")))
+      var request = new AuthRequest(EMAIL, "wrong");
+      assertThatThrownBy(() -> authService.login(request))
         .isInstanceOf(BadCredentialsException.class);
     }
 
@@ -86,7 +87,8 @@ class AuthServiceTest {
     }
 
     // When / Then
-    assertThatThrownBy(() -> authService.login(new AuthRequest(EMAIL, "budzet123")))
+    var request = new AuthRequest(EMAIL, "budzet123");
+    assertThatThrownBy(() -> authService.login(request))
       .isInstanceOf(TooManyAttemptsException.class);
     then(authenticationManager).shouldHaveNoInteractions();
   }
@@ -116,7 +118,8 @@ class AuthServiceTest {
 
     // When
     for (int attempt = 0; attempt < ALLOWED_FAILURES; attempt++) {
-      assertThatThrownBy(() -> authService.login(new AuthRequest(EMAIL, "budzet123")))
+      var request = new AuthRequest(EMAIL, "budzet123");
+      assertThatThrownBy(() -> authService.login(request))
         .isInstanceOf(DisabledException.class);
     }
 

@@ -85,7 +85,7 @@ class AuthFlowIntegrationTest extends AbstractIntegrationTest {
     void refusesDuplicateEmail() throws Exception {
       fixtures.member(fixtures.household(), "Filip", "filip@planner.test");
 
-      mockMvc.perform(post(REGISTER).contentType(APPLICATION_JSON)
+      mockMvc.perform(post(REGISTER).with(csrf()).contentType(APPLICATION_JSON)
                                     .content(json(new RegisterRequest("Inny", "FILIP@planner.test", "haslo1234"))))
              .andExpect(status().isConflict());
 
@@ -95,7 +95,7 @@ class AuthFlowIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("refuses a password shorter than 8 characters with HTTP 400")
     void refusesShortPassword() throws Exception {
-      mockMvc.perform(post(REGISTER).contentType(APPLICATION_JSON)
+      mockMvc.perform(post(REGISTER).with(csrf()).contentType(APPLICATION_JSON)
                                     .content(json(new RegisterRequest("Filip", "filip@planner.test", "krotkie"))))
              .andExpect(status().isBadRequest());
 
@@ -127,9 +127,19 @@ class AuthFlowIntegrationTest extends AbstractIntegrationTest {
     void rejectsWrongPassword() throws Exception {
       fixtures.member(fixtures.household(), "Filip", "filip@planner.test");
 
-      mockMvc.perform(post(LOGIN).contentType(APPLICATION_JSON)
+      mockMvc.perform(post(LOGIN).with(csrf()).contentType(APPLICATION_JSON)
                                  .content(json(new AuthRequest("filip@planner.test", "zle-haslo"))))
              .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("refuses a login request without the CSRF token, so another site cannot log the visitor in")
+    void loginRequiresCsrfToken() throws Exception {
+      fixtures.member(fixtures.household(), "Filip", "filip@planner.test");
+
+      mockMvc.perform(post(LOGIN).contentType(APPLICATION_JSON)
+                                 .content(json(new AuthRequest("filip@planner.test", TestFixtures.PASSWORD))))
+             .andExpect(status().isForbidden());
     }
 
     @Test
@@ -173,11 +183,11 @@ class AuthFlowIntegrationTest extends AbstractIntegrationTest {
     void cannotLogIn() throws Exception {
       fixtures.removedMember(fixtures.household(), "Babcia", "babcia@planner.test");
 
-      mockMvc.perform(post(LOGIN).contentType(APPLICATION_JSON)
+      mockMvc.perform(post(LOGIN).with(csrf()).contentType(APPLICATION_JSON)
                                  .content(json(new AuthRequest("babcia@planner.test", TestFixtures.PASSWORD))))
              .andExpect(status().isUnauthorized())
              .andExpect(jsonPath("$.msg").value(containsString("usunięte")));
-      mockMvc.perform(post(LOGIN).contentType(APPLICATION_JSON)
+      mockMvc.perform(post(LOGIN).with(csrf()).contentType(APPLICATION_JSON)
                                  .content(json(new AuthRequest("babcia@planner.test", "zle-haslo"))))
              .andExpect(status().isUnauthorized())
              .andExpect(jsonPath("$.msg").value(containsString("Nieprawidłowy")));
@@ -200,7 +210,7 @@ class AuthFlowIntegrationTest extends AbstractIntegrationTest {
   }
 
   private MockHttpSession register(String firstName, String email) throws Exception {
-    var result = mockMvc.perform(post(REGISTER).contentType(APPLICATION_JSON)
+    var result = mockMvc.perform(post(REGISTER).with(csrf()).contentType(APPLICATION_JSON)
                                                .content(json(new RegisterRequest(firstName, email, TestFixtures.PASSWORD))))
                         .andExpect(status().isOk())
                         .andReturn();
@@ -208,7 +218,7 @@ class AuthFlowIntegrationTest extends AbstractIntegrationTest {
   }
 
   private MockHttpSession login(String email) throws Exception {
-    var result = mockMvc.perform(post(LOGIN).contentType(APPLICATION_JSON)
+    var result = mockMvc.perform(post(LOGIN).with(csrf()).contentType(APPLICATION_JSON)
                                             .content(json(new AuthRequest(email, TestFixtures.PASSWORD))))
                         .andExpect(status().isOk())
                         .andReturn();

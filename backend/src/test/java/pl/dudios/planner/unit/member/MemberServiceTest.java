@@ -112,7 +112,8 @@ class MemberServiceTest {
       given(memberRepository.existsByEmail("filip@planner.test")).willReturn(true);
 
       // When / Then
-      assertThatThrownBy(() -> memberService.register(new RegisterRequest("Filip", "filip@planner.test", "budzet123")))
+      var request = new RegisterRequest("Filip", "filip@planner.test", "budzet123");
+      assertThatThrownBy(() -> memberService.register(request))
         .isInstanceOf(DuplicateResourceException.class);
       then(memberRepository).should(never()).save(any());
       then(householdRepository).shouldHaveNoInteractions();

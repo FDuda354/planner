@@ -27,9 +27,6 @@ import pl.dudios.planner.member.service.MemberService;
 @RequiredArgsConstructor
 public class SecurityFilterChainConfig {
 
-  private static final String LOGIN_PATH = "/api/auth/login";
-  private static final String REGISTER_PATH = "/api/auth/register";
-
   private final AuthenticationEntryPoint authenticationEntryPoint;
   private final MemberService memberService;
 
@@ -47,11 +44,10 @@ public class SecurityFilterChainConfig {
       .csrf(csrf -> csrf
         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
         .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
-        .ignoringRequestMatchers(LOGIN_PATH, REGISTER_PATH)
       )
       .cors(Customizer.withDefaults())
       .authorizeHttpRequests(request -> request
-        .requestMatchers(HttpMethod.POST, LOGIN_PATH, REGISTER_PATH).permitAll()
+        .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/register").permitAll()
         .requestMatchers(HttpMethod.GET, "/api/auth/me").permitAll()
         .requestMatchers("/actuator/health/**", "/actuator/info").permitAll()
         .requestMatchers("/actuator/**").denyAll()

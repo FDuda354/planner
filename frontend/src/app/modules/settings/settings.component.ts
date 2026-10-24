@@ -34,6 +34,7 @@ export class SettingsComponent {
   readonly appearance = inject(AppearanceService);
 
   readonly tab = input<string>();
+  readonly darkModeInputId = 'settings-dark-mode';
 
   readonly tabs: SettingsTabOption[] = [
     {tab: SettingsTab.CATEGORIES, label: 'Kategorie wydatków', icon: 'pi pi-shopping-cart'},

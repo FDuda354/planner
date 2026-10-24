@@ -15,6 +15,11 @@ sonar {
         property("sonar.sources", "frontend/src")
         property("sonar.exclusions", "**/node_modules/**,**/dist/**,**/*.spec.ts,**/build/**,frontend/src/assets/**")
         property("sonar.coverage.exclusions", "frontend/src/**")
+        property("sonar.issue.ignore.multicriteria", "xsrfCookie,colourPick")
+        property("sonar.issue.ignore.multicriteria.xsrfCookie.ruleKey", "java:S3330")
+        property("sonar.issue.ignore.multicriteria.xsrfCookie.resourceKey", "**/SecurityFilterChainConfig.java")
+        property("sonar.issue.ignore.multicriteria.colourPick.ruleKey", "typescript:S2245")
+        property("sonar.issue.ignore.multicriteria.colourPick.resourceKey", "**/form-budget-item.ts")
     }
 }
 

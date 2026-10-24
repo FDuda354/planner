@@ -28,13 +28,15 @@
       </span>
       <span class="amount amount--income">{{ store.income() | money }}</span>
     </div>
-    <div class="balance__flow" role="img"
-         [attr.aria-label]="'Z wpływów: wydatki ' + (spentShare() | percent) + ', odłożone ' + (savedShare() | percent) + ', zostało ' + (freeShare() | percent)">
+    <div class="balance__flow" aria-hidden="true">
       @for (segment of flow(); track segment.kind) {
         <span class="balance__flow-segment" [class]="'balance__flow-segment--' + segment.kind"
               [style.width.%]="segment.share * 100"></span>
       }
     </div>
+    <span class="visually-hidden">
+      Z wpływów: wydatki {{ spentShare() | percent }}, odłożone {{ savedShare() | percent }}, zostało {{ freeShare() | percent }}
+    </span>
   </div>
 
   <div class="balance__stats">

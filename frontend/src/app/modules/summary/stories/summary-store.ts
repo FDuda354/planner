@@ -51,7 +51,7 @@ export class SummaryStore {
 
   readonly firstYear = computed(() => {
     const months = this.allMonths.value();
-    return months.length === 0 ? this._year() : yearOfMonth(months[months.length - 1].month);
+    return months.length === 0 ? this._year() : yearOfMonth(months.at(-1)!.month);
   });
   readonly canGoBack = computed(() => this._year() > this.firstYear());
   readonly canGoForward = computed(() => this._year() < this.calendar.currentYear());

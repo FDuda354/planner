@@ -125,7 +125,8 @@ class TransactionServiceTest {
       given(expenseCategoryRepository.findByIdAndHouseholdId(CATEGORY_ID, HOUSEHOLD_ID)).willReturn(Optional.of(category(false)));
 
       // When / Then
-      assertThatThrownBy(() -> transactionService.saveTransaction(filip, expense(null, false)))
+      var request = expense(null, false);
+      assertThatThrownBy(() -> transactionService.saveTransaction(filip, request))
         .isInstanceOf(RequestValidationException.class)
         .hasMessageContaining("Jedzenie");
       then(transactionRepository).should(never()).save(any());
@@ -138,7 +139,8 @@ class TransactionServiceTest {
       given(expenseCategoryRepository.findByIdAndHouseholdId(CATEGORY_ID, HOUSEHOLD_ID)).willReturn(Optional.empty());
 
       // When / Then
-      assertThatThrownBy(() -> transactionService.saveTransaction(filip, expense(null, false)))
+      var request = expense(null, false);
+      assertThatThrownBy(() -> transactionService.saveTransaction(filip, request))
         .isInstanceOf(ResourceNotFoundException.class);
       then(transactionRepository).should(never()).save(any());
     }
@@ -229,7 +231,8 @@ class TransactionServiceTest {
       given(transactionRepository.findByIdAndHouseholdId(50L, HOUSEHOLD_ID)).willReturn(Optional.of(existingExpense(FILIP_ID, 999L)));
 
       // When / Then
-      assertThatThrownBy(() -> transactionService.saveTransaction(filip, expense(50L, false)))
+      var request = expense(50L, false);
+      assertThatThrownBy(() -> transactionService.saveTransaction(filip, request))
         .isInstanceOf(RequestValidationException.class);
       then(transactionRepository).should(never()).save(any());
     }
@@ -241,7 +244,8 @@ class TransactionServiceTest {
       given(transactionRepository.findByIdAndHouseholdId(50L, HOUSEHOLD_ID)).willReturn(Optional.empty());
 
       // When / Then
-      assertThatThrownBy(() -> transactionService.saveTransaction(filip, expense(50L, false)))
+      var request = expense(50L, false);
+      assertThatThrownBy(() -> transactionService.saveTransaction(filip, request))
         .isInstanceOf(ResourceNotFoundException.class);
       then(transactionRepository).should(never()).save(any());
     }

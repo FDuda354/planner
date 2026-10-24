@@ -98,7 +98,8 @@ class BudgetConfigServiceTest {
       given(expenseCategoryRepository.findByIdAndHouseholdId(3L, HOUSEHOLD_ID)).willReturn(Optional.empty());
 
       // When / Then
-      assertThatThrownBy(() -> budgetConfigService.saveExpenseCategory(HOUSEHOLD_ID, new ExpenseCategoryRequest(3L, "X", "pi-heart", "#ec4899", true)))
+      var request = new ExpenseCategoryRequest(3L, "X", "pi-heart", "#ec4899", true);
+      assertThatThrownBy(() -> budgetConfigService.saveExpenseCategory(HOUSEHOLD_ID, request))
         .isInstanceOf(ResourceNotFoundException.class);
       then(expenseCategoryRepository).should(never()).save(any());
     }
@@ -145,7 +146,8 @@ class BudgetConfigServiceTest {
       given(memberRepository.findByIdAndHouseholdId(9L, HOUSEHOLD_ID)).willReturn(Optional.empty());
 
       // When / Then
-      assertThatThrownBy(() -> budgetConfigService.saveSavingsGoal(HOUSEHOLD_ID, goalRequest(null, 9L)))
+      var request = goalRequest(null, 9L);
+      assertThatThrownBy(() -> budgetConfigService.saveSavingsGoal(HOUSEHOLD_ID, request))
         .isInstanceOf(RequestValidationException.class)
         .hasMessageContaining("nie należy");
       then(savingsGoalRepository).should(never()).save(any());
@@ -158,7 +160,8 @@ class BudgetConfigServiceTest {
       given(memberRepository.findByIdAndHouseholdId(3L, HOUSEHOLD_ID)).willReturn(Optional.of(member(3L, false)));
 
       // When / Then
-      assertThatThrownBy(() -> budgetConfigService.saveSavingsGoal(HOUSEHOLD_ID, goalRequest(null, 3L)))
+      var request = goalRequest(null, 3L);
+      assertThatThrownBy(() -> budgetConfigService.saveSavingsGoal(HOUSEHOLD_ID, request))
         .isInstanceOf(RequestValidationException.class)
         .hasMessageContaining("usuniętej");
       then(savingsGoalRepository).should(never()).save(any());

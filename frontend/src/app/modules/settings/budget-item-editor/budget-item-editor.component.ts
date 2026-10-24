@@ -35,6 +35,7 @@ export class BudgetItemEditorComponent {
 
   readonly state = this.editor.state;
   readonly isGoal = computed(() => this.state().kind === TransactionType.SAVING);
+  readonly activeInputId = 'budget-item-active';
   readonly isWorking = signal(false);
   readonly header = computed(() => this.state().item ? KIND_NAMES[this.state().kind].edit : KIND_NAMES[this.state().kind].create);
   readonly placeholder = computed(() => KIND_NAMES[this.state().kind].placeholder);
