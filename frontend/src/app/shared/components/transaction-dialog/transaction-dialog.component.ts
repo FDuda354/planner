@@ -53,7 +53,7 @@ export class TransactionDialogComponent {
     {label: 'Przedwczoraj', daysAgo: 2},
   ];
 
-  readonly today = this.calendar.today;
+  readonly lastDayOfMonth = this.calendar.lastDayOfMonth;
   readonly state = this.editor.state;
   readonly isEdit = computed(() => this.state().editing !== null);
   readonly isWorking = signal(false);

@@ -91,15 +91,27 @@ class TransactionApiIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @DisplayName("refuses a date in the future with HTTP 400")
-    void refusesFutureDate() throws Exception {
-      var tomorrowEverywhere = LocalDate.now(EARLIEST_ON_EARTH).plusDays(1);
+    @DisplayName("refuses a date in the next month with HTTP 400")
+    void refusesNextMonth() throws Exception {
+      var firstDayOfNextMonth = YearMonth.now(EARLIEST_ON_EARTH).plusMonths(1).atDay(1);
 
       mockMvc.perform(post(ROOT).with(auth.as(filip)).contentType(APPLICATION_JSON)
-                                .content(json(expense(null, "10", tomorrowEverywhere, false))))
+                                .content(json(expense(null, "10", firstDayOfNextMonth, false))))
              .andExpect(status().isBadRequest());
 
       assertThat(transactionRepository.count()).isZero();
+    }
+
+    @Test
+    @DisplayName("accepts a transaction planned for the last day of the current month")
+    void acceptsPlannedTransactionThisMonth() throws Exception {
+      var lastDayOfMonth = YearMonth.now(EARLIEST_ON_EARTH).atEndOfMonth();
+
+      mockMvc.perform(post(ROOT).with(auth.as(filip)).contentType(APPLICATION_JSON)
+                                .content(json(expense(null, "10", lastDayOfMonth, false))))
+             .andExpect(status().isNoContent());
+
+      assertThat(transactionRepository.findAll()).extracting(Transaction::getDate).containsExactly(lastDayOfMonth);
     }
 
     @Test

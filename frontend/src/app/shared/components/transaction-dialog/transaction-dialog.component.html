@@ -85,7 +85,7 @@
         }
         <p-datepicker [formField]="transactionForm.date"
                       dateFormat="dd.mm.yy"
-                      [maxDate]="today()"
+                      [maxDate]="lastDayOfMonth()"
                       appendTo="body"
                       [showIcon]="true"
                       iconDisplay="input"

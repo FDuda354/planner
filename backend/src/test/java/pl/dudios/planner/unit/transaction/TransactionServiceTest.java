@@ -146,18 +146,33 @@ class TransactionServiceTest {
     }
 
     @Test
-    @DisplayName("refuses a date that is still in the future everywhere on Earth")
-    void refusesFutureDate() {
+    @DisplayName("refuses a date in the next month — only the current month can be planned ahead")
+    void refusesNextMonth() {
       // Given
       givenActiveCategory();
-      var tomorrowEverywhere = LocalDate.now(EARLIEST_ON_EARTH).plusDays(1);
-      var request = new TransactionRequest(null, TransactionType.EXPENSE, CATEGORY_ID, new BigDecimal("10"), tomorrowEverywhere, false, "");
+      var firstDayOfNextMonth = YearMonth.now(EARLIEST_ON_EARTH).plusMonths(1).atDay(1);
+      var request = new TransactionRequest(null, TransactionType.EXPENSE, CATEGORY_ID, new BigDecimal("10"), firstDayOfNextMonth, false, "");
 
       // When / Then
       assertThatThrownBy(() -> transactionService.saveTransaction(filip, request))
         .isInstanceOf(RequestValidationException.class)
-        .hasMessageContaining("przyszłości");
+        .hasMessageContaining("bieżącego miesiąca");
       then(transactionRepository).should(never()).save(any());
+    }
+
+    @Test
+    @DisplayName("accepts a planned transaction on the last day of the current month")
+    void acceptsLastDayOfCurrentMonth() {
+      // Given
+      givenActiveCategory();
+      var lastDayOfMonth = YearMonth.now(EARLIEST_ON_EARTH).atEndOfMonth();
+      var request = new TransactionRequest(null, TransactionType.EXPENSE, CATEGORY_ID, new BigDecimal("10"), lastDayOfMonth, false, "");
+
+      // When
+      transactionService.saveTransaction(filip, request);
+
+      // Then
+      assertThat(savedTransaction().getDate()).isEqualTo(lastDayOfMonth);
     }
 
     @Test

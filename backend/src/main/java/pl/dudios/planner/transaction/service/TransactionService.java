@@ -91,8 +91,8 @@ public class TransactionService {
   }
 
   private void validateDate(LocalDate date) {
-    if (date.isAfter(LocalDate.now(EARLIEST_ON_EARTH))) {
-      throw new RequestValidationException("Data transakcji nie może być z przyszłości");
+    if (date.isAfter(YearMonth.now(EARLIEST_ON_EARTH).atEndOfMonth())) {
+      throw new RequestValidationException("Transakcję można zaplanować najpóźniej na koniec bieżącego miesiąca");
     }
   }
 
