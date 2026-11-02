@@ -1,0 +1,37 @@
+.account {
+  max-width: 640px;
+
+  &__name {
+    font-weight: 700;
+  }
+
+  &__email {
+    font-size: 13px;
+  }
+
+  &__option {
+    padding: 16px;
+    border: 1px solid var(--budget-border);
+    border-radius: var(--budget-radius-sm);
+  }
+
+  &__option-title {
+    font-weight: 700;
+  }
+
+  &__option-hint {
+    font-size: 13px;
+    line-height: 18px;
+  }
+}
+
+.account-dialog {
+  &__explanation {
+    margin: 0;
+    line-height: 20px;
+  }
+
+  &__password {
+    width: 100%;
+  }
+}

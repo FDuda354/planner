@@ -10,6 +10,7 @@ import pl.dudios.planner.exception.ResourceNotFoundException;
 import pl.dudios.planner.member.model.Member;
 import pl.dudios.planner.transaction.model.Transaction;
 import pl.dudios.planner.transaction.model.TransactionType;
+import pl.dudios.planner.transaction.model.dto.ItemUsageDTO;
 import pl.dudios.planner.transaction.model.dto.TransactionDTO;
 import pl.dudios.planner.transaction.model.request.TransactionRequest;
 import pl.dudios.planner.transaction.repository.TransactionRepository;
@@ -61,17 +62,28 @@ public class TransactionService {
     transactionRepository.delete(getTransaction(householdId, transactionId));
   }
 
+  @Transactional(readOnly = true)
+  public ItemUsageDTO getItemUsage(Long householdId, TransactionType type, Long itemId) {
+    return transactionRepository.findItemUsage(householdId, type, itemId);
+  }
+
+  @Transactional
+  public void deleteItemTransactions(Long householdId, TransactionType type, Long itemId) {
+    transactionRepository.deleteAllByItem(householdId, type, itemId);
+  }
+
+  @Transactional
+  public void deleteHouseholdTransactions(Long householdId) {
+    transactionRepository.deleteAllByHouseholdId(householdId);
+  }
+
   private Transaction getTransaction(Long householdId, Long transactionId) {
     return transactionRepository.findByIdAndHouseholdId(transactionId, householdId)
                                 .orElseThrow(() -> new ResourceNotFoundException("Nie znaleziono transakcji"));
   }
 
   private void validateItem(Long householdId, Transaction transaction, TransactionRequest request) {
-    BudgetItem item = switch (request.type()) {
-      case EXPENSE -> budgetConfigService.getExpenseCategory(householdId, request.itemId());
-      case INCOME -> budgetConfigService.getIncomeSource(householdId, request.itemId());
-      case SAVING -> budgetConfigService.getSavingsGoal(householdId, request.itemId());
-    };
+    BudgetItem item = budgetConfigService.getItem(householdId, request.type(), request.itemId());
     boolean keepsCurrentItem = transaction.getType() == request.type() && Objects.equals(transaction.getItemId(), request.itemId());
     if (!item.isActive() && !keepsCurrentItem) {
       throw new RequestValidationException("Pozycja „" + item.getName() + "” jest wstrzymana — przywróć ją w konfiguracji, aby dodawać transakcje");

@@ -6,6 +6,7 @@ import {BudgetItemListComponent} from './budget-item-list/budget-item-list.compo
 import {BudgetItemCardComponent} from './budget-item-list/budget-item-card/budget-item-card.component';
 import {BudgetItemEditorComponent} from './budget-item-editor/budget-item-editor.component';
 import {HouseholdMembersComponent} from './household-members/household-members.component';
+import {AccountSettingsComponent} from './account-settings/account-settings.component';
 
 const SETTINGS_ROUTES: Routes = [
   {path: '', component: SettingsComponent},
@@ -18,6 +19,7 @@ const SETTINGS_ROUTES: Routes = [
     BudgetItemCardComponent,
     BudgetItemEditorComponent,
     HouseholdMembersComponent,
+    AccountSettingsComponent,
   ],
   imports: [
     SharedModule,

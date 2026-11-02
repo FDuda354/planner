@@ -42,13 +42,19 @@
           <ui-member-avatar [member]="member" size="lg"/>
           <div class="flex flex-col flex-1">
             <span class="member__name">{{ member.firstName }}</span>
-            <span class="muted member__email">{{ member.email }} · nie ma dostępu</span>
+            @if (member.deleted) {
+              <span class="muted member__email">Ta osoba usunęła swoje konto — jej transakcje zostały w historii</span>
+            } @else {
+              <span class="muted member__email">{{ member.email }} · nie ma dostępu</span>
+            }
           </div>
-          <button pButton type="button" variant="text" class="member__restore"
-                  [attr.aria-label]="'Przywróć dostęp dla ' + member.firstName" (click)="restoreMember(member)">
-            <i class="pi pi-replay" aria-hidden="true"></i>
-            <span class="member__remove-label">Przywróć dostęp</span>
-          </button>
+          @if (!member.deleted) {
+            <button pButton type="button" variant="text" class="member__restore"
+                    [attr.aria-label]="'Przywróć dostęp dla ' + member.firstName" (click)="restoreMember(member)">
+              <i class="pi pi-replay" aria-hidden="true"></i>
+              <span class="member__remove-label">Przywróć dostęp</span>
+            </button>
+          }
         </div>
       }
     </div>

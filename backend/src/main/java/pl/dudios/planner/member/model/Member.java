@@ -12,12 +12,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 import static jakarta.persistence.GenerationType.SEQUENCE;
 
@@ -30,6 +32,8 @@ import static jakarta.persistence.GenerationType.SEQUENCE;
 @Entity
 @Table(name = "MEMBERS")
 public class Member implements UserDetails {
+
+  private static final String ERASED_ACCOUNT_NAME = "Usunięte konto";
 
   @Id
   @SequenceGenerator(
@@ -49,10 +53,10 @@ public class Member implements UserDetails {
   @Column(name = "first_name", nullable = false)
   private String firstName;
 
-  @Column(name = "email", nullable = false, unique = true)
+  @Column(name = "email", unique = true)
   private String email;
 
-  @Column(name = "password", nullable = false)
+  @Column(name = "password")
   private String password;
 
   @Column(name = "color", nullable = false)
@@ -61,19 +65,22 @@ public class Member implements UserDetails {
   @Column(name = "active", nullable = false)
   private boolean active;
 
+  @Column(name = "deleted", nullable = false)
+  private boolean deleted;
+
   @Override
   public @NonNull Collection<? extends GrantedAuthority> getAuthorities() {
     return List.of(new SimpleGrantedAuthority("ROLE_MEMBER"));
   }
 
   @Override
-  public @NonNull String getPassword() {
+  public @Nullable String getPassword() {
     return password;
   }
 
   @Override
   public @NonNull String getUsername() {
-    return email;
+    return Objects.requireNonNull(email);
   }
 
   @Override
@@ -81,8 +88,16 @@ public class Member implements UserDetails {
     return active;
   }
 
+  public void eraseAccount() {
+    firstName = ERASED_ACCOUNT_NAME;
+    email = null;
+    password = null;
+    active = false;
+    deleted = true;
+  }
+
   public MemberDTO toDTO() {
-    return new MemberDTO(id, firstName, email, color);
+    return new MemberDTO(id, firstName, email, color, deleted);
   }
 
 }

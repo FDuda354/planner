@@ -4,7 +4,8 @@ import {MessageService} from 'primeng/api';
 import {finalize} from 'rxjs';
 import {BudgetItemEditorState, BudgetItemEditorStore} from '../stories/budget-item-editor-store';
 import {BudgetItemSaverService} from '../services/budget-item-saver.service';
-import {BUDGET_COLORS, BUDGET_ICONS} from '../../../models/BudgetItem';
+import {BudgetItemRemoverService} from '../services/budget-item-remover.service';
+import {BUDGET_COLORS, BUDGET_ICONS, BudgetItem} from '../../../models/BudgetItem';
 import {TransactionType} from '../../../models/Transaction';
 import {HouseholdStore} from '../../../stores/household.store';
 import {prepareFormSubmission} from '../../../shared/forms/prepare-form-submission';
@@ -27,6 +28,7 @@ const KIND_NAMES: Record<TransactionType, { create: string; edit: string; placeh
 export class BudgetItemEditorComponent {
   private readonly editor = inject(BudgetItemEditorStore);
   private readonly saver = inject(BudgetItemSaverService);
+  private readonly remover = inject(BudgetItemRemoverService);
   private readonly messageService = inject(MessageService);
   readonly householdStore = inject(HouseholdStore);
 
@@ -72,6 +74,10 @@ export class BudgetItemEditorComponent {
     if (!visible) {
       this.editor.close();
     }
+  }
+
+  delete(item: BudgetItem): void {
+    this.remover.confirmDeletion(this.state().kind, item, () => this.editor.close());
   }
 
   save(event: SubmitEvent): void {

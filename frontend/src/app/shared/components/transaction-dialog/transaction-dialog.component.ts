@@ -1,10 +1,11 @@
 import {ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked, viewChild} from '@angular/core';
 import {apply, disabled, form} from '@angular/forms/signals';
-import {ConfirmationService, MessageService} from 'primeng/api';
+import {MessageService} from 'primeng/api';
 import {InputNumber} from 'primeng/inputnumber';
 import {finalize} from 'rxjs';
 import {addDays, endOfMonth, isSameDay} from 'date-fns';
 import {TransactionService} from '../../../services/transaction.service';
+import {TransactionDeletionService} from '../../../services/transaction-deletion.service';
 import {TransactionEditorState, TransactionEditorStore} from '../../../stores/transaction-editor.store';
 import {BudgetConfigStore} from '../../../stores/budget-config.store';
 import {CalendarStore} from '../../../stores/calendar.store';
@@ -13,7 +14,7 @@ import {BudgetItem} from '../../../models/BudgetItem';
 import {monthLabel, parseMonthKey, toMonthKey} from '../../utils/month';
 import {prepareFormSubmission} from '../../forms/prepare-form-submission';
 import {showServerError, showSuccess} from '../../../utils/NotificationHelper';
-import {formatMoney} from '../../utils/money';
+import {transactionLabel} from '../../utils/transaction-label';
 import {AppRoute} from '../../../app-routes';
 import {editTransactionModel, newTransactionModel, toTransactionRequest, TransactionFormModel, transactionSchema} from './models/form-transaction';
 
@@ -39,7 +40,7 @@ export class TransactionDialogComponent {
   private readonly editor = inject(TransactionEditorStore);
   private readonly transactionService = inject(TransactionService);
   private readonly messageService = inject(MessageService);
-  private readonly confirmationService = inject(ConfirmationService);
+  private readonly deletion = inject(TransactionDeletionService);
   private readonly configStore = inject(BudgetConfigStore);
   private readonly calendar = inject(CalendarStore);
   private readonly amountInput = viewChild(InputNumber);
@@ -120,28 +121,7 @@ export class TransactionDialogComponent {
   }
 
   deleteTransaction(event: Event): void {
-    const transaction = this.state().editing!;
-    this.confirmationService.confirm({
-      target: event.target as EventTarget,
-      message: 'Na pewno usunąć tę transakcję?',
-      icon: 'pi pi-trash',
-      acceptLabel: 'Usuń',
-      rejectLabel: 'Anuluj',
-      acceptButtonStyleClass: 'p-button-danger p-button-sm',
-      rejectButtonStyleClass: 'p-button-text p-button-sm',
-      accept: () => {
-        this.isWorking.set(true);
-        this.transactionService.deleteTransaction(transaction.id)
-          .pipe(finalize(() => this.isWorking.set(false)))
-          .subscribe({
-            next: () => {
-              showSuccess('Usunięto transakcję', this.describe(transaction), this.messageService);
-              this.editor.close();
-            },
-            error: (error) => showServerError('Nie udało się usunąć transakcji', error, this.messageService),
-          });
-      },
-    });
+    this.deletion.confirmDeletion(this.state().editing!, event.currentTarget, () => this.editor.close());
   }
 
   private submit(addNext: boolean): void {
@@ -169,8 +149,7 @@ export class TransactionDialogComponent {
   }
 
   private describe(request: TransactionRequest): string {
-    const item = this.configStore.itemOf(request.type, request.itemId);
-    return `${item?.name ?? ''} · ${formatMoney(request.amount)}`;
+    return transactionLabel(this.configStore.itemOf(request.type, request.itemId)?.name, request.amount);
   }
 
   private initialModel(state: TransactionEditorState): TransactionFormModel {

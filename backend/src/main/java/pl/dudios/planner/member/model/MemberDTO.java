@@ -4,7 +4,8 @@ public record MemberDTO(
   Long id,
   String firstName,
   String email,
-  String color
+  String color,
+  boolean deleted
 ) {
 
 }

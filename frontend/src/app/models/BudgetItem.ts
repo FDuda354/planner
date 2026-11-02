@@ -23,6 +23,11 @@ export interface BudgetConfig {
   savingsGoals: SavingsGoal[];
 }
 
+export interface ItemUsage {
+  transactionCount: number;
+  totalAmount: number;
+}
+
 export interface BudgetItemRequest {
   id: number | null;
   name: string;

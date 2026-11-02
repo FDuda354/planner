@@ -3,6 +3,8 @@ import {Member} from '../../../../models/Member';
 
 export type MemberAvatarSize = 'xs' | 'sm' | 'md' | 'lg';
 
+const NEUTRAL_COLOR = 'var(--p-text-muted-color)';
+
 @Component({
   selector: 'ui-member-avatar',
   templateUrl: './member-avatar.component.html',
@@ -14,5 +16,11 @@ export class MemberAvatarComponent {
   readonly member = input.required<Member | undefined>();
   readonly size = input<MemberAvatarSize>('md');
 
-  readonly initial = computed(() => this.member()?.firstName.charAt(0).toUpperCase() ?? '?');
+  private readonly existingMember = computed(() => {
+    const member = this.member();
+    return member?.deleted ? undefined : member;
+  });
+
+  readonly initial = computed(() => this.existingMember()?.firstName.charAt(0).toUpperCase() ?? '?');
+  readonly color = computed(() => this.existingMember()?.color ?? NEUTRAL_COLOR);
 }

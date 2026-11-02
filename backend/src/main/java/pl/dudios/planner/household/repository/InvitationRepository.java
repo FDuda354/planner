@@ -1,6 +1,9 @@
 package pl.dudios.planner.household.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import pl.dudios.planner.household.model.Invitation;
 
@@ -15,5 +18,9 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long> {
   List<Invitation> findAllByHouseholdIdOrderById(Long householdId);
 
   long deleteByHouseholdIdAndEmail(Long householdId, String email);
+
+  @Modifying
+  @Query("delete from Invitation i where i.householdId = :householdId")
+  void deleteAllByHouseholdId(@Param("householdId") Long householdId);
 
 }

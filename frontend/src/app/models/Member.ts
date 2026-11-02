@@ -1,8 +1,9 @@
 export interface Member {
   id: number;
   firstName: string;
-  email: string;
+  email: string | null;
   color: string;
+  deleted: boolean;
 }
 
 export interface Household {

@@ -9,7 +9,7 @@
   height: 100%;
   min-height: 68px;
   box-sizing: border-box;
-  padding: 0 16px 0 0;
+  padding: 0 8px 0 0;
   border: 1px solid var(--budget-border);
   border-radius: var(--budget-radius-sm);
   background: var(--budget-surface);
@@ -62,5 +62,12 @@
     color: var(--p-text-muted-color);
     opacity: 0;
     transition: opacity 0.15s ease;
+  }
+
+  &__delete.p-button {
+    flex: none;
+    width: 34px;
+    height: 34px;
+    padding: 0;
   }
 }

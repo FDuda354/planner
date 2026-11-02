@@ -7,6 +7,7 @@ import {formatMoney} from '../../../../shared/utils/money';
 import {TransactionType} from '../../../../models/Transaction';
 import {BudgetItemEditorStore} from '../../stories/budget-item-editor-store';
 import {BudgetItemSaverService} from '../../services/budget-item-saver.service';
+import {BudgetItemRemoverService} from '../../services/budget-item-remover.service';
 import {editBudgetItemModel} from '../../budget-item-editor/models/form-budget-item';
 import {showServerError, showSuccess} from '../../../../utils/NotificationHelper';
 
@@ -20,6 +21,7 @@ import {showServerError, showSuccess} from '../../../../utils/NotificationHelper
 export class BudgetItemCardComponent {
   private readonly editor = inject(BudgetItemEditorStore);
   private readonly saver = inject(BudgetItemSaverService);
+  private readonly remover = inject(BudgetItemRemoverService);
   private readonly messageService = inject(MessageService);
   private readonly householdStore = inject(HouseholdStore);
 
@@ -40,6 +42,10 @@ export class BudgetItemCardComponent {
 
   edit(): void {
     this.editor.edit(this.kind(), this.item());
+  }
+
+  delete(): void {
+    this.remover.confirmDeletion(this.kind(), this.item());
   }
 
   toggleActive(): void {

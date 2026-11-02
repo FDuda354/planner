@@ -331,6 +331,21 @@ class HouseholdServiceTest {
       // Then
       assertThat(grandma.isActive()).isTrue();
     }
+
+    @Test
+    @DisplayName("cannot restore an account its owner deleted — the personal data is already gone")
+    void refusesErasedAccount() {
+      // Given
+      var erased = member(4L, HOUSEHOLD_ID, "klaudia@planner.test", true);
+      erased.eraseAccount();
+      given(memberRepository.findByIdAndHouseholdId(4L, HOUSEHOLD_ID)).willReturn(Optional.of(erased));
+
+      // When / Then
+      assertThatThrownBy(() -> householdService.restoreMember(HOUSEHOLD_ID, 4L))
+        .isInstanceOf(ForbiddenOperationException.class)
+        .hasMessageContaining("usunięte");
+      assertThat(erased.isActive()).isFalse();
+    }
   }
 
   private Member member(Long id, Long householdId, String email, boolean active) {

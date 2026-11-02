@@ -77,22 +77,58 @@
 .tx-row {
   display: flex;
   align-items: center;
-  gap: 14px;
-  width: 100%;
-  padding: 10px 12px;
-  border: none;
   border-radius: var(--budget-radius-sm);
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
   transition: background-color 0.15s ease;
 
   &:hover {
     background: var(--budget-surface-muted);
 
-    .tx-row__edit {
+    .tx-row__edit,
+    .tx-row__delete {
+      opacity: 1;
+    }
+  }
+
+  &__main {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+    padding: 10px 4px 10px 12px;
+    border: none;
+    border-radius: var(--budget-radius-sm);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  &__delete {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    margin-right: 6px;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--p-text-muted-color);
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.15s ease, color 0.15s ease, background-color 0.15s ease;
+
+    &:hover,
+    &:focus-visible {
+      color: var(--budget-expense);
+      background: var(--budget-expense-soft);
+      opacity: 1;
+    }
+
+    @media (hover: none) {
       opacity: 1;
     }
   }

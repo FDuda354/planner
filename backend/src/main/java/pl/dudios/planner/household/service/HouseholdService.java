@@ -80,7 +80,9 @@ public class HouseholdService {
 
   @Transactional
   public void restoreMember(Long householdId, Long memberId) {
-    getMember(householdId, memberId).setActive(true);
+    Member member = getMember(householdId, memberId);
+    rejectErasedAccount(member);
+    member.setActive(true);
   }
 
   private Member getMember(Long householdId, Long memberId) {
@@ -105,6 +107,12 @@ public class HouseholdService {
         ? "Ta osoba już jest w Waszym budżecie"
         : "Ta osoba ma już konto w aplikacji — zaproszenia działają tylko dla nowych kont");
     });
+  }
+
+  private void rejectErasedAccount(Member member) {
+    if (member.isDeleted()) {
+      throw new ForbiddenOperationException("To konto zostało usunięte — nie można przywrócić do niego dostępu");
+    }
   }
 
   private void rejectPendingInvitation(Long householdId, String email) {

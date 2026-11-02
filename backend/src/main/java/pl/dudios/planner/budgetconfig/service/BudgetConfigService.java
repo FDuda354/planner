@@ -3,6 +3,7 @@ package pl.dudios.planner.budgetconfig.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pl.dudios.planner.budgetconfig.model.BudgetItem;
 import pl.dudios.planner.budgetconfig.model.ExpenseCategory;
 import pl.dudios.planner.budgetconfig.model.IncomeSource;
 import pl.dudios.planner.budgetconfig.model.SavingsGoal;
@@ -17,6 +18,7 @@ import pl.dudios.planner.exception.RequestValidationException;
 import pl.dudios.planner.exception.ResourceNotFoundException;
 import pl.dudios.planner.member.model.Member;
 import pl.dudios.planner.member.repository.MemberRepository;
+import pl.dudios.planner.transaction.model.TransactionType;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -77,6 +79,30 @@ public class BudgetConfigService {
     goal.setOwnerId(request.ownerId());
 
     savingsGoalRepository.save(goal);
+  }
+
+  @Transactional
+  public void deleteItem(Long householdId, TransactionType type, Long itemId) {
+    switch (type) {
+      case EXPENSE -> expenseCategoryRepository.delete(getExpenseCategory(householdId, itemId));
+      case INCOME -> incomeSourceRepository.delete(getIncomeSource(householdId, itemId));
+      case SAVING -> savingsGoalRepository.delete(getSavingsGoal(householdId, itemId));
+    }
+  }
+
+  @Transactional
+  public void deleteHouseholdConfig(Long householdId) {
+    savingsGoalRepository.deleteAllByHouseholdId(householdId);
+    incomeSourceRepository.deleteAllByHouseholdId(householdId);
+    expenseCategoryRepository.deleteAllByHouseholdId(householdId);
+  }
+
+  public BudgetItem getItem(Long householdId, TransactionType type, Long itemId) {
+    return switch (type) {
+      case EXPENSE -> getExpenseCategory(householdId, itemId);
+      case INCOME -> getIncomeSource(householdId, itemId);
+      case SAVING -> getSavingsGoal(householdId, itemId);
+    };
   }
 
   public ExpenseCategory getExpenseCategory(Long householdId, Long categoryId) {

@@ -1,7 +1,8 @@
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpParams} from '@angular/common/http';
 import {inject, Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
-import {BudgetConfig, BudgetItemRequest, SavingsGoalRequest} from '../models/BudgetItem';
+import {BudgetConfig, BudgetItemRequest, ItemUsage, SavingsGoalRequest} from '../models/BudgetItem';
+import {TransactionType} from '../models/Transaction';
 import {environment} from '../../environments/environment';
 
 @Injectable({providedIn: 'root'})
@@ -24,4 +25,16 @@ export class BudgetConfigService {
   saveSavingsGoal(request: SavingsGoalRequest): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/savings-goal`, request);
   }
+
+  getItemUsage(type: TransactionType, itemId: number): Observable<ItemUsage> {
+    return this.http.get<ItemUsage>(`${this.baseUrl}/item/usage`, {params: itemParams(type, itemId)});
+  }
+
+  deleteItem(type: TransactionType, itemId: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/item`, {params: itemParams(type, itemId)});
+  }
+}
+
+function itemParams(type: TransactionType, itemId: number): HttpParams {
+  return new HttpParams().set('type', type).set('itemId', itemId);
 }

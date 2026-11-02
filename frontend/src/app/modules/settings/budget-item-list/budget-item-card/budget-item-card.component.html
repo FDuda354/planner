@@ -14,4 +14,8 @@
                   [pTooltip]="item().active ? 'Wstrzymaj' : 'Przywróć'"
                   tooltipPosition="top"
                   [ariaLabel]="item().active ? 'Wstrzymaj ' + item().name : 'Przywróć ' + item().name"/>
+  <button pButton type="button" variant="text" severity="danger" [rounded]="true" class="item-card__delete"
+          pTooltip="Usuń" tooltipPosition="top" [attr.aria-label]="'Usuń ' + item().name" (click)="delete()">
+    <i class="pi pi-trash" aria-hidden="true"></i>
+  </button>
 </div>

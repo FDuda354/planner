@@ -3,6 +3,7 @@ import {MonthStore} from '../../stories/month-store';
 import {BudgetConfigStore} from '../../../../stores/budget-config.store';
 import {HouseholdStore} from '../../../../stores/household.store';
 import {TransactionEditorStore} from '../../../../stores/transaction-editor.store';
+import {TransactionDeletionService} from '../../../../services/transaction-deletion.service';
 import {Transaction, TransactionType} from '../../../../models/Transaction';
 import {BudgetItem} from '../../../../models/BudgetItem';
 import {Member} from '../../../../models/Member';
@@ -29,6 +30,7 @@ const AMOUNT_SIGNS: Record<TransactionType, string> = {
 export class TransactionFeedComponent {
   readonly store = inject(MonthStore);
   readonly editor = inject(TransactionEditorStore);
+  private readonly deletion = inject(TransactionDeletionService);
   private readonly configStore = inject(BudgetConfigStore);
   readonly householdStore = inject(HouseholdStore);
 
@@ -56,6 +58,14 @@ export class TransactionFeedComponent {
 
   signOf(transaction: Transaction): string {
     return AMOUNT_SIGNS[transaction.type];
+  }
+
+  deleteLabel(transaction: Transaction): string {
+    return `Usuń transakcję ${transaction.note || (this.itemOf(transaction)?.name ?? '')}`;
+  }
+
+  confirmDeletion(transaction: Transaction, event: Event): void {
+    this.deletion.confirmDeletion(transaction, event.currentTarget);
   }
 
   onSearch(event: Event): void {

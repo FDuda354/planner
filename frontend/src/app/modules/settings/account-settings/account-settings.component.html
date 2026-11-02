@@ -1,0 +1,102 @@
+<div class="flex flex-col gap-24 account">
+  @if (currentMember(); as member) {
+    <div class="flex flex-row items-center gap-12 account__profile">
+      <ui-member-avatar [member]="member" size="lg"/>
+      <div class="flex flex-col">
+        <span class="account__name">{{ member.firstName }}</span>
+        <span class="muted account__email">{{ member.email }}</span>
+      </div>
+    </div>
+  }
+
+  <div class="flex flex-col gap-12">
+    <span class="overline">Usuwanie konta</span>
+
+    <div class="flex flex-row items-center gap-16 md-down:flex-col md-down:items-start account__option">
+      <div class="flex flex-col flex-1 gap-4">
+        <span class="account__option-title">Usuń tylko moje konto</span>
+        <span class="muted account__option-hint">
+          @if (isOnlyMember()) {
+            Jesteś jedyną osobą w budżecie, więc konto możesz usunąć tylko razem z budżetem.
+          } @else {
+            Stracisz dostęp, ale budżet zostanie dla pozostałych osób. Transakcje dodane z Twojego konta zostaną w historii jako „Usunięte konto”.
+          }
+        </span>
+      </div>
+      <button pButton type="button" severity="danger" variant="outlined" [disabled]="isOnlyMember()"
+              (click)="open(AccountDeletionScope.ACCOUNT)">
+        <i class="pi pi-user-minus" aria-hidden="true"></i>
+        Usuń konto
+      </button>
+    </div>
+
+    <div class="flex flex-row items-center gap-16 md-down:flex-col md-down:items-start account__option">
+      <div class="flex flex-col flex-1 gap-4">
+        <span class="account__option-title">Usuń konto i budżet</span>
+        <span class="muted account__option-hint">
+          @if (isOnlyMember()) {
+            Usuniemy Twoje konto i cały budżet — wszystkie transakcje, kategorie, źródła dochodu i cele.
+          } @else {
+            W budżecie są jeszcze: {{ otherMemberNames() }}. Najpierw usuń te osoby w zakładce Domownicy albo usuń tylko swoje konto.
+          }
+        </span>
+      </div>
+      <button pButton type="button" severity="danger" [disabled]="!isOnlyMember()"
+              (click)="open(AccountDeletionScope.ACCOUNT_AND_HOUSEHOLD)">
+        <i class="pi pi-trash" aria-hidden="true"></i>
+        Usuń konto i budżet
+      </button>
+    </div>
+  </div>
+</div>
+
+<p-dialog [visible]="scope() !== null"
+          (visibleChange)="onVisibleChange($event)"
+          [header]="copy()?.header ?? ''"
+          [modal]="true"
+          [draggable]="false"
+          [resizable]="false"
+          [dismissableMask]="true"
+          [style]="{width: '480px', maxWidth: 'calc(100vw - 24px)'}"
+          appendTo="body">
+  <form [formRoot]="deletionForm" (submit)="confirm($event)" class="flex flex-col gap-16 account-dialog">
+    <p class="account-dialog__explanation">{{ copy()?.explanation }}</p>
+
+    <div class="flex flex-col gap-8">
+      <label class="overline" [for]="passwordInputId">Wpisz hasło, aby potwierdzić</label>
+      <p-iconfield>
+        <input pInputPassword
+               class="account-dialog__password"
+               [id]="passwordInputId"
+               [mask]="passwordMasked()"
+               [formField]="deletionForm.password"
+               [pAutoFocus]="true"
+               autocomplete="current-password"/>
+        <p-inputicon>
+          <button type="button" class="input-icon-button"
+                  [attr.aria-label]="passwordMasked() ? 'Pokaż hasło' : 'Ukryj hasło'"
+                  (click)="passwordMasked.set(!passwordMasked())">
+            <i [class]="passwordMasked() ? 'pi pi-eye' : 'pi pi-eye-slash'" aria-hidden="true"></i>
+          </button>
+        </p-inputicon>
+      </p-iconfield>
+      @if (deletionForm.password().touched() && deletionForm.password().invalid()) {
+        <small class="p-error">{{ deletionForm.password().errors()[0].message }}</small>
+      }
+    </div>
+
+    @if (errorMessage(); as message) {
+      <p-message severity="error">{{ message }}</p-message>
+    }
+
+    <div class="flex flex-row justify-end gap-8">
+      <button pButton type="button" variant="text" severity="secondary" [disabled]="isWorking()" (click)="onVisibleChange(false)">
+        Anuluj
+      </button>
+      <button pButton type="submit" severity="danger" [disabled]="isWorking()">
+        <i [class]="isWorking() ? 'pi pi-spin pi-spinner' : 'pi pi-trash'" aria-hidden="true"></i>
+        {{ copy()?.confirmLabel }}
+      </button>
+    </div>
+  </form>
+</p-dialog>

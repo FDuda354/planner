@@ -12,6 +12,7 @@ export enum SettingsTab {
   GOALS = 'goals',
   HOUSEHOLD = 'household',
   APPEARANCE = 'appearance',
+  ACCOUNT = 'account',
 }
 
 interface SettingsTabOption {
@@ -42,6 +43,7 @@ export class SettingsComponent {
     {tab: SettingsTab.GOALS, label: 'Cele', icon: 'pi pi-bullseye'},
     {tab: SettingsTab.HOUSEHOLD, label: 'Domownicy', icon: 'pi pi-users'},
     {tab: SettingsTab.APPEARANCE, label: 'Wygląd', icon: 'pi pi-palette'},
+    {tab: SettingsTab.ACCOUNT, label: 'Konto', icon: 'pi pi-user'},
   ];
 
   readonly activeTab = computed(() => this.tabs.find(option => option.tab === this.tab())?.tab ?? SettingsTab.CATEGORIES);

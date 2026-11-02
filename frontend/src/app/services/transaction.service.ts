@@ -25,7 +25,7 @@ export class TransactionService {
     return this.http.delete<void>(this.baseUrl, {params}).pipe(tap(() => this.markChanged()));
   }
 
-  private markChanged(): void {
+  markChanged(): void {
     this._revision.update(revision => revision + 1);
   }
 }

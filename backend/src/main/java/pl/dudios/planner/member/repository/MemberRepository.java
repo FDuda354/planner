@@ -1,6 +1,9 @@
 package pl.dudios.planner.member.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import pl.dudios.planner.member.model.Member;
 
@@ -19,5 +22,11 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
   boolean existsByEmail(String email);
 
   boolean existsByIdAndActiveTrue(Long id);
+
+  boolean existsByHouseholdIdAndActiveTrueAndIdNot(Long householdId, Long id);
+
+  @Modifying
+  @Query("delete from Member m where m.householdId = :householdId")
+  void deleteAllByHouseholdId(@Param("householdId") Long householdId);
 
 }

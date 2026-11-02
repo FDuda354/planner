@@ -105,6 +105,13 @@
     </label>
 
     <div class="flex flex-row justify-end gap-8">
+      @if (state().item; as item) {
+        <button pButton type="button" variant="text" severity="danger" class="item-form__delete" [disabled]="isWorking()"
+                (click)="delete(item)">
+          <i class="pi pi-trash" aria-hidden="true"></i>
+          Usuń
+        </button>
+      }
       <button pButton type="button" variant="text" severity="secondary" (click)="onVisibleChange(false)">Anuluj</button>
       <button pButton type="submit" class="action-button--solid" [disabled]="isWorking()">
         <i [class]="isWorking() ? 'pi pi-spin pi-spinner' : 'pi pi-check'" aria-hidden="true"></i>
