@@ -12,7 +12,9 @@ public record MonthSummaryDTO(
   List<ItemAmountDTO> incomesBySource,
   List<ItemAmountDTO> savingsByGoal,
   List<MemberAmountDTO> personalExpensesByMember,
-  BigDecimal sharedExpenses
+  BigDecimal sharedExpenses,
+  List<MemberAmountDTO> personalIncomeByMember,
+  BigDecimal sharedIncome
 ) {
 
 }

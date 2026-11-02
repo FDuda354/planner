@@ -63,13 +63,12 @@ public class TestFixtures {
     return memberRepository.save(member);
   }
 
-  public ExpenseCategory expenseCategory(Household household, String name, boolean active) {
+  public ExpenseCategory expenseCategory(Household household, String name) {
     return expenseCategoryRepository.save(ExpenseCategory.builder()
                                                          .householdId(household.getId())
                                                          .name(name)
                                                          .icon("pi-shopping-cart")
                                                          .color("#10b981")
-                                                         .active(active)
                                                          .build());
   }
 
@@ -79,7 +78,6 @@ public class TestFixtures {
                                                    .name(name)
                                                    .icon("pi-briefcase")
                                                    .color("#059669")
-                                                   .active(true)
                                                    .build());
   }
 
@@ -89,7 +87,6 @@ public class TestFixtures {
                                                  .name(name)
                                                  .icon("pi-sun")
                                                  .color("#f97316")
-                                                 .active(true)
                                                  .note("")
                                                  .initialAmount(new BigDecimal(initialAmount))
                                                  .targetAmount(new BigDecimal("20000"))

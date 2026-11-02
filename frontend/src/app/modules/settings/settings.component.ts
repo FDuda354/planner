@@ -3,8 +3,8 @@ import {Router} from '@angular/router';
 import {form} from '@angular/forms/signals';
 import {BudgetConfigStore} from '../../stores/budget-config.store';
 import {AppearanceService} from '../../services/appearance.service';
-import {TransactionType} from '../../models/Transaction';
-import {BudgetItemEditorStore} from './stories/budget-item-editor-store';
+import {TransactionType} from '../../models/transaction.model';
+import {BudgetItemEditorStore} from './stores/budget-item-editor.store';
 
 export enum SettingsTab {
   CATEGORIES = 'categories',

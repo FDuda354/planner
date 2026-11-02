@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import pl.dudios.planner.recurring.model.RecurrenceFrequency;
 import pl.dudios.planner.transaction.model.TransactionType;
+import pl.dudios.planner.transaction.model.request.TransactionDetails;
 
 import java.math.BigDecimal;
 
@@ -46,7 +47,7 @@ public record RecurringTransactionRequest(
   String note,
 
   boolean active
-) {
+) implements TransactionDetails {
 
   public RecurringTransactionRequest {
     note = note == null ? "" : note.trim();

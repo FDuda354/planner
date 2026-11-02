@@ -7,7 +7,7 @@ import {AccountService} from '../../../services/account.service';
 import {AuthService} from '../../auth/services/auth.service';
 import {HouseholdStore} from '../../../stores/household.store';
 import {prepareFormSubmission} from '../../../shared/forms/prepare-form-submission';
-import {serverMessage, showSuccess} from '../../../utils/NotificationHelper';
+import {serverMessage, showSuccess} from '../../../shared/utils/notifications';
 import {AppRoute} from '../../../app-routes';
 import {accountDeletionSchema, emptyAccountDeletionModel} from './models/form-account-deletion';
 

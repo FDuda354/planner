@@ -1,14 +1,13 @@
 import {min, required, schema} from '@angular/forms/signals';
 import {
   BUDGET_COLORS, BUDGET_ICONS, BudgetItem, BudgetItemRequest, SavingsGoal, SavingsGoalRequest
-} from '../../../../models/BudgetItem';
+} from '../../../../models/budget-item.model';
 
 export interface BudgetItemFormModel {
   id: number | null;
   name: string;
   icon: string;
   color: string;
-  active: boolean;
   note: string;
   initialAmount: number | null;
   targetAmount: number | null;
@@ -18,20 +17,20 @@ export interface BudgetItemFormModel {
 export function newBudgetItemModel(): BudgetItemFormModel {
   return {
     id: null, name: '', icon: BUDGET_ICONS[0], color: BUDGET_COLORS[Math.floor(Math.random() * BUDGET_COLORS.length)],
-    active: true, note: '', initialAmount: 0, targetAmount: null, ownerId: null,
+    note: '', initialAmount: 0, targetAmount: null, ownerId: null,
   };
 }
 
 export function editBudgetItemModel(item: BudgetItem): BudgetItemFormModel {
   const goal = item as Partial<SavingsGoal>;
   return {
-    id: item.id, name: item.name, icon: item.icon, color: item.color, active: item.active,
+    id: item.id, name: item.name, icon: item.icon, color: item.color,
     note: goal.note ?? '', initialAmount: goal.initialAmount ?? 0, targetAmount: goal.targetAmount ?? null, ownerId: goal.ownerId ?? null,
   };
 }
 
 export function toBudgetItemRequest(model: BudgetItemFormModel): BudgetItemRequest {
-  return {id: model.id, name: model.name.trim(), icon: model.icon, color: model.color, active: model.active};
+  return {id: model.id, name: model.name.trim(), icon: model.icon, color: model.color};
 }
 
 export function toSavingsGoalRequest(model: BudgetItemFormModel): SavingsGoalRequest {

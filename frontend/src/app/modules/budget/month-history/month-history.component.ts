@@ -1,13 +1,13 @@
 import {ChangeDetectionStrategy, Component, computed, inject} from '@angular/core';
 import {Router} from '@angular/router';
 import {ChartConfiguration} from 'chart.js';
-import {HistoryStore} from '../stories/history-store';
+import {HistoryStore} from '../stores/history.store';
 import {AppearanceService} from '../../../services/appearance.service';
 import {chartTheme, moneyTooltip} from '../../../shared/utils/chart-theme';
 import {formatMoney} from '../../../shared/utils/money';
 import {monthShortName} from '../../../shared/utils/month';
 import {monthDetailRoute} from '../../../app-routes';
-import {MonthSummary} from '../../../models/Summary';
+import {MonthSummary} from '../../../models/summary.model';
 
 @Component({
   selector: 'app-month-history',

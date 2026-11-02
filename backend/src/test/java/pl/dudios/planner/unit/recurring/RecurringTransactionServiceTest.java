@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import pl.dudios.planner.budgetconfig.model.ExpenseCategory;
 import pl.dudios.planner.budgetconfig.model.IncomeSource;
+import pl.dudios.planner.budgetconfig.model.SavingsGoal;
 import pl.dudios.planner.budgetconfig.repository.ExpenseCategoryRepository;
 import pl.dudios.planner.budgetconfig.repository.IncomeSourceRepository;
 import pl.dudios.planner.budgetconfig.repository.SavingsGoalRepository;
@@ -28,6 +29,7 @@ import pl.dudios.planner.recurring.service.RecurringTransactionService;
 import pl.dudios.planner.transaction.model.Transaction;
 import pl.dudios.planner.transaction.model.TransactionType;
 import pl.dudios.planner.transaction.repository.TransactionRepository;
+import pl.dudios.planner.transaction.service.TransactionDetailsValidator;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -56,6 +58,7 @@ class RecurringTransactionServiceTest {
   private static final Long KLAUDIA_ID = 2L;
   private static final Long CATEGORY_ID = 100L;
   private static final Long SALARY_ID = 200L;
+  private static final Long GOAL_ID = 300L;
 
   @Mock
   private RecurringTransactionRepository recurringTransactionRepository;
@@ -74,9 +77,10 @@ class RecurringTransactionServiceTest {
 
   @BeforeEach
   void setUp() {
-    var budgetConfigService = new BudgetConfigService(expenseCategoryRepository, incomeSourceRepository, savingsGoalRepository, memberRepository);
-    var generator = new RecurringTransactionGenerator(recurringTransactionRepository, transactionRepository, budgetConfigService, memberRepository);
-    service = new RecurringTransactionService(recurringTransactionRepository, generator, budgetConfigService, new MemberAssignmentValidator(memberRepository));
+    var memberAssignmentValidator = new MemberAssignmentValidator(memberRepository);
+    var budgetConfigService = new BudgetConfigService(expenseCategoryRepository, incomeSourceRepository, savingsGoalRepository, memberAssignmentValidator);
+    var generator = new RecurringTransactionGenerator(recurringTransactionRepository, transactionRepository, memberRepository);
+    service = new RecurringTransactionService(recurringTransactionRepository, generator, new TransactionDetailsValidator(budgetConfigService, memberAssignmentValidator));
   }
 
   @Nested
@@ -152,32 +156,18 @@ class RecurringTransactionServiceTest {
     }
 
     @Test
-    @DisplayName("refuses a paused category")
-    void refusesPausedCategory() {
+    @DisplayName("refuses to mark a saving as shared — it always goes to a goal")
+    void refusesSharedSaving() {
       // Given
-      given(expenseCategoryRepository.findByIdAndHouseholdId(CATEGORY_ID, HOUSEHOLD_ID)).willReturn(Optional.of(
-        ExpenseCategory.builder().id(CATEGORY_ID).householdId(HOUSEHOLD_ID).name("Mieszkanie").icon("pi-home").color("#6366f1").active(false).build()));
-      var request = new RecurringTransactionRequest(null, TransactionType.EXPENSE, CATEGORY_ID, new BigDecimal("2500"), RecurrenceFrequency.MONTHLY, 10, null, KLAUDIA_ID, true, "Czynsz", true);
+      given(savingsGoalRepository.findByIdAndHouseholdId(GOAL_ID, HOUSEHOLD_ID)).willReturn(Optional.of(
+        SavingsGoal.builder().id(GOAL_ID).householdId(HOUSEHOLD_ID).name("Wakacje").icon("pi-sun").color("#f97316").note("")
+                   .initialAmount(BigDecimal.ZERO).targetAmount(new BigDecimal("10000")).build()));
+      var request = new RecurringTransactionRequest(null, TransactionType.SAVING, GOAL_ID, new BigDecimal("500"), RecurrenceFrequency.MONTHLY, 10, null, KLAUDIA_ID, true, "", true);
 
       // When / Then
       assertThatThrownBy(() -> service.saveRecurringTransaction(HOUSEHOLD_ID, request))
         .isInstanceOf(RequestValidationException.class)
-        .hasMessageContaining("Mieszkanie");
-      then(recurringTransactionRepository).should(never()).save(any());
-    }
-
-    @Test
-    @DisplayName("refuses to mark an income as shared")
-    void refusesSharedIncome() {
-      // Given
-      givenActiveSalarySource();
-      givenKlaudia(true);
-      var request = new RecurringTransactionRequest(null, TransactionType.INCOME, SALARY_ID, new BigDecimal("8000"), RecurrenceFrequency.MONTHLY, 10, null, KLAUDIA_ID, true, "", true);
-
-      // When / Then
-      assertThatThrownBy(() -> service.saveRecurringTransaction(HOUSEHOLD_ID, request))
-        .isInstanceOf(RequestValidationException.class)
-        .hasMessageContaining("wydatek");
+        .hasMessageContaining("Oszczędności");
       then(recurringTransactionRepository).should(never()).save(any());
     }
   }
@@ -328,8 +318,6 @@ class RecurringTransactionServiceTest {
     @DisplayName("refuses a yearly transaction without a month")
     void refusesYearlyWithoutMonth() {
       // Given
-      givenActiveSalarySource();
-      givenKlaudia(true);
       var request = yearlySalary(null, null, 15);
 
       // When / Then
@@ -343,8 +331,6 @@ class RecurringTransactionServiceTest {
     @DisplayName("refuses a day that the chosen month never has, such as 31 April")
     void refusesDayOutsideMonth() {
       // Given
-      givenActiveSalarySource();
-      givenKlaudia(true);
       var request = yearlySalary(null, 4, 31);
 
       // When / Then
@@ -357,7 +343,7 @@ class RecurringTransactionServiceTest {
 
   private void givenActiveSalarySource() {
     given(incomeSourceRepository.findByIdAndHouseholdId(SALARY_ID, HOUSEHOLD_ID)).willReturn(Optional.of(
-      IncomeSource.builder().id(SALARY_ID).householdId(HOUSEHOLD_ID).name("Wynagrodzenie").icon("pi-briefcase").color("#059669").active(true).build()));
+      IncomeSource.builder().id(SALARY_ID).householdId(HOUSEHOLD_ID).name("Wynagrodzenie").icon("pi-briefcase").color("#059669").build()));
   }
 
   private void givenKlaudia(boolean active) {

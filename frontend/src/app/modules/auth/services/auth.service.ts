@@ -2,7 +2,7 @@ import {HttpClient} from '@angular/common/http';
 import {inject, Injectable, signal} from '@angular/core';
 import {Router} from '@angular/router';
 import {catchError, map, Observable, of, tap} from 'rxjs';
-import {AuthRequest, Member, RegisterRequest} from '../../../models/Member';
+import {AuthRequest, Member, RegisterRequest} from '../../../models/member.model';
 import {environment} from '../../../../environments/environment';
 import {AppRoute} from '../../../app-routes';
 

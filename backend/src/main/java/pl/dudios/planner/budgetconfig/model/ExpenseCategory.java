@@ -36,7 +36,7 @@ public class ExpenseCategory extends BudgetItem {
   private Long id;
 
   public ExpenseCategoryDTO toDTO() {
-    return new ExpenseCategoryDTO(id, getName(), getIcon(), getColor(), isActive());
+    return new ExpenseCategoryDTO(id, getName(), getIcon(), getColor());
   }
 
 }

@@ -1,5 +1,5 @@
 import {min, required, schema} from '@angular/forms/signals';
-import {Transaction, TransactionRequest, TransactionType} from '../../../../models/Transaction';
+import {canBeShared, isSharedByDefault, Transaction, TransactionRequest, TransactionType} from '../../../../models/transaction.model';
 import {TransactionDraft} from '../../../../stores/transaction-editor.store';
 import {parseDateKey, toDateKey} from '../../../utils/month';
 
@@ -15,7 +15,7 @@ export interface TransactionFormModel {
 }
 
 export function newTransactionModel(draft: TransactionDraft, date: Date, memberId: number | null): TransactionFormModel {
-  return {id: null, type: draft.type, itemId: draft.itemId, amount: null, date, memberId, shared: true, note: ''};
+  return {id: null, type: draft.type, itemId: draft.itemId, amount: null, date, memberId, shared: isSharedByDefault(draft.type), note: ''};
 }
 
 export function editTransactionModel(transaction: Transaction): TransactionFormModel {
@@ -39,7 +39,7 @@ export function toTransactionRequest(model: TransactionFormModel): TransactionRe
     amount: model.amount!,
     date: toDateKey(model.date),
     memberId: model.memberId!,
-    shared: model.type === TransactionType.EXPENSE && model.shared,
+    shared: canBeShared(model.type) && model.shared,
     note: model.note.trim(),
   };
 }

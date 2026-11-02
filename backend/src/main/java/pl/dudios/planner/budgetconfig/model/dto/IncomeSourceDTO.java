@@ -4,8 +4,7 @@ public record IncomeSourceDTO(
   Long id,
   String name,
   String icon,
-  String color,
-  boolean active
+  String color
 ) {
 
 }

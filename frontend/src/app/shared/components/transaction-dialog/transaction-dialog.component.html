@@ -11,19 +11,9 @@
           appendTo="body">
   <form [formRoot]="transactionForm" (submit)="save($event)"
         class="flex flex-col gap-20 transaction-form"
-        [attr.data-type]="model().type">
+        [attr.data-transaction-type]="model().type">
 
-    <div class="type-switch" role="radiogroup" aria-label="Rodzaj transakcji">
-      @for (option of typeOptions; track option.type) {
-        <label class="type-switch__option radio-option"
-               [attr.data-type]="option.type"
-               [class.type-switch__option--active]="model().type === option.type">
-          <input type="radio" name="transaction-type" [checked]="model().type === option.type" (change)="selectType(option.type)">
-          <i [class]="option.icon" aria-hidden="true"></i>
-          {{ option.label }}
-        </label>
-      }
-    </div>
+    <ui-type-switch name="transaction-type" [value]="model().type" (changed)="selectType($event)"/>
 
     @if (pastMonthLabel(); as month) {
       <div class="period-badge" aria-live="polite">
@@ -42,34 +32,16 @@
                      placeholder="0,00 zł"
                      inputStyleClass="transaction-form__amount-input"
                      ariaLabel="Kwota"/>
-      @if (showErrors() && transactionForm.amount().invalid()) {
-        <small class="p-error">{{ transactionForm.amount().errors()[0].message }}</small>
-      }
+      <ui-field-error [field]="transactionForm.amount"/>
     </div>
 
     <div class="flex flex-col gap-8">
       <span class="overline">{{ itemLabel() }}</span>
-      <div class="item-grid">
-        @for (item of items(); track item.id) {
-          <button type="button"
-                  class="item-tile"
-                  [style.--item-color]="item.color"
-                  [class.item-tile--selected]="model().itemId === item.id"
-                  [attr.aria-pressed]="model().itemId === item.id"
-                  (click)="selectItem(item.id)">
-            <ui-item-icon [icon]="item.icon" [color]="item.color" size="sm"/>
-            <span class="item-tile__name">{{ item.name }}</span>
-          </button>
-        } @empty {
-          <div class="item-grid__empty">
-            Brak aktywnych pozycji tego rodzaju.
-            <a [routerLink]="AppRoute.SETTINGS" (click)="onVisibleChange(false)">Dodaj je w konfiguracji</a>
-          </div>
-        }
-      </div>
-      @if (showErrors() && transactionForm.itemId().invalid()) {
-        <small class="p-error">{{ transactionForm.itemId().errors()[0].message }}</small>
-      }
+      <ui-item-picker [label]="itemLabel()" [items]="items()" [value]="model().itemId" (changed)="selectItem($event)">
+        Brak pozycji tego rodzaju.
+        <a [routerLink]="AppRoute.SETTINGS" (click)="onVisibleChange(false)">Dodaj je w konfiguracji</a>
+      </ui-item-picker>
+      <ui-field-error [field]="transactionForm.itemId"/>
     </div>
 
     <div class="flex flex-col gap-8">
@@ -94,33 +66,16 @@
       </div>
     </div>
 
-    @if (members().length > 1) {
+    @if (members().length > 1 && isAssignedToMember()) {
       <div class="flex flex-col gap-8">
         <span class="overline">Czyja</span>
-        <div class="flex flex-row flex-wrap gap-8" role="radiogroup" aria-label="Czyja transakcja">
-          @for (member of members(); track member.id) {
-            <label class="choice-chip choice-chip--member radio-option" [class.choice-chip--active]="model().memberId === member.id">
-              <input type="radio" name="transaction-member" [checked]="model().memberId === member.id" (change)="selectMember(member.id)">
-              <ui-member-avatar [member]="member" size="xs"/>
-              {{ member.firstName }}
-            </label>
-          }
-        </div>
-        @if (showErrors() && transactionForm.memberId().invalid()) {
-          <small class="p-error">{{ transactionForm.memberId().errors()[0].message }}</small>
-        }
+        <ui-member-picker name="transaction-member" label="Czyja transakcja" [value]="model().memberId" [members]="members()"
+                          (changed)="selectMember($event)"/>
+        <ui-field-error [field]="transactionForm.memberId"/>
       </div>
     }
 
-    @if (isExpense()) {
-      <label class="shared-toggle" [class.shared-toggle--active]="model().shared" [for]="sharedInputId">
-        <p-checkbox [formField]="transactionForm.shared" [binary]="true" [inputId]="sharedInputId"/>
-        <span class="flex flex-col">
-          <span class="shared-toggle__title"><i class="pi pi-home" aria-hidden="true"></i> Na dobro wspólne</span>
-          <span class="shared-toggle__hint">Np. rachunki, czynsz, wspólne zakupy — nie liczy się do niczyich osobistych wydatków</span>
-        </span>
-      </label>
-    }
+    <ui-shared-toggle [field]="transactionForm.shared" [type]="model().type" inputId="transaction-shared"/>
 
     <input pInputText
            type="text"

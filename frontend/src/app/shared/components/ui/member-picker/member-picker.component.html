@@ -1,0 +1,18 @@
+<div class="flex flex-row flex-wrap items-center gap-8" role="radiogroup" [attr.aria-label]="label()">
+  @if (noneLabel(); as noneLabel) {
+    <label class="choice-chip radio-option" [class.choice-chip--active]="value() === null">
+      <input type="radio" [name]="name()" [checked]="value() === null" (change)="changed.emit(null)">
+      @if (noneIcon(); as noneIcon) {
+        <i class="pi" [class]="noneIcon" aria-hidden="true"></i>
+      }
+      {{ noneLabel }}
+    </label>
+  }
+  @for (member of members(); track member.id) {
+    <label class="choice-chip choice-chip--member radio-option" [class.choice-chip--active]="value() === member.id">
+      <input type="radio" [name]="name()" [checked]="value() === member.id" (change)="changed.emit(member.id)">
+      <ui-member-avatar [member]="member" size="xs"/>
+      {{ member.firstName }}
+    </label>
+  }
+</div>

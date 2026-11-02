@@ -1,5 +1,5 @@
 import {Injectable, signal} from '@angular/core';
-import {Transaction, TransactionType} from '../models/Transaction';
+import {Transaction, TransactionType} from '../models/transaction.model';
 
 export interface TransactionDraft {
   type: TransactionType;

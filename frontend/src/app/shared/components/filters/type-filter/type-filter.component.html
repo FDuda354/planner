@@ -1,0 +1,9 @@
+<div class="segmented" role="radiogroup" aria-label="Rodzaj transakcji">
+  @for (option of options; track option.type) {
+    <label class="segmented__option radio-option" [class.segmented__option--active]="value() === option.type">
+      <input type="radio" [name]="name()" [checked]="value() === option.type" (change)="changed.emit(option.type)">
+      {{ option.label }}
+      <span class="segmented__count">{{ countOf()(option.type) }}</span>
+    </label>
+  }
+</div>

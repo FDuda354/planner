@@ -1,0 +1,9 @@
+<div class="type-switch" role="radiogroup" aria-label="Rodzaj transakcji">
+  @for (option of options; track option.type) {
+    <label class="type-switch__option radio-option" [class.type-switch__option--active]="value() === option.type">
+      <input type="radio" [name]="name()" [checked]="value() === option.type" (change)="changed.emit(option.type)">
+      <i [class]="option.icon" aria-hidden="true"></i>
+      {{ option.label }}
+    </label>
+  }
+</div>

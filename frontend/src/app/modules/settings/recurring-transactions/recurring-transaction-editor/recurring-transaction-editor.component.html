@@ -8,19 +8,11 @@
           [style]="{width: '580px', maxWidth: 'calc(100vw - 24px)'}"
           appendTo="body">
   <form [formRoot]="recurringForm" (submit)="save($event)" class="flex flex-col gap-20 recurring-form">
-    <div class="segmented recurring-form__types" role="radiogroup" aria-label="Rodzaj transakcji">
-      @for (option of typeOptions; track option.type) {
-        <label class="segmented__option radio-option" [class.segmented__option--active]="model().type === option.type">
-          <input type="radio" name="recurring-type" [checked]="model().type === option.type" (change)="selectType(option.type)">
-          <i [class]="option.icon" aria-hidden="true"></i>
-          {{ option.label }}
-        </label>
-      }
-    </div>
+    <ui-type-switch name="recurring-type" [value]="model().type" (changed)="selectType($event)"/>
 
     <div class="flex flex-col gap-8">
       <span class="overline">Jak często</span>
-      <div class="segmented recurring-form__types" role="radiogroup" aria-label="Jak często naliczać">
+      <div class="segmented recurring-form__frequency" role="radiogroup" aria-label="Jak często naliczać">
         @for (option of frequencyOptions; track option.frequency) {
           <label class="segmented__option radio-option" [class.segmented__option--active]="model().frequency === option.frequency">
             <input type="radio" name="recurring-frequency" [checked]="model().frequency === option.frequency"
@@ -36,27 +28,21 @@
         <label class="overline" for="recurring-amount">Kwota</label>
         <p-inputnumber [formField]="recurringForm.amount" inputId="recurring-amount" mode="currency" currency="PLN" locale="pl-PL"
                        placeholder="0,00 zł" [fluid]="true"/>
-        @if (recurringForm.amount().touched() && recurringForm.amount().invalid()) {
-          <small class="p-error">{{ recurringForm.amount().errors()[0].message }}</small>
-        }
+        <ui-field-error [field]="recurringForm.amount"/>
       </div>
       @if (isYearly()) {
         <div class="flex flex-col gap-8 flex-1">
           <label class="overline" for="recurring-month">Miesiąc</label>
           <p-select [formField]="recurringForm.monthOfYear" inputId="recurring-month" [options]="monthOptions" optionLabel="label"
                     optionValue="value" placeholder="Wybierz miesiąc" appendTo="body" [fluid]="true"/>
-          @if (recurringForm.monthOfYear().touched() && recurringForm.monthOfYear().invalid()) {
-            <small class="p-error">{{ recurringForm.monthOfYear().errors()[0].message }}</small>
-          }
+          <ui-field-error [field]="recurringForm.monthOfYear"/>
         </div>
       }
       <div class="flex flex-col gap-8 flex-1">
         <label class="overline" for="recurring-day">{{ isYearly() ? 'Dzień' : 'Dzień miesiąca' }}</label>
         <p-inputnumber [formField]="recurringForm.dayOfMonth" inputId="recurring-day" [min]="1" [max]="maxDayOfMonth()" [useGrouping]="false"
                        [showButtons]="true" [fluid]="true"/>
-        @if (recurringForm.dayOfMonth().touched() && recurringForm.dayOfMonth().invalid()) {
-          <small class="p-error">{{ recurringForm.dayOfMonth().errors()[0].message }}</small>
-        }
+        <ui-field-error [field]="recurringForm.dayOfMonth"/>
       </div>
     </div>
 
@@ -80,48 +66,22 @@
     </div>
 
     <div class="flex flex-col gap-8">
-      <span class="overline">Pozycja</span>
-      <div class="flex flex-row flex-wrap gap-8" role="radiogroup" aria-label="Pozycja">
-        @for (item of items(); track item.id) {
-          <label class="choice-chip radio-option" [class.choice-chip--active]="model().itemId === item.id">
-            <input type="radio" name="recurring-item" [checked]="model().itemId === item.id" (change)="selectItem(item.id)">
-            <ui-item-icon [icon]="item.icon" [color]="item.color" size="sm"/>
-            {{ item.name }}
-          </label>
-        } @empty {
-          <span class="muted">Brak aktywnych pozycji tego rodzaju — dodaj je w konfiguracji.</span>
-        }
-      </div>
-      @if (recurringForm.itemId().touched() && recurringForm.itemId().invalid()) {
-        <small class="p-error">{{ recurringForm.itemId().errors()[0].message }}</small>
-      }
+      <span class="overline">{{ itemLabel() }}</span>
+      <ui-item-picker [label]="itemLabel()" [items]="items()" [value]="model().itemId" (changed)="selectItem($event)">
+        Brak pozycji tego rodzaju — dodaj je w zakładkach konfiguracji powyżej.
+      </ui-item-picker>
+      <ui-field-error [field]="recurringForm.itemId"/>
     </div>
 
-    <div class="flex flex-col gap-8">
-      <span class="overline">Czyja</span>
-      <div class="flex flex-row flex-wrap gap-8" role="radiogroup" aria-label="Czyja transakcja">
-        @for (member of householdStore.members(); track member.id) {
-          <label class="choice-chip choice-chip--member radio-option" [class.choice-chip--active]="model().memberId === member.id">
-            <input type="radio" name="recurring-member" [checked]="model().memberId === member.id" (change)="selectMember(member.id)">
-            <ui-member-avatar [member]="member" size="xs"/>
-            {{ member.firstName }}
-          </label>
-        }
+    @if (isAssignedToMember()) {
+      <div class="flex flex-col gap-8">
+        <span class="overline">Czyja</span>
+        <ui-member-picker name="recurring-member" label="Czyja transakcja" [value]="model().memberId" [members]="householdStore.members()"
+                          (changed)="selectMember($event)"/>
+        <ui-field-error [field]="recurringForm.memberId"/>
       </div>
-      @if (recurringForm.memberId().touched() && recurringForm.memberId().invalid()) {
-        <small class="p-error">{{ recurringForm.memberId().errors()[0].message }}</small>
-      }
-    </div>
-
-    @if (isExpense()) {
-      <label class="flex flex-row items-center gap-12 recurring-form__shared" [for]="sharedInputId">
-        <p-checkbox [formField]="recurringForm.shared" [binary]="true" [inputId]="sharedInputId"/>
-        <span class="flex flex-col">
-          <span class="recurring-form__shared-title"><i class="pi pi-home" aria-hidden="true"></i> Na dobro wspólne</span>
-          <span class="muted recurring-form__shared-hint">Np. czynsz czy rachunki — nie liczy się do niczyich osobistych wydatków</span>
-        </span>
-      </label>
     }
+    <ui-shared-toggle [field]="recurringForm.shared" [type]="model().type" inputId="recurring-shared"/>
 
     <input pInputText
            type="text"

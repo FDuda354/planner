@@ -8,7 +8,7 @@ import {prepareFormSubmission} from '../../../../../shared/forms/prepare-form-su
 import {trimField} from '../../../../../shared/forms/trim-field';
 import {AuthService} from '../../../services/auth.service';
 import {AppRoute} from '../../../../../app-routes';
-import {serverMessage} from '../../../../../utils/NotificationHelper';
+import {serverMessage} from '../../../../../shared/utils/notifications';
 
 @Component({
   selector: 'app-login-form',

@@ -50,7 +50,7 @@ public class SavingsGoal extends BudgetItem {
   private Long ownerId;
 
   public SavingsGoalDTO toDTO() {
-    return new SavingsGoalDTO(id, getName(), getIcon(), getColor(), isActive(), note, initialAmount, targetAmount, ownerId);
+    return new SavingsGoalDTO(id, getName(), getIcon(), getColor(), note, initialAmount, targetAmount, ownerId);
   }
 
 }

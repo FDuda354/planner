@@ -1,6 +1,7 @@
 import {ChangeDetectionStrategy, Component, computed, inject, signal} from '@angular/core';
 import {ChartConfiguration} from 'chart.js';
-import {MonthStore} from '../../stories/month-store';
+import {MonthStore} from '../../stores/month.store';
+import {TransactionFeedStore} from '../../stores/transaction-feed.store';
 import {AppearanceService} from '../../../../services/appearance.service';
 import {chartTheme, moneyTooltip} from '../../../../shared/utils/chart-theme';
 
@@ -15,6 +16,7 @@ const COLLAPSED_LIMIT = 6;
 })
 export class CategoryBreakdownComponent {
   readonly store = inject(MonthStore);
+  readonly feed = inject(TransactionFeedStore);
   private readonly appearance = inject(AppearanceService);
 
   readonly expanded = signal(false);
@@ -26,7 +28,7 @@ export class CategoryBreakdownComponent {
   readonly chart = computed<ChartConfiguration>(() => {
     const theme = chartTheme(this.appearance.darkMode());
     const shares = this.store.categoryShares();
-    const selected = this.store.categoryFilter();
+    const selected = this.feed.filters().categoryId;
     return {
       type: 'doughnut',
       data: {
@@ -50,7 +52,7 @@ export class CategoryBreakdownComponent {
         },
         onClick: (_event, elements) => {
           if (elements.length > 0) {
-            this.store.toggleCategoryFilter(shares[elements[0].index].item.id);
+            this.feed.toggleCategory(shares[elements[0].index].item.id);
           }
         },
       },

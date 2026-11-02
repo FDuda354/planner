@@ -3,8 +3,8 @@
     <div>
       <h2 class="panel__title">Transakcje</h2>
       <p class="panel__subtitle">
-        @if (store.hasActiveFilters()) {
-          {{ store.filteredTransactions().length }} z {{ store.transactions().length }} pasujących
+        @if (feed.isFiltered()) {
+          {{ feed.filteredTransactions().length }} z {{ store.transactions().length }} pasujących
         } @else {
           {{ store.transactions().length }} w tym miesiącu
         }
@@ -13,50 +13,28 @@
     <p-iconfield class="feed__search">
       <p-inputicon class="pi pi-search"/>
       <input pInputText type="search" placeholder="Szukaj…" aria-label="Szukaj transakcji"
-             [value]="store.search()" (input)="onSearch($event)"/>
+             [value]="feed.filters().search" (input)="onSearch($event)"/>
     </p-iconfield>
   </div>
 
   <div class="flex flex-row flex-wrap items-center gap-8 feed__filters">
     <div class="feed__scroll">
-      <div class="segmented" role="radiogroup" aria-label="Rodzaj transakcji">
-        @for (option of filterOptions; track option.filter) {
-          <label class="segmented__option radio-option" [class.segmented__option--active]="store.feedFilter() === option.filter">
-            <input type="radio" name="feed-type" [checked]="store.feedFilter() === option.filter" (change)="store.setFeedFilter(option.filter)">
-            {{ option.label }}
-          </label>
-        }
-      </div>
+      <ui-type-filter name="feed-type" [value]="feed.filters().type" [countOf]="countOfType" (changed)="feed.selectType($event)"/>
     </div>
-    <div class="flex flex-row items-center gap-4 feed__members" role="radiogroup" aria-label="Kto płacił">
-      <label class="choice-chip radio-option" [class.choice-chip--active]="store.memberFilter() === null">
-        <input type="radio" name="feed-member" [checked]="store.memberFilter() === null" (change)="store.setMemberFilter(null)">
-        Wszyscy
-      </label>
-      @for (member of householdStore.members(); track member.id) {
-        <label class="choice-chip choice-chip--member radio-option" [class.choice-chip--active]="store.memberFilter() === member.id">
-          <input type="radio" name="feed-member" [checked]="store.memberFilter() === member.id" (change)="store.setMemberFilter(member.id)">
-          <ui-member-avatar [member]="member" size="xs"/>
-          {{ member.firstName }}
-        </label>
-      }
-    </div>
-  </div>
-
-  @if (store.hasActiveFilters()) {
-    <div class="flex flex-row flex-wrap items-center gap-8 feed__active-filters">
-      @if (selectedCategory(); as category) {
-        <button type="button" class="choice-chip choice-chip--active" (click)="store.toggleCategoryFilter(category.id)">
-          <i class="pi" [class]="category.icon" aria-hidden="true"></i>
-          {{ category.name }}
-          <i class="pi pi-times" aria-label="Usuń filtr"></i>
-        </button>
-      }
-      <button pButton type="button" variant="text" severity="secondary" class="feed__clear" (click)="store.clearFilters()">
-        Wyczyść filtry
+    <ui-member-picker name="feed-member" label="Czyja transakcja" noneLabel="Wszyscy" [value]="feed.filters().memberId"
+                      [members]="householdStore.members()" (changed)="feed.selectMember($event)"/>
+    <ui-shared-filter [active]="feed.filters().sharedOnly" (changed)="feed.selectSharedOnly($event)"/>
+    @if (selectedCategory(); as category) {
+      <button type="button" class="choice-chip choice-chip--active" (click)="feed.toggleCategory(category.id)">
+        <i class="pi" [class]="category.icon" aria-hidden="true"></i>
+        {{ category.name }}
+        <i class="pi pi-times" aria-label="Usuń filtr"></i>
       </button>
-    </div>
-  }
+    }
+    @if (feed.isFiltered()) {
+      <button pButton type="button" variant="text" severity="secondary" (click)="feed.clearFilters()">Wyczyść filtry</button>
+    }
+  </div>
 
   @if (isFirstLoad()) {
     <div class="flex flex-col gap-12">
@@ -78,13 +56,13 @@
         Dodaj pierwszą transakcję
       </button>
     </ui-empty-state>
-  } @else if (store.dayGroups().length === 0) {
+  } @else if (feed.dayGroups().length === 0) {
     <ui-empty-state icon="pi-filter-slash" title="Nic nie pasuje do filtrów" text="Zmień albo wyczyść filtry, aby zobaczyć transakcje.">
-      <button pButton type="button" variant="outlined" (click)="store.clearFilters()">Wyczyść filtry</button>
+      <button pButton type="button" variant="outlined" (click)="feed.clearFilters()">Wyczyść filtry</button>
     </ui-empty-state>
   } @else {
     <div class="flex flex-col gap-20">
-      @for (group of store.dayGroups(); track group.date) {
+      @for (group of feed.dayGroups(); track group.date) {
         <div class="day">
           <div class="flex flex-row items-center justify-between day__header">
             <span class="day__label">{{ group.label }}</span>
@@ -105,13 +83,15 @@
                         <span>{{ item?.name }}</span>
                         <span aria-hidden="true">·</span>
                       }
-                      <ui-member-avatar [member]="memberOf(transaction)" size="xs"/>
-                      <span>{{ memberOf(transaction)?.firstName }}</span>
+                      @if (isAssignedToMember(transaction)) {
+                        <ui-member-avatar [member]="memberOf(transaction)" size="xs"/>
+                        <span>{{ memberOf(transaction)?.firstName }}</span>
+                      }
                       @if (transaction.shared) {
-                        <span class="meta-badge"><i class="pi pi-home" aria-hidden="true"></i>wspólne</span>
+                        <span class="meta-badge meta-badge--shared"><i class="pi pi-home" aria-hidden="true"></i>dobro wspólne</span>
                       }
                       @if (transaction.recurring) {
-                        <span class="meta-badge"><i class="pi pi-sync" aria-hidden="true"></i>stała</span>
+                        <span class="meta-badge meta-badge--recurring"><i class="pi pi-sync" aria-hidden="true"></i>stała</span>
                       }
                     </span>
                   </div>

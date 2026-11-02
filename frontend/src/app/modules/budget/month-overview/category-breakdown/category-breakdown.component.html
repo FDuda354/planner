@@ -22,10 +22,10 @@
         <button type="button"
                 class="category-row"
                 [style.--item-color]="share.item.color"
-                [class.category-row--active]="store.categoryFilter() === share.item.id"
-                [class.category-row--dimmed]="store.categoryFilter() !== null && store.categoryFilter() !== share.item.id"
-                [attr.aria-pressed]="store.categoryFilter() === share.item.id"
-                (click)="store.toggleCategoryFilter(share.item.id)">
+                [class.category-row--active]="feed.filters().categoryId === share.item.id"
+                [class.category-row--dimmed]="feed.filters().categoryId !== null && feed.filters().categoryId !== share.item.id"
+                [attr.aria-pressed]="feed.filters().categoryId === share.item.id"
+                (click)="feed.toggleCategory(share.item.id)">
           <ui-item-icon [icon]="share.item.icon" [color]="share.item.color" size="sm"/>
           <div class="flex flex-col category-row__body">
             <div class="flex flex-row justify-between items-center gap-8">

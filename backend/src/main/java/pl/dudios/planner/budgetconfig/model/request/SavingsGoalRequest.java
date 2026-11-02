@@ -24,7 +24,6 @@ public record SavingsGoalRequest(
   @Pattern(regexp = "^#[0-9a-fA-F]{6}$", message = "Niepoprawny kolor")
   String color,
 
-  boolean active,
 
   @Size(max = 255, message = "Notatka może mieć maksymalnie 255 znaków")
   String note,

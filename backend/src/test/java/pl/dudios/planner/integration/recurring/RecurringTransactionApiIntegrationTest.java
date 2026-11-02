@@ -63,7 +63,7 @@ class RecurringTransactionApiIntegrationTest extends AbstractIntegrationTest {
     filip = fixtures.member(household, "Filip", "filip@planner.test");
     klaudia = fixtures.member(household, "Klaudia", "klaudia@planner.test");
     salary = fixtures.incomeSource(household, "Wynagrodzenie");
-    housing = fixtures.expenseCategory(household, "Mieszkanie", true);
+    housing = fixtures.expenseCategory(household, "Mieszkanie");
   }
 
   @Nested

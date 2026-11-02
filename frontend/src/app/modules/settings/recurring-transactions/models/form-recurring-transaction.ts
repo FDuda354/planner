@@ -1,6 +1,6 @@
 import {max, min, required, schema, validate} from '@angular/forms/signals';
-import {TransactionType} from '../../../../models/Transaction';
-import {RecurrenceFrequency, RecurringTransaction, RecurringTransactionRequest} from '../../../../models/RecurringTransaction';
+import {canBeShared, TransactionType} from '../../../../models/transaction.model';
+import {RecurrenceFrequency, RecurringTransaction, RecurringTransactionRequest} from '../../../../models/recurring-transaction.model';
 import {maxDayOf, RecurrenceSchedule} from './recurring-schedule';
 
 export interface RecurringFormModel {
@@ -68,7 +68,7 @@ export function toRecurringRequest(model: RecurringFormModel): RecurringTransact
     dayOfMonth: schedule.dayOfMonth,
     monthOfYear: schedule.monthOfYear,
     memberId: model.memberId!,
-    shared: model.type === TransactionType.EXPENSE && model.shared,
+    shared: canBeShared(model.type) && model.shared,
     note: model.note.trim(),
     active: model.active,
   };

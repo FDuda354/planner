@@ -30,6 +30,20 @@
     color: var(--p-text-muted-color);
   }
 
+  &__forecast {
+    text-align: right;
+  }
+
+  &__forecast-amount {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--budget-income);
+
+    &--negative {
+      color: var(--budget-expense);
+    }
+  }
+
   &__hero {
     gap: 2px;
   }

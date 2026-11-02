@@ -14,9 +14,7 @@
            [pAutoFocus]="true"
            [formField]="registerForm.firstName"
            autocomplete="given-name"/>
-    @if (registerForm.firstName().touched() && registerForm.firstName().invalid()) {
-      <small class="p-error auth-form__error">{{ registerForm.firstName().errors()[0].message }}</small>
-    }
+    <ui-field-error [field]="registerForm.firstName"/>
 
     <label class="auth-form__label" for="register-email">E-mail</label>
     <input pInputText
@@ -27,9 +25,7 @@
            [formField]="registerForm.email"
            (change)="trimEmail()"
            autocomplete="email"/>
-    @if (registerForm.email().touched() && registerForm.email().invalid()) {
-      <small class="p-error auth-form__error">{{ registerForm.email().errors()[0].message }}</small>
-    }
+    <ui-field-error [field]="registerForm.email"/>
 
     <label class="auth-form__label" for="register-password">Hasło</label>
     <p-iconfield>
@@ -48,9 +44,7 @@
         </button>
       </p-inputicon>
     </p-iconfield>
-    @if (registerForm.password().touched() && registerForm.password().invalid()) {
-      <small class="p-error auth-form__error">{{ registerForm.password().errors()[0].message }}</small>
-    }
+    <ui-field-error [field]="registerForm.password"/>
 
     @if (errorMessage()) {
       <p-message severity="error">{{ errorMessage() }}</p-message>

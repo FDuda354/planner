@@ -1,0 +1,9 @@
+@if (copy(); as copy) {
+  <label class="shared-toggle" [class.shared-toggle--active]="field()().value()" [for]="inputId()">
+    <p-checkbox [formField]="field()" [binary]="true" [inputId]="inputId()"/>
+    <span class="flex flex-col">
+      <span class="shared-toggle__title"><i class="pi pi-home" aria-hidden="true"></i> {{ copy.title }}</span>
+      <span class="shared-toggle__hint">{{ copy.hint }}</span>
+    </span>
+  </label>
+}

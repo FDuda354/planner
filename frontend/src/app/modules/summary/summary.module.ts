@@ -5,6 +5,7 @@ import {SummaryComponent} from './summary.component';
 import {CashflowChartComponent} from './cashflow-chart/cashflow-chart.component';
 import {IncomeStructureComponent} from './income-structure/income-structure.component';
 import {CategoryHeatmapComponent} from './category-heatmap/category-heatmap.component';
+import {MemberYearTotalsComponent} from './member-year-totals/member-year-totals.component';
 
 const SUMMARY_ROUTES: Routes = [
   {path: '', component: SummaryComponent},
@@ -16,6 +17,7 @@ const SUMMARY_ROUTES: Routes = [
     CashflowChartComponent,
     IncomeStructureComponent,
     CategoryHeatmapComponent,
+    MemberYearTotalsComponent,
   ],
   imports: [
     SharedModule,

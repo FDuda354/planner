@@ -3,34 +3,39 @@
   Każdą tak dodaną transakcję możesz potem poprawić albo usunąć jak zwykłą.
 </p>
 
+<div class="flex flex-row flex-wrap items-center justify-between gap-12 recurring__toolbar">
+  @if (store.recurringTransactions().length > 0) {
+    <p-iconfield class="recurring__search">
+      <p-inputicon class="pi pi-search"/>
+      <input pInputText type="search" placeholder="Szukaj…" aria-label="Szukaj stałych transakcji"
+             [value]="store.filters().search" (input)="onSearch($event)"/>
+    </p-iconfield>
+  }
+  <button pButton type="button" class="action-button--solid recurring__add" (click)="store.create()">
+    <i class="pi pi-plus" aria-hidden="true"></i>
+    Dodaj stałą transakcję
+  </button>
+</div>
+
 @if (store.recurringTransactions().length > 0) {
   <div class="flex flex-row flex-wrap items-center gap-8 recurring__filters">
-    <div class="segmented" role="radiogroup" aria-label="Rodzaj transakcji">
-      @for (option of typeFilters; track option.value) {
-        <label class="segmented__option radio-option" [class.segmented__option--active]="store.filters().type === option.value">
-          <input type="radio" name="recurring-filter-type" [checked]="store.filters().type === option.value" (change)="selectType(option.value)">
-          {{ option.label }}
-          <span class="recurring__filter-count">{{ store.countOfType(option.value) }}</span>
-        </label>
-      }
-    </div>
+    <ui-type-filter name="recurring-filter-type" [value]="store.filters().type" [countOf]="countOfType"
+                    (changed)="store.selectType($event)"/>
     <div class="segmented" role="radiogroup" aria-label="Jak często">
       @for (option of frequencyFilters; track option.value) {
         <label class="segmented__option radio-option" [class.segmented__option--active]="store.filters().frequency === option.value">
           <input type="radio" name="recurring-filter-frequency" [checked]="store.filters().frequency === option.value"
-                 (change)="selectFrequency(option.value)">
+                 (change)="store.selectFrequency(option.value)">
           {{ option.label }}
         </label>
       }
     </div>
-    <p-select [formField]="filterForm.memberId"
-              [options]="householdStore.everyone()"
-              optionLabel="firstName"
-              optionValue="id"
-              placeholder="Wszyscy domownicy"
-              [showClear]="true"
-              ariaLabel="Czyja transakcja"
-              styleClass="recurring__member-filter"/>
+    <ui-member-picker name="recurring-filter-member" label="Czyja transakcja" noneLabel="Wszyscy" [value]="store.filters().memberId"
+                      [members]="householdStore.members()" (changed)="store.selectMember($event)"/>
+    <ui-shared-filter [active]="store.filters().sharedOnly" (changed)="store.selectSharedOnly($event)"/>
+    @if (store.isFiltered()) {
+      <button pButton type="button" variant="text" severity="secondary" (click)="store.clearFilters()">Wyczyść filtry</button>
+    }
   </div>
 }
 
@@ -39,16 +44,14 @@
     <app-recurring-transaction-card [recurring]="recurring"/>
   } @empty {
     @if (store.isFiltered()) {
-      <div class="flex flex-row items-center justify-between gap-12 muted recurring__empty">
-        Brak stałych transakcji dla wybranych filtrów.
-        <button pButton type="button" variant="text" size="small" (click)="store.clearFilters()">Wyczyść filtry</button>
-      </div>
+      <ui-empty-state icon="pi-filter-slash" title="Nic nie pasuje do filtrów" text="Zmień albo wyczyść filtry, aby zobaczyć stałe transakcje.">
+        <button pButton type="button" variant="outlined" (click)="store.clearFilters()">Wyczyść filtry</button>
+      </ui-empty-state>
+    } @else {
+      <ui-empty-state icon="pi-sync" title="Brak stałych transakcji"
+                      text="Dodajcie pierwszą przyciskiem „Dodaj stałą transakcję”."/>
     }
   }
-  <button type="button" class="recurring__add" (click)="store.create()">
-    <i class="pi pi-plus" aria-hidden="true"></i>
-    Dodaj stałą transakcję
-  </button>
 </div>
 
 <app-recurring-transaction-editor/>

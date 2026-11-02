@@ -38,7 +38,7 @@
         <p-skeleton height="380px" borderRadius="20px"/>
       }
     </div>
-  } @else if (store.activeGoals().length === 0) {
+  } @else if (store.goals().length === 0) {
     <section class="panel">
       <ui-empty-state icon="pi-bullseye" [title]="store.ownerFilter() === 'ALL' ? 'Nie macie jeszcze celów' : 'Brak celów w tym widoku'"
                       text="Dodajcie cel w konfiguracji — np. poduszkę finansową albo wakacje.">
@@ -47,16 +47,7 @@
     </section>
   } @else {
     <div class="goals__grid animation-stagger-children">
-      @for (view of store.activeGoals(); track view.goal.id) {
-        <app-goal-card [view]="view"/>
-      }
-    </div>
-  }
-
-  @if (store.pausedGoals().length > 0) {
-    <h2 class="goals__paused-title">Wstrzymane</h2>
-    <div class="goals__grid goals__grid--paused">
-      @for (view of store.pausedGoals(); track view.goal.id) {
+      @for (view of store.goals(); track view.goal.id) {
         <app-goal-card [view]="view"/>
       }
     </div>

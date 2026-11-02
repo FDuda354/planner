@@ -72,7 +72,7 @@ class BudgetItemRemovalApiIntegrationTest extends AbstractIntegrationTest {
   @Test
   @DisplayName("deleting a goal removes its deposits and keeps every other transaction")
   void deletesGoalWithDeposits() throws Exception {
-    var food = fixtures.expenseCategory(household, "Jedzenie", true);
+    var food = fixtures.expenseCategory(household, "Jedzenie");
     fixtures.transaction(filip, TransactionType.SAVING, japan.getId(), "500.00", DATE, false);
     var expense = fixtures.transaction(filip, TransactionType.EXPENSE, food.getId(), "40.00", DATE, false);
 

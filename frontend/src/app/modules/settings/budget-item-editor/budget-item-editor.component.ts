@@ -2,14 +2,14 @@ import {ChangeDetectionStrategy, Component, computed, effect, inject, signal, un
 import {apply, applyWhen, disabled, form} from '@angular/forms/signals';
 import {MessageService} from 'primeng/api';
 import {finalize} from 'rxjs';
-import {BudgetItemEditorState, BudgetItemEditorStore} from '../stories/budget-item-editor-store';
+import {BudgetItemEditorState, BudgetItemEditorStore} from '../stores/budget-item-editor.store';
 import {BudgetItemSaverService} from '../services/budget-item-saver.service';
 import {BudgetItemRemoverService} from '../services/budget-item-remover.service';
-import {BUDGET_COLORS, BUDGET_ICONS, BudgetItem} from '../../../models/BudgetItem';
-import {TransactionType} from '../../../models/Transaction';
+import {BUDGET_COLORS, BUDGET_ICONS, BudgetItem} from '../../../models/budget-item.model';
+import {TransactionType} from '../../../models/transaction.model';
 import {HouseholdStore} from '../../../stores/household.store';
 import {prepareFormSubmission} from '../../../shared/forms/prepare-form-submission';
-import {showServerError, showSuccess} from '../../../utils/NotificationHelper';
+import {showServerError, showSuccess} from '../../../shared/utils/notifications';
 import {budgetItemSchema, BudgetItemFormModel, editBudgetItemModel, newBudgetItemModel, savingsGoalSchema} from './models/form-budget-item';
 
 const KIND_NAMES: Record<TransactionType, { create: string; edit: string; placeholder: string }> = {
@@ -37,7 +37,6 @@ export class BudgetItemEditorComponent {
 
   readonly state = this.editor.state;
   readonly isGoal = computed(() => this.state().kind === TransactionType.SAVING);
-  readonly activeInputId = 'budget-item-active';
   readonly isWorking = signal(false);
   readonly header = computed(() => this.state().item ? KIND_NAMES[this.state().kind].edit : KIND_NAMES[this.state().kind].create);
   readonly placeholder = computed(() => KIND_NAMES[this.state().kind].placeholder);

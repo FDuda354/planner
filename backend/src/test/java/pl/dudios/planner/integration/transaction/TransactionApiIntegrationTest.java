@@ -56,7 +56,7 @@ class TransactionApiIntegrationTest extends AbstractIntegrationTest {
     strangerHousehold = fixtures.household();
     filip = fixtures.member(household, "Filip", "filip@planner.test");
     klaudia = fixtures.member(household, "Klaudia", "klaudia@planner.test");
-    food = fixtures.expenseCategory(household, "Jedzenie", true);
+    food = fixtures.expenseCategory(household, "Jedzenie");
     stranger = fixtures.member(strangerHousehold, "Obcy", "obcy@planner.test");
   }
 
@@ -125,22 +125,10 @@ class TransactionApiIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @DisplayName("refuses a paused category with HTTP 400")
-    void refusesPausedCategory() throws Exception {
-      var paused = fixtures.expenseCategory(household, "Stare", false);
-      var request = new TransactionRequest(null, TransactionType.EXPENSE, paused.getId(), new BigDecimal("10"), DATE, filip.getId(), false, "");
-
-      mockMvc.perform(post(ROOT).with(auth.as(filip)).contentType(APPLICATION_JSON).content(json(request)))
-             .andExpect(status().isBadRequest());
-
-      assertThat(transactionRepository.count()).isZero();
-    }
-
-    @Test
-    @DisplayName("refuses a shared income with HTTP 400")
-    void refusesSharedIncome() throws Exception {
-      var salary = fixtures.incomeSource(household, "Wynagrodzenie");
-      var request = new TransactionRequest(null, TransactionType.INCOME, salary.getId(), new BigDecimal("8000"), DATE, filip.getId(), true, "");
+    @DisplayName("refuses a shared saving with HTTP 400")
+    void refusesSharedSaving() throws Exception {
+      var holiday = fixtures.savingsGoal(household, "Wakacje", "0");
+      var request = new TransactionRequest(null, TransactionType.SAVING, holiday.getId(), new BigDecimal("500"), DATE, filip.getId(), true, "");
 
       mockMvc.perform(post(ROOT).with(auth.as(filip)).contentType(APPLICATION_JSON).content(json(request)))
              .andExpect(status().isBadRequest());
@@ -223,7 +211,7 @@ class TransactionApiIntegrationTest extends AbstractIntegrationTest {
       fixtures.transaction(filip, TransactionType.EXPENSE, food.getId(), "10", LocalDate.of(2026, 9, 1), false);
       fixtures.transaction(klaudia, TransactionType.EXPENSE, food.getId(), "20", LocalDate.of(2026, 9, 30), true);
       fixtures.transaction(filip, TransactionType.EXPENSE, food.getId(), "30", LocalDate.of(2026, 10, 1), false);
-      var strangerCategory = fixtures.expenseCategory(strangerHousehold, "Obce", true);
+      var strangerCategory = fixtures.expenseCategory(strangerHousehold, "Obce");
       fixtures.transaction(stranger, TransactionType.EXPENSE, strangerCategory.getId(), "99", LocalDate.of(2026, 9, 10), false);
 
       mockMvc.perform(get(ROOT).param("month", YearMonth.of(2026, 9).toString()).with(auth.as(filip)))

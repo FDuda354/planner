@@ -19,9 +19,10 @@ import pl.dudios.planner.household.repository.InvitationRepository;
 import pl.dudios.planner.household.service.HouseholdRemovalService;
 import pl.dudios.planner.member.model.Member;
 import pl.dudios.planner.member.repository.MemberRepository;
-import pl.dudios.planner.member.service.MemberAssignmentValidator;
 import pl.dudios.planner.member.service.AccountService;
+import pl.dudios.planner.member.service.MemberAssignmentValidator;
 import pl.dudios.planner.transaction.repository.TransactionRepository;
+import pl.dudios.planner.transaction.service.TransactionDetailsValidator;
 import pl.dudios.planner.transaction.service.TransactionService;
 
 import java.util.Optional;
@@ -69,8 +70,9 @@ class AccountServiceTest {
 
   @BeforeEach
   void setUp() {
-    var budgetConfigService = new BudgetConfigService(expenseCategoryRepository, incomeSourceRepository, savingsGoalRepository, memberRepository);
-    var transactionService = new TransactionService(transactionRepository, budgetConfigService, new MemberAssignmentValidator(memberRepository));
+    var memberAssignmentValidator = new MemberAssignmentValidator(memberRepository);
+    var budgetConfigService = new BudgetConfigService(expenseCategoryRepository, incomeSourceRepository, savingsGoalRepository, memberAssignmentValidator);
+    var transactionService = new TransactionService(transactionRepository, new TransactionDetailsValidator(budgetConfigService, memberAssignmentValidator));
     var householdRemovalService = new HouseholdRemovalService(transactionService, budgetConfigService, invitationRepository, memberRepository, householdRepository);
     accountService = new AccountService(memberRepository, passwordEncoder, householdRemovalService);
     filip = Member.builder()

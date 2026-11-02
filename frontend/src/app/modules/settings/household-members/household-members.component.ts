@@ -5,10 +5,10 @@ import {finalize} from 'rxjs';
 import {HouseholdStore} from '../../../stores/household.store';
 import {HouseholdService} from '../../../services/household.service';
 import {AuthService} from '../../auth/services/auth.service';
-import {Member} from '../../../models/Member';
+import {Member} from '../../../models/member.model';
 import {prepareFormSubmission} from '../../../shared/forms/prepare-form-submission';
 import {trimField} from '../../../shared/forms/trim-field';
-import {showServerError, showSuccess} from '../../../utils/NotificationHelper';
+import {showServerError, showSuccess} from '../../../shared/utils/notifications';
 import {emptyInvitationModel, invitationSchema} from './models/form-invitation';
 
 @Component({

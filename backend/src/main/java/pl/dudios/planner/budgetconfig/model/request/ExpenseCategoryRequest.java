@@ -17,9 +17,7 @@ public record ExpenseCategoryRequest(
 
   @NotBlank(message = "Wybierz kolor")
   @Pattern(regexp = "^#[0-9a-fA-F]{6}$", message = "Niepoprawny kolor")
-  String color,
-
-  boolean active
+  String color
 ) {
 
   public ExpenseCategoryRequest {

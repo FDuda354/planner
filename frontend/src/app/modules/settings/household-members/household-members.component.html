@@ -74,8 +74,6 @@
         Zaproś
       </button>
     </div>
-    @if (invitationForm.email().touched() && invitationForm.email().invalid()) {
-      <small class="p-error">{{ invitationForm.email().errors()[0].message }}</small>
-    }
+    <ui-field-error [field]="invitationForm.email"/>
   </form>
 </div>

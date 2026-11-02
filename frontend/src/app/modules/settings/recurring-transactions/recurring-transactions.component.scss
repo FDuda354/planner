@@ -1,49 +1,23 @@
 .recurring {
-  max-width: 720px;
-
   &__intro {
     margin: 0 0 20px;
     max-width: 720px;
   }
 
+  &__toolbar {
+    margin-bottom: 12px;
+  }
+
+  &__search input {
+    width: 200px;
+  }
+
+  &__add.p-button {
+    flex: none;
+    margin-left: auto;
+  }
+
   &__filters {
     margin-bottom: 16px;
-  }
-
-  &__filter-count {
-    margin-left: 4px;
-    color: var(--p-text-muted-color);
-    font-weight: 400;
-  }
-
-  &__member-filter {
-    min-width: 200px;
-  }
-
-  &__empty {
-    padding: 12px 14px;
-    border: 1px solid var(--budget-border);
-    border-radius: var(--budget-radius-sm);
-  }
-
-  &__add {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    min-height: 68px;
-    border: 1.5px dashed var(--budget-border);
-    border-radius: var(--budget-radius-sm);
-    background: transparent;
-    color: var(--p-text-muted-color);
-    font: inherit;
-    font-weight: 700;
-    cursor: pointer;
-    transition: border-color 0.15s ease, color 0.15s ease;
-
-    &:hover {
-      border-color: var(--p-primary-color);
-      color: var(--p-primary-color);
-    }
   }
 }

@@ -40,8 +40,8 @@ class SummaryApiIntegrationTest extends AbstractIntegrationTest {
     Household household = fixtures.household();
     filip = fixtures.member(household, "Filip", "filip@planner.test");
     klaudia = fixtures.member(household, "Klaudia", "klaudia@planner.test");
-    food = fixtures.expenseCategory(household, "Jedzenie", true);
-    fun = fixtures.expenseCategory(household, "Rozrywka", true);
+    food = fixtures.expenseCategory(household, "Jedzenie");
+    fun = fixtures.expenseCategory(household, "Rozrywka");
     salary = fixtures.incomeSource(household, "Wynagrodzenie");
     japan = fixtures.savingsGoal(household, "Wakacje w Japonii", "2000");
   }
@@ -122,7 +122,7 @@ class SummaryApiIntegrationTest extends AbstractIntegrationTest {
   void isolatesHouseholds() throws Exception {
     var otherHousehold = fixtures.household();
     var stranger = fixtures.member(otherHousehold, "Obcy", "obcy@planner.test");
-    var strangerFood = fixtures.expenseCategory(otherHousehold, "Jedzenie", true);
+    var strangerFood = fixtures.expenseCategory(otherHousehold, "Jedzenie");
     fixtures.transaction(stranger, TransactionType.EXPENSE, strangerFood.getId(), "999.00", LocalDate.of(2026, 9, 1), false);
     fixtures.transaction(filip, TransactionType.EXPENSE, food.getId(), "10.00", LocalDate.of(2026, 9, 1), false);
 

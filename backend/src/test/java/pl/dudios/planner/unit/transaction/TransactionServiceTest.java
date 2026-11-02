@@ -9,7 +9,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import pl.dudios.planner.budgetconfig.model.ExpenseCategory;
-import pl.dudios.planner.budgetconfig.model.IncomeSource;
 import pl.dudios.planner.budgetconfig.model.SavingsGoal;
 import pl.dudios.planner.budgetconfig.repository.ExpenseCategoryRepository;
 import pl.dudios.planner.budgetconfig.repository.IncomeSourceRepository;
@@ -24,6 +23,7 @@ import pl.dudios.planner.transaction.model.Transaction;
 import pl.dudios.planner.transaction.model.TransactionType;
 import pl.dudios.planner.transaction.model.request.TransactionRequest;
 import pl.dudios.planner.transaction.repository.TransactionRepository;
+import pl.dudios.planner.transaction.service.TransactionDetailsValidator;
 import pl.dudios.planner.transaction.service.TransactionService;
 
 import java.math.BigDecimal;
@@ -72,8 +72,9 @@ class TransactionServiceTest {
 
   @BeforeEach
   void setUp() {
-    var budgetConfigService = new BudgetConfigService(expenseCategoryRepository, incomeSourceRepository, savingsGoalRepository, memberRepository);
-    transactionService = new TransactionService(transactionRepository, budgetConfigService, new MemberAssignmentValidator(memberRepository));
+    var memberAssignmentValidator = new MemberAssignmentValidator(memberRepository);
+    var budgetConfigService = new BudgetConfigService(expenseCategoryRepository, incomeSourceRepository, savingsGoalRepository, memberAssignmentValidator);
+    transactionService = new TransactionService(transactionRepository, new TransactionDetailsValidator(budgetConfigService, memberAssignmentValidator));
     filip = member(FILIP_ID);
   }
 
@@ -106,7 +107,7 @@ class TransactionServiceTest {
     void linksSavingToGoal() {
       // Given
       givenActiveFilip();
-      given(savingsGoalRepository.findByIdAndHouseholdId(7L, HOUSEHOLD_ID)).willReturn(Optional.of(goal(7L, true)));
+      given(savingsGoalRepository.findByIdAndHouseholdId(7L, HOUSEHOLD_ID)).willReturn(Optional.of(goal(7L)));
       var request = new TransactionRequest(null, TransactionType.SAVING, 7L, new BigDecimal("500"), DATE, FILIP_ID, false, "");
 
       // When
@@ -117,20 +118,6 @@ class TransactionServiceTest {
       assertThat(saved.getSavingsGoalId()).isEqualTo(7L);
       assertThat(saved.getExpenseCategoryId()).isNull();
       assertThat(saved.getIncomeSourceId()).isNull();
-    }
-
-    @Test
-    @DisplayName("refuses a paused category — it has to be restored in the configuration first")
-    void refusesPausedCategory() {
-      // Given
-      given(expenseCategoryRepository.findByIdAndHouseholdId(CATEGORY_ID, HOUSEHOLD_ID)).willReturn(Optional.of(category(false)));
-
-      // When / Then
-      var request = expense(null, false);
-      assertThatThrownBy(() -> transactionService.saveTransaction(HOUSEHOLD_ID, request))
-        .isInstanceOf(RequestValidationException.class)
-        .hasMessageContaining("Jedzenie");
-      then(transactionRepository).should(never()).save(any());
     }
 
     @Test
@@ -150,7 +137,6 @@ class TransactionServiceTest {
     @DisplayName("refuses a date in the next month — only the current month can be planned ahead")
     void refusesNextMonth() {
       // Given
-      givenActiveCategory();
       var firstDayOfNextMonth = YearMonth.now(EARLIEST_ON_EARTH).plusMonths(1).atDay(1);
       var request = new TransactionRequest(null, TransactionType.EXPENSE, CATEGORY_ID, new BigDecimal("10"), firstDayOfNextMonth, FILIP_ID, false, "");
 
@@ -193,16 +179,16 @@ class TransactionServiceTest {
     }
 
     @Test
-    @DisplayName("refuses to mark an income as shared — only expenses can be shared")
-    void refusesSharedIncome() {
+    @DisplayName("refuses to mark a saving as shared — it always goes to a goal")
+    void refusesSharedSaving() {
       // Given
-      given(incomeSourceRepository.findByIdAndHouseholdId(5L, HOUSEHOLD_ID)).willReturn(Optional.of(incomeSource()));
-      var request = new TransactionRequest(null, TransactionType.INCOME, 5L, new BigDecimal("8000"), DATE, FILIP_ID, true, "");
+      given(savingsGoalRepository.findByIdAndHouseholdId(7L, HOUSEHOLD_ID)).willReturn(Optional.of(goal(7L)));
+      var request = new TransactionRequest(null, TransactionType.SAVING, 7L, new BigDecimal("500"), DATE, FILIP_ID, true, "");
 
       // When / Then
       assertThatThrownBy(() -> transactionService.saveTransaction(HOUSEHOLD_ID, request))
         .isInstanceOf(RequestValidationException.class)
-        .hasMessageContaining("wydatek");
+        .hasMessageContaining("Oszczędności");
       then(transactionRepository).should(never()).save(any());
     }
   }
@@ -226,35 +212,6 @@ class TransactionServiceTest {
       var saved = savedTransaction();
       assertThat(saved.getMemberId()).isEqualTo(FILIP_ID);
       assertThat(saved.isShared()).isFalse();
-    }
-
-    @Test
-    @DisplayName("allows keeping a category that was paused after the transaction was recorded")
-    void keepsPausedCategoryOfEditedTransaction() {
-      // Given
-      givenActiveFilip();
-      given(expenseCategoryRepository.findByIdAndHouseholdId(CATEGORY_ID, HOUSEHOLD_ID)).willReturn(Optional.of(category(false)));
-      given(transactionRepository.findByIdAndHouseholdId(50L, HOUSEHOLD_ID)).willReturn(Optional.of(existingExpense(FILIP_ID, CATEGORY_ID)));
-
-      // When
-      transactionService.saveTransaction(HOUSEHOLD_ID, expense(50L, false));
-
-      // Then
-      assertThat(savedTransaction().getExpenseCategoryId()).isEqualTo(CATEGORY_ID);
-    }
-
-    @Test
-    @DisplayName("refuses moving a transaction into a paused category")
-    void refusesMoveIntoPausedCategory() {
-      // Given
-      given(expenseCategoryRepository.findByIdAndHouseholdId(CATEGORY_ID, HOUSEHOLD_ID)).willReturn(Optional.of(category(false)));
-      given(transactionRepository.findByIdAndHouseholdId(50L, HOUSEHOLD_ID)).willReturn(Optional.of(existingExpense(FILIP_ID, 999L)));
-
-      // When / Then
-      var request = expense(50L, false);
-      assertThatThrownBy(() -> transactionService.saveTransaction(HOUSEHOLD_ID, request))
-        .isInstanceOf(RequestValidationException.class);
-      then(transactionRepository).should(never()).save(any());
     }
 
     @Test
@@ -320,7 +277,7 @@ class TransactionServiceTest {
   }
 
   private void givenActiveCategory() {
-    given(expenseCategoryRepository.findByIdAndHouseholdId(CATEGORY_ID, HOUSEHOLD_ID)).willReturn(Optional.of(category(true)));
+    given(expenseCategoryRepository.findByIdAndHouseholdId(CATEGORY_ID, HOUSEHOLD_ID)).willReturn(Optional.of(category()));
   }
 
   private Transaction savedTransaction() {
@@ -355,16 +312,12 @@ class TransactionServiceTest {
     return Member.builder().id(id).householdId(HOUSEHOLD_ID).firstName("Member" + id).email(id + "@planner.test").password("hash").color("#0d9488").active(true).build();
   }
 
-  private ExpenseCategory category(boolean active) {
-    return ExpenseCategory.builder().id(CATEGORY_ID).householdId(HOUSEHOLD_ID).name("Jedzenie").icon("pi-shopping-cart").color("#10b981").active(active).build();
+  private ExpenseCategory category() {
+    return ExpenseCategory.builder().id(CATEGORY_ID).householdId(HOUSEHOLD_ID).name("Jedzenie").icon("pi-shopping-cart").color("#10b981").build();
   }
 
-  private IncomeSource incomeSource() {
-    return IncomeSource.builder().id(5L).householdId(HOUSEHOLD_ID).name("Wynagrodzenie").icon("pi-briefcase").color("#059669").active(true).build();
-  }
-
-  private SavingsGoal goal(Long id, boolean active) {
-    return SavingsGoal.builder().id(id).householdId(HOUSEHOLD_ID).name("Wakacje").icon("pi-sun").color("#f97316").active(active)
+  private SavingsGoal goal(Long id) {
+    return SavingsGoal.builder().id(id).householdId(HOUSEHOLD_ID).name("Wakacje").icon("pi-sun").color("#f97316")
                       .note("").initialAmount(BigDecimal.ZERO).targetAmount(new BigDecimal("10000")).build();
   }
 

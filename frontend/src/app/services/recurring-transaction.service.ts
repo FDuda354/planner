@@ -1,7 +1,7 @@
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {inject, Injectable} from '@angular/core';
 import {Observable, tap} from 'rxjs';
-import {RecurringTransaction, RecurringTransactionRequest} from '../models/RecurringTransaction';
+import {RecurringTransaction, RecurringTransactionRequest} from '../models/recurring-transaction.model';
 import {TransactionService} from './transaction.service';
 import {environment} from '../../environments/environment';
 

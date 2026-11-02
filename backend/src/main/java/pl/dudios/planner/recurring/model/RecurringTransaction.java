@@ -111,6 +111,10 @@ public class RecurringTransaction {
     nextOccurrence = candidate.isBefore(today) ? occurrenceAfter(candidate) : candidate;
   }
 
+  public boolean belongsToNobody() {
+    return type == TransactionType.INCOME && shared;
+  }
+
   public boolean isDueOn(LocalDate today) {
     return active && !nextOccurrence.isAfter(today);
   }

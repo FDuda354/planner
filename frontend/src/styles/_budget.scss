@@ -12,6 +12,9 @@
   --budget-expense-soft: #ffe4e6;
   --budget-saving: #0284c7;
   --budget-saving-soft: #e0f2fe;
+  --budget-tag-shared: #15803d;
+  --budget-tag-recurring: #c2410c;
+  --budget-tag-frequency: #6d28d9;
 }
 
 .my-app-dark {
@@ -26,6 +29,24 @@
   --budget-expense-soft: rgba(251, 113, 133, 0.14);
   --budget-saving: #38bdf8;
   --budget-saving-soft: rgba(56, 189, 248, 0.14);
+  --budget-tag-shared: #4ade80;
+  --budget-tag-recurring: #fb923c;
+  --budget-tag-frequency: #a78bfa;
+}
+
+[data-transaction-type] {
+  --type-color: var(--budget-expense);
+  --type-soft: var(--budget-expense-soft);
+}
+
+[data-transaction-type='INCOME'] {
+  --type-color: var(--budget-income);
+  --type-soft: var(--budget-income-soft);
+}
+
+[data-transaction-type='SAVING'] {
+  --type-color: var(--budget-saving);
+  --type-soft: var(--budget-saving-soft);
 }
 
 .panel {
@@ -112,18 +133,32 @@
 }
 
 .meta-badge {
+  --badge-color: var(--p-text-muted-color);
   display: inline-flex;
   align-items: center;
   gap: 3px;
   margin-left: 4px;
-  padding: 0 6px;
+  padding: 1px 7px;
   border-radius: 999px;
   font-size: 11px;
-  color: var(--p-text-muted-color);
-  background: var(--budget-surface-muted);
+  font-weight: 600;
+  color: var(--badge-color);
+  background: color-mix(in srgb, var(--badge-color) 16%, transparent);
 
   .pi {
     font-size: 9px;
+  }
+
+  &--shared {
+    --badge-color: var(--budget-tag-shared);
+  }
+
+  &--recurring {
+    --badge-color: var(--budget-tag-recurring);
+  }
+
+  &--frequency {
+    --badge-color: var(--budget-tag-frequency);
   }
 }
 
@@ -184,6 +219,12 @@
       background: var(--budget-surface);
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
     }
+  }
+
+  &__count {
+    margin-left: 4px;
+    color: var(--p-text-muted-color);
+    font-weight: 400;
   }
 }
 

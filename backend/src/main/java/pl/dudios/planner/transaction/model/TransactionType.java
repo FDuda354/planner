@@ -3,5 +3,9 @@ package pl.dudios.planner.transaction.model;
 public enum TransactionType {
   EXPENSE,
   INCOME,
-  SAVING
+  SAVING;
+
+  public boolean canBeShared() {
+    return this != SAVING;
+  }
 }

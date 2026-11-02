@@ -1,5 +1,5 @@
 import {ChangeDetectionStrategy, Component, computed, input} from '@angular/core';
-import {Member} from '../../../../models/Member';
+import {Member} from '../../../../models/member.model';
 
 export type MemberAvatarSize = 'xs' | 'sm' | 'md' | 'lg';
 

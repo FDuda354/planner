@@ -1,8 +1,8 @@
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {inject, Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
-import {BudgetConfig, BudgetItemRequest, ItemUsage, SavingsGoalRequest} from '../models/BudgetItem';
-import {TransactionType} from '../models/Transaction';
+import {BudgetConfig, BudgetItemRequest, ItemUsage, SavingsGoalRequest} from '../models/budget-item.model';
+import {TransactionType} from '../models/transaction.model';
 import {environment} from '../../environments/environment';
 
 @Injectable({providedIn: 'root'})

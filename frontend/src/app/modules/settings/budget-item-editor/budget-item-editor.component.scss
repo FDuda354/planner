@@ -13,24 +13,6 @@
     font-weight: 700;
   }
 
-  &__switch {
-    cursor: pointer;
-  }
-
-  &__switch-title {
-    font-weight: 700;
-
-    .pi {
-      font-size: 13px;
-      margin-right: 2px;
-    }
-  }
-
-  &__switch-hint {
-    font-size: 12px;
-    line-height: 16px;
-  }
-
   &__delete.p-button {
     margin-right: auto;
   }
@@ -40,6 +22,9 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
   gap: 6px;
+  max-height: 232px;
+  padding: 2px;
+  overflow-y: auto;
 
   &__option {
     display: inline-flex;

@@ -2,7 +2,7 @@ import {computed, inject, Injectable} from '@angular/core';
 import {rxResource} from '@angular/core/rxjs-interop';
 import {HouseholdService} from '../services/household.service';
 import {AuthService} from '../modules/auth/services/auth.service';
-import {Household, Member} from '../models/Member';
+import {Household, Member} from '../models/member.model';
 
 const EMPTY_HOUSEHOLD: Household = {id: 0, name: '', members: [], formerMembers: [], pendingInvitations: []};
 

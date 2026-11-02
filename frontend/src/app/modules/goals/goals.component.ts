@@ -1,5 +1,5 @@
 import {ChangeDetectionStrategy, Component, inject} from '@angular/core';
-import {GoalsStore} from './stories/goals-store';
+import {GoalsStore} from './stores/goals.store';
 import {AppRoute} from '../../app-routes';
 import {HouseholdStore} from '../../stores/household.store';
 

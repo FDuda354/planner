@@ -7,7 +7,6 @@ public record SavingsGoalDTO(
   String name,
   String icon,
   String color,
-  boolean active,
   String note,
   BigDecimal initialAmount,
   BigDecimal targetAmount,

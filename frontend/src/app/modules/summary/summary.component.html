@@ -4,18 +4,26 @@
       <h1 class="page-title">Podsumowanie roku</h1>
       <p class="page-subtitle">Cały rok w jednym miejscu — skąd przychodzą i dokąd odpływają pieniądze</p>
     </div>
-    <div class="flex flex-row items-center gap-8 year-switch">
-      <button pButton type="button" variant="text" severity="secondary" [rounded]="true" [iconOnly]="true"
-              aria-label="Poprzedni rok" class="year-switch__button"
-              [disabled]="!store.canGoBack()" (click)="store.previousYear()">
-        <i class="pi pi-chevron-left" aria-hidden="true"></i>
-      </button>
-      <span class="year-switch__year">{{ store.year() }}</span>
-      <button pButton type="button" variant="text" severity="secondary" [rounded]="true" [iconOnly]="true"
-              aria-label="Następny rok" class="year-switch__button"
-              [disabled]="!store.canGoForward()" (click)="store.nextYear()">
-        <i class="pi pi-chevron-right" aria-hidden="true"></i>
-      </button>
+    <div class="flex flex-row items-center gap-8">
+      @if (!store.isCurrentYear()) {
+        <button pButton type="button" variant="outlined" severity="secondary" (click)="store.showCurrentYear()">
+          <i class="pi pi-calendar" aria-hidden="true"></i>
+          Ten rok
+        </button>
+      }
+      <div class="flex flex-row items-center gap-8 year-switch">
+        <button pButton type="button" variant="text" severity="secondary" [rounded]="true" [iconOnly]="true"
+                aria-label="Poprzedni rok" class="year-switch__button"
+                [disabled]="!store.canGoBack()" (click)="store.previousYear()">
+          <i class="pi pi-chevron-left" aria-hidden="true"></i>
+        </button>
+        <span class="year-switch__year">{{ store.year() }}</span>
+        <button pButton type="button" variant="text" severity="secondary" [rounded]="true" [iconOnly]="true"
+                aria-label="Następny rok" class="year-switch__button"
+                [disabled]="!store.canGoForward()" (click)="store.nextYear()">
+          <i class="pi pi-chevron-right" aria-hidden="true"></i>
+        </button>
+      </div>
     </div>
   </div>
 

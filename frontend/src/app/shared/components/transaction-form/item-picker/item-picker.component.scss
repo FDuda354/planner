@@ -1,0 +1,56 @@
+:host {
+  display: block;
+}
+
+.item-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+  gap: 8px;
+
+  &__empty {
+    grid-column: 1 / -1;
+    padding: 14px;
+    border: 1.5px dashed var(--budget-border);
+    border-radius: 12px;
+    font-size: 13px;
+    color: var(--p-text-muted-color);
+
+    ::ng-deep a {
+      color: var(--p-primary-color);
+      font-weight: 700;
+    }
+  }
+}
+
+.item-tile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1.5px solid var(--budget-border);
+  border-radius: 12px;
+  background: var(--budget-surface);
+  color: var(--p-text-color);
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
+
+  &:hover {
+    border-color: color-mix(in srgb, var(--item-color) 50%, transparent);
+    transform: translateY(-1px);
+  }
+
+  &--selected {
+    border-color: var(--item-color);
+    background: color-mix(in srgb, var(--item-color) 10%, transparent);
+    font-weight: 700;
+  }
+
+  &__name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}

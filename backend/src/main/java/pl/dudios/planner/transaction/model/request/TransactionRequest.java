@@ -33,7 +33,7 @@ public record TransactionRequest(
 
   @Size(max = 255, message = "Notatka może mieć maksymalnie 255 znaków")
   String note
-) {
+) implements TransactionDetails {
 
   public TransactionRequest {
     note = note == null ? "" : note.trim();

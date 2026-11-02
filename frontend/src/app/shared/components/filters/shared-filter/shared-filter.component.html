@@ -1,0 +1,5 @@
+<button type="button" class="choice-chip" [class.choice-chip--active]="active()" [attr.aria-pressed]="active()"
+        (click)="changed.emit(!active())">
+  <i class="pi pi-home" aria-hidden="true"></i>
+  Dobro wspólne
+</button>

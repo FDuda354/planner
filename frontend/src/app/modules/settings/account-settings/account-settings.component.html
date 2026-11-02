@@ -80,9 +80,7 @@
           </button>
         </p-inputicon>
       </p-iconfield>
-      @if (deletionForm.password().touched() && deletionForm.password().invalid()) {
-        <small class="p-error">{{ deletionForm.password().errors()[0].message }}</small>
-      }
+      <ui-field-error [field]="deletionForm.password"/>
     </div>
 
     @if (errorMessage(); as message) {

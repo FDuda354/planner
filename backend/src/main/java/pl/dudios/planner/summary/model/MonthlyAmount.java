@@ -27,4 +27,12 @@ public record MonthlyAmount(
     return type == TransactionType.EXPENSE && shared;
   }
 
+  public boolean isPersonalIncome() {
+    return type == TransactionType.INCOME && !shared;
+  }
+
+  public boolean isSharedIncome() {
+    return type == TransactionType.INCOME && shared;
+  }
+
 }

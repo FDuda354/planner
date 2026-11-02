@@ -1,8 +1,8 @@
 import {computed, inject, Injectable} from '@angular/core';
 import {rxResource} from '@angular/core/rxjs-interop';
 import {BudgetConfigService} from '../services/budget-config.service';
-import {BudgetConfig, BudgetItem} from '../models/BudgetItem';
-import {TransactionType} from '../models/Transaction';
+import {BudgetConfig, BudgetItem} from '../models/budget-item.model';
+import {TransactionType} from '../models/transaction.model';
 import {AuthService} from '../modules/auth/services/auth.service';
 
 const EMPTY_CONFIG: BudgetConfig = {expenseCategories: [], incomeSources: [], savingsGoals: []};
@@ -30,10 +30,6 @@ export class BudgetConfigStore {
 
   itemsOf(type: TransactionType): BudgetItem[] {
     return this.itemsByType()[type];
-  }
-
-  activeItemsOf(type: TransactionType): BudgetItem[] {
-    return this.itemsOf(type).filter(item => item.active);
   }
 
   itemOf(type: TransactionType, itemId: number): BudgetItem | undefined {

@@ -54,9 +54,7 @@ public class SummaryService {
 
   @Transactional(readOnly = true)
   public List<GoalProgressDTO> getGoalProgress(Long householdId) {
-    List<MonthlyAmount> savings = summaryRepository.findMonthlyAmounts(householdId).stream()
-      .filter(amount -> amount.type() == TransactionType.SAVING)
-      .toList();
+    List<MonthlyAmount> savings = summaryRepository.findMonthlyAmountsOfType(householdId, TransactionType.SAVING);
     return budgetConfigService.getSavingsGoals(householdId).stream()
       .map(goal -> toGoalProgress(goal, savings))
       .toList();
@@ -71,8 +69,10 @@ public class SummaryService {
       amountsByItem(amounts, TransactionType.EXPENSE),
       amountsByItem(amounts, TransactionType.INCOME),
       amountsByItem(amounts, TransactionType.SAVING),
-      personalExpensesByMember(amounts),
-      total(amounts, MonthlyAmount::isSharedExpense)
+      amountsByMember(amounts, MonthlyAmount::isPersonalExpense),
+      total(amounts, MonthlyAmount::isSharedExpense),
+      amountsByMember(amounts, MonthlyAmount::isPersonalIncome),
+      total(amounts, MonthlyAmount::isSharedIncome)
     );
   }
 
@@ -93,8 +93,8 @@ public class SummaryService {
       .toList();
   }
 
-  private List<MemberAmountDTO> personalExpensesByMember(List<MonthlyAmount> amounts) {
-    return sumBy(amounts, MonthlyAmount::isPersonalExpense, MonthlyAmount::memberId).entrySet().stream()
+  private List<MemberAmountDTO> amountsByMember(List<MonthlyAmount> amounts, Predicate<MonthlyAmount> filter) {
+    return sumBy(amounts, filter, MonthlyAmount::memberId).entrySet().stream()
       .map(entry -> new MemberAmountDTO(entry.getKey(), entry.getValue()))
       .sorted(Comparator.comparing(MemberAmountDTO::amount).reversed())
       .toList();

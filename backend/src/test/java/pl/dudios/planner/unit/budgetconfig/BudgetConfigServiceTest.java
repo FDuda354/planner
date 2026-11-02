@@ -1,11 +1,11 @@
 package pl.dudios.planner.unit.budgetconfig;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import pl.dudios.planner.budgetconfig.model.ExpenseCategory;
@@ -20,6 +20,7 @@ import pl.dudios.planner.exception.RequestValidationException;
 import pl.dudios.planner.exception.ResourceNotFoundException;
 import pl.dudios.planner.member.model.Member;
 import pl.dudios.planner.member.repository.MemberRepository;
+import pl.dudios.planner.member.service.MemberAssignmentValidator;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -52,8 +53,13 @@ class BudgetConfigServiceTest {
   @Mock
   private MemberRepository memberRepository;
 
-  @InjectMocks
   private BudgetConfigService budgetConfigService;
+
+  @BeforeEach
+  void setUp() {
+    budgetConfigService = new BudgetConfigService(expenseCategoryRepository, incomeSourceRepository, savingsGoalRepository,
+                                                  new MemberAssignmentValidator(memberRepository));
+  }
 
   @Nested
   @DisplayName("Saving an expense category")
@@ -63,7 +69,7 @@ class BudgetConfigServiceTest {
     @DisplayName("creates a new category inside the member's household")
     void createsCategory() {
       // Given
-      var request = new ExpenseCategoryRequest(null, " Zwierzęta ", "pi-heart", "#ec4899", true);
+      var request = new ExpenseCategoryRequest(null, " Zwierzęta ", "pi-heart", "#ec4899");
 
       // When
       budgetConfigService.saveExpenseCategory(HOUSEHOLD_ID, request);
@@ -73,22 +79,6 @@ class BudgetConfigServiceTest {
       then(expenseCategoryRepository).should().save(saved.capture());
       assertThat(saved.getValue().getHouseholdId()).isEqualTo(HOUSEHOLD_ID);
       assertThat(saved.getValue().getName()).isEqualTo("Zwierzęta");
-      assertThat(saved.getValue().isActive()).isTrue();
-    }
-
-    @Test
-    @DisplayName("pauses an existing category without losing it")
-    void pausesCategory() {
-      // Given
-      var category = ExpenseCategory.builder().id(3L).householdId(HOUSEHOLD_ID).name("Jedzenie").icon("pi-shopping-cart").color("#10b981").active(true).build();
-      given(expenseCategoryRepository.findByIdAndHouseholdId(3L, HOUSEHOLD_ID)).willReturn(Optional.of(category));
-
-      // When
-      budgetConfigService.saveExpenseCategory(HOUSEHOLD_ID, new ExpenseCategoryRequest(3L, "Jedzenie", "pi-shopping-cart", "#10b981", false));
-
-      // Then
-      then(expenseCategoryRepository).should().save(category);
-      assertThat(category.isActive()).isFalse();
     }
 
     @Test
@@ -98,7 +88,7 @@ class BudgetConfigServiceTest {
       given(expenseCategoryRepository.findByIdAndHouseholdId(3L, HOUSEHOLD_ID)).willReturn(Optional.empty());
 
       // When / Then
-      var request = new ExpenseCategoryRequest(3L, "X", "pi-heart", "#ec4899", true);
+      var request = new ExpenseCategoryRequest(3L, "X", "pi-heart", "#ec4899");
       assertThatThrownBy(() -> budgetConfigService.saveExpenseCategory(HOUSEHOLD_ID, request))
         .isInstanceOf(ResourceNotFoundException.class);
       then(expenseCategoryRepository).should(never()).save(any());
@@ -173,13 +163,13 @@ class BudgetConfigServiceTest {
       // Given
       var goal = goal(4L, 3L);
       given(savingsGoalRepository.findByIdAndHouseholdId(4L, HOUSEHOLD_ID)).willReturn(Optional.of(goal));
+      given(memberRepository.findByIdAndHouseholdId(3L, HOUSEHOLD_ID)).willReturn(Optional.of(member(3L, false)));
 
       // When
       budgetConfigService.saveSavingsGoal(HOUSEHOLD_ID, goalRequest(4L, 3L));
 
       // Then
       assertThat(savedGoal().getOwnerId()).isEqualTo(3L);
-      then(memberRepository).shouldHaveNoInteractions();
     }
   }
 
@@ -204,7 +194,6 @@ class BudgetConfigServiceTest {
       then(incomeSourceRepository).should().saveAll(any());
       assertThat(categories.getValue()).isNotEmpty().allSatisfy(category -> {
         assertThat(category.getHouseholdId()).isEqualTo(HOUSEHOLD_ID);
-        assertThat(category.isActive()).isTrue();
       });
       assertThat(goals.getValue()).isNotEmpty().allSatisfy(goal -> {
         assertThat(goal.getHouseholdId()).isEqualTo(HOUSEHOLD_ID);
@@ -221,11 +210,11 @@ class BudgetConfigServiceTest {
   }
 
   private SavingsGoalRequest goalRequest(Long id, Long ownerId) {
-    return new SavingsGoalRequest(id, "Wakacje w Japonii", "pi-sun", "#f97316", true, "Wiosna", new BigDecimal("2000"), new BigDecimal("18000"), ownerId);
+    return new SavingsGoalRequest(id, "Wakacje w Japonii", "pi-sun", "#f97316", "Wiosna", new BigDecimal("2000"), new BigDecimal("18000"), ownerId);
   }
 
   private SavingsGoal goal(Long id, Long ownerId) {
-    return SavingsGoal.builder().id(id).householdId(HOUSEHOLD_ID).name("Aparat").icon("pi-camera").color("#ec4899").active(true)
+    return SavingsGoal.builder().id(id).householdId(HOUSEHOLD_ID).name("Aparat").icon("pi-camera").color("#ec4899")
                       .note("").initialAmount(BigDecimal.ZERO).targetAmount(new BigDecimal("7500")).ownerId(ownerId).build();
   }
 

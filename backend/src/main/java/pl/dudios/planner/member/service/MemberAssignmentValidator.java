@@ -18,7 +18,7 @@ public class MemberAssignmentValidator {
     Member member = memberRepository.findByIdAndHouseholdId(memberId, householdId)
                                     .orElseThrow(() -> new RequestValidationException("Wybrana osoba nie należy do Waszego budżetu"));
     if (!member.isActive() && !Objects.equals(currentMemberId, memberId)) {
-      throw new RequestValidationException("Nie można przypisać transakcji osobie usuniętej z budżetu");
+      throw new RequestValidationException("Nie można wybrać osoby usuniętej z budżetu");
     }
   }
 

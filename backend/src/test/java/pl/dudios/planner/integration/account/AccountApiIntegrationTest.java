@@ -59,7 +59,7 @@ class AccountApiIntegrationTest extends AbstractIntegrationTest {
   void setUpHousehold() {
     household = fixtures.household();
     filip = fixtures.member(household, "Filip", "filip@planner.test");
-    food = fixtures.expenseCategory(household, "Jedzenie", true);
+    food = fixtures.expenseCategory(household, "Jedzenie");
   }
 
   @Nested

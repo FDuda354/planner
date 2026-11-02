@@ -10,3 +10,7 @@ export function formatMoney(value: number, precision: MoneyPrecision = 'full'): 
 export function percentOf(part: number, whole: number): number {
   return whole === 0 ? 0 : part / whole;
 }
+
+export function sumAmounts(entries: {amount: number}[]): number {
+  return entries.reduce((sum, entry) => sum + entry.amount, 0);
+}

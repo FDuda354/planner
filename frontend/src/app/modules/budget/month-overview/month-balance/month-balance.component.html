@@ -12,6 +12,13 @@
     </div>
     @if (store.data.isLoading()) {
       <i class="pi pi-spin pi-spinner muted" aria-label="Ładowanie"></i>
+    } @else if (store.isCurrentMonth()) {
+      <div class="flex flex-col items-end balance__forecast">
+        <span class="overline">Przewidywane</span>
+        <span class="amount balance__forecast-amount" [class.balance__forecast-amount--negative]="isForecastNegative()">
+          {{ forecast.forecastBalance() | money }}
+        </span>
+      </div>
     }
   </div>
 

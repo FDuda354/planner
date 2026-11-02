@@ -7,7 +7,6 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pl.dudios.planner.budgetconfig.service.BudgetConfigService;
 import pl.dudios.planner.member.repository.MemberRepository;
 import pl.dudios.planner.recurring.model.RecurringTransaction;
 import pl.dudios.planner.recurring.repository.RecurringTransactionRepository;
@@ -26,7 +25,6 @@ public class RecurringTransactionGenerator {
 
   private final RecurringTransactionRepository recurringTransactionRepository;
   private final TransactionRepository transactionRepository;
-  private final BudgetConfigService budgetConfigService;
   private final MemberRepository memberRepository;
 
   @Transactional
@@ -49,8 +47,7 @@ public class RecurringTransactionGenerator {
   }
 
   private boolean canBeBooked(RecurringTransaction recurring) {
-    return memberRepository.existsByIdAndActiveTrue(recurring.getMemberId())
-           && budgetConfigService.getItem(recurring.getHouseholdId(), recurring.getType(), recurring.getItemId()).isActive();
+    return recurring.belongsToNobody() || memberRepository.existsByIdAndActiveTrue(recurring.getMemberId());
   }
 
 }

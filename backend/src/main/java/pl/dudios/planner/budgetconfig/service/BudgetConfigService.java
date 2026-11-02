@@ -14,15 +14,12 @@ import pl.dudios.planner.budgetconfig.model.request.SavingsGoalRequest;
 import pl.dudios.planner.budgetconfig.repository.ExpenseCategoryRepository;
 import pl.dudios.planner.budgetconfig.repository.IncomeSourceRepository;
 import pl.dudios.planner.budgetconfig.repository.SavingsGoalRepository;
-import pl.dudios.planner.exception.RequestValidationException;
 import pl.dudios.planner.exception.ResourceNotFoundException;
-import pl.dudios.planner.member.model.Member;
-import pl.dudios.planner.member.repository.MemberRepository;
+import pl.dudios.planner.member.service.MemberAssignmentValidator;
 import pl.dudios.planner.transaction.model.TransactionType;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -31,7 +28,7 @@ public class BudgetConfigService {
   private final ExpenseCategoryRepository expenseCategoryRepository;
   private final IncomeSourceRepository incomeSourceRepository;
   private final SavingsGoalRepository savingsGoalRepository;
-  private final MemberRepository memberRepository;
+  private final MemberAssignmentValidator memberAssignmentValidator;
 
   @Transactional(readOnly = true)
   public BudgetConfigDTO getBudgetConfig(Long householdId) {
@@ -48,7 +45,7 @@ public class BudgetConfigService {
       ? ExpenseCategory.builder().householdId(householdId).build()
       : getExpenseCategory(householdId, request.id());
 
-    category.applyDetails(request.name(), request.icon(), request.color(), request.active());
+    category.applyDetails(request.name(), request.icon(), request.color());
 
     expenseCategoryRepository.save(category);
   }
@@ -59,7 +56,7 @@ public class BudgetConfigService {
       ? IncomeSource.builder().householdId(householdId).build()
       : getIncomeSource(householdId, request.id());
 
-    source.applyDetails(request.name(), request.icon(), request.color(), request.active());
+    source.applyDetails(request.name(), request.icon(), request.color());
 
     incomeSourceRepository.save(source);
   }
@@ -72,7 +69,7 @@ public class BudgetConfigService {
 
     validateGoalOwner(householdId, goal, request.ownerId());
 
-    goal.applyDetails(request.name(), request.icon(), request.color(), request.active());
+    goal.applyDetails(request.name(), request.icon(), request.color());
     goal.setNote(request.note());
     goal.setInitialAmount(request.initialAmount());
     goal.setTargetAmount(request.targetAmount());
@@ -132,7 +129,6 @@ public class BudgetConfigService {
                                       .name(category.name())
                                       .icon(category.icon())
                                       .color(category.color())
-                                      .active(true)
                                       .build())
       .toList());
 
@@ -142,7 +138,6 @@ public class BudgetConfigService {
                                  .name(source.name())
                                  .icon(source.icon())
                                  .color(source.color())
-                                 .active(true)
                                  .build())
       .toList());
 
@@ -152,7 +147,6 @@ public class BudgetConfigService {
                               .name(goal.name())
                               .icon(goal.icon())
                               .color(goal.color())
-                              .active(true)
                               .note(goal.note())
                               .initialAmount(BigDecimal.ZERO)
                               .targetAmount(goal.targetAmount())
@@ -161,13 +155,8 @@ public class BudgetConfigService {
   }
 
   private void validateGoalOwner(Long householdId, SavingsGoal goal, Long ownerId) {
-    if (ownerId == null || Objects.equals(goal.getOwnerId(), ownerId)) {
-      return;
-    }
-    Member owner = memberRepository.findByIdAndHouseholdId(ownerId, householdId)
-                                   .orElseThrow(() -> new RequestValidationException("Wybrana osoba nie należy do Waszego budżetu"));
-    if (!owner.isActive()) {
-      throw new RequestValidationException("Nie można przypisać celu do osoby usuniętej z budżetu");
+    if (ownerId != null) {
+      memberAssignmentValidator.validateAssignment(householdId, ownerId, goal.getOwnerId());
     }
   }
 

@@ -20,6 +20,7 @@ import pl.dudios.planner.household.service.HouseholdService;
 import pl.dudios.planner.member.model.Member;
 import pl.dudios.planner.member.model.RegisterRequest;
 import pl.dudios.planner.member.repository.MemberRepository;
+import pl.dudios.planner.member.service.MemberAssignmentValidator;
 import pl.dudios.planner.member.service.MemberService;
 
 import java.util.List;
@@ -61,7 +62,8 @@ class MemberServiceTest {
 
   @BeforeEach
   void setUp() {
-    var budgetConfigService = new BudgetConfigService(expenseCategoryRepository, incomeSourceRepository, savingsGoalRepository, memberRepository);
+    var memberAssignmentValidator = new MemberAssignmentValidator(memberRepository);
+    var budgetConfigService = new BudgetConfigService(expenseCategoryRepository, incomeSourceRepository, savingsGoalRepository, memberAssignmentValidator);
     var householdService = new HouseholdService(householdRepository, invitationRepository, memberRepository, budgetConfigService);
     memberService = new MemberService(memberRepository, householdService, passwordEncoder);
   }

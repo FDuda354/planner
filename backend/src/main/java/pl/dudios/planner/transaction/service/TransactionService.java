@@ -3,11 +3,8 @@ package pl.dudios.planner.transaction.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pl.dudios.planner.budgetconfig.model.BudgetItem;
-import pl.dudios.planner.budgetconfig.service.BudgetConfigService;
 import pl.dudios.planner.exception.RequestValidationException;
 import pl.dudios.planner.exception.ResourceNotFoundException;
-import pl.dudios.planner.member.service.MemberAssignmentValidator;
 import pl.dudios.planner.transaction.model.Transaction;
 import pl.dudios.planner.transaction.model.TransactionType;
 import pl.dudios.planner.transaction.model.dto.ItemUsageDTO;
@@ -18,7 +15,6 @@ import pl.dudios.planner.transaction.repository.TransactionRepository;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
-import java.util.Objects;
 
 import static pl.dudios.planner.utils.AppTimeZone.EARLIEST_ON_EARTH;
 
@@ -27,8 +23,7 @@ import static pl.dudios.planner.utils.AppTimeZone.EARLIEST_ON_EARTH;
 public class TransactionService {
 
   private final TransactionRepository transactionRepository;
-  private final BudgetConfigService budgetConfigService;
-  private final MemberAssignmentValidator memberAssignmentValidator;
+  private final TransactionDetailsValidator transactionDetailsValidator;
 
   @Transactional(readOnly = true)
   public List<TransactionDTO> getTransactions(Long householdId, YearMonth month) {
@@ -44,10 +39,8 @@ public class TransactionService {
       ? Transaction.builder().householdId(householdId).build()
       : getTransaction(householdId, request.id());
 
-    validateItem(householdId, transaction, request);
     validateDate(request.date());
-    validateSharedFlag(request);
-    memberAssignmentValidator.validateAssignment(householdId, request.memberId(), transaction.getMemberId());
+    transactionDetailsValidator.validate(householdId, request, transaction.getMemberId());
 
     transaction.assignItem(request.type(), request.itemId());
     transaction.setAmount(request.amount());
@@ -84,23 +77,9 @@ public class TransactionService {
                                 .orElseThrow(() -> new ResourceNotFoundException("Nie znaleziono transakcji"));
   }
 
-  private void validateItem(Long householdId, Transaction transaction, TransactionRequest request) {
-    BudgetItem item = budgetConfigService.getItem(householdId, request.type(), request.itemId());
-    boolean keepsCurrentItem = transaction.getType() == request.type() && Objects.equals(transaction.getItemId(), request.itemId());
-    if (!item.isActive() && !keepsCurrentItem) {
-      throw new RequestValidationException("Pozycja „" + item.getName() + "” jest wstrzymana — przywróć ją w konfiguracji, aby dodawać transakcje");
-    }
-  }
-
   private void validateDate(LocalDate date) {
     if (date.isAfter(YearMonth.now(EARLIEST_ON_EARTH).atEndOfMonth())) {
       throw new RequestValidationException("Transakcję można zaplanować najpóźniej na koniec bieżącego miesiąca");
-    }
-  }
-
-  private void validateSharedFlag(TransactionRequest request) {
-    if (request.shared() && request.type() != TransactionType.EXPENSE) {
-      throw new RequestValidationException("Na dobro wspólne można oznaczyć tylko wydatek");
     }
   }
 

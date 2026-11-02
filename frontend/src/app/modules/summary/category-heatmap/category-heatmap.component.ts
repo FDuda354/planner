@@ -1,6 +1,6 @@
 import {ChangeDetectionStrategy, Component, computed, inject} from '@angular/core';
-import {SummaryStore} from '../stories/summary-store';
-import {BudgetItem} from '../../../models/BudgetItem';
+import {SummaryStore} from '../stores/summary.store';
+import {BudgetItem} from '../../../models/budget-item.model';
 import {formatMoney} from '../../../shared/utils/money';
 import {monthName, monthShortName} from '../../../shared/utils/month';
 import {AppRoute, monthDetailRoute} from '../../../app-routes';

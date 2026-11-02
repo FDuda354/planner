@@ -13,6 +13,7 @@ import pl.dudios.planner.budgetconfig.repository.IncomeSourceRepository;
 import pl.dudios.planner.budgetconfig.repository.SavingsGoalRepository;
 import pl.dudios.planner.budgetconfig.service.BudgetConfigService;
 import pl.dudios.planner.member.repository.MemberRepository;
+import pl.dudios.planner.member.service.MemberAssignmentValidator;
 import pl.dudios.planner.summary.model.MonthlyAmount;
 import pl.dudios.planner.summary.model.dto.ItemAmountDTO;
 import pl.dudios.planner.summary.model.dto.MemberAmountDTO;
@@ -63,7 +64,8 @@ class SummaryServiceTest {
 
   @BeforeEach
   void setUp() {
-    var budgetConfigService = new BudgetConfigService(expenseCategoryRepository, incomeSourceRepository, savingsGoalRepository, memberRepository);
+    var memberAssignmentValidator = new MemberAssignmentValidator(memberRepository);
+    var budgetConfigService = new BudgetConfigService(expenseCategoryRepository, incomeSourceRepository, savingsGoalRepository, memberAssignmentValidator);
     summaryService = new SummaryService(summaryRepository, budgetConfigService);
   }
 
@@ -182,7 +184,7 @@ class SummaryServiceTest {
     void sumsDepositsOnTopOfInitialAmount() {
       // Given
       given(savingsGoalRepository.findAllByHouseholdIdOrderById(HOUSEHOLD_ID)).willReturn(List.of(goal(JAPAN_ID, "2000")));
-      given(summaryRepository.findMonthlyAmounts(HOUSEHOLD_ID)).willReturn(List.of(
+      given(summaryRepository.findMonthlyAmountsOfType(HOUSEHOLD_ID, TransactionType.SAVING)).willReturn(List.of(
         saving(2026, 9, JAPAN_ID, FILIP_ID, "500"),
         saving(2026, 9, JAPAN_ID, KLAUDIA_ID, "300"),
         saving(2026, 10, JAPAN_ID, FILIP_ID, "1000")
@@ -199,13 +201,12 @@ class SummaryServiceTest {
     }
 
     @Test
-    @DisplayName("ignores deposits made to other goals and amounts of other transaction types")
-    void ignoresOtherGoalsAndTypes() {
+    @DisplayName("ignores deposits made to other goals")
+    void ignoresOtherGoals() {
       // Given
       given(savingsGoalRepository.findAllByHouseholdIdOrderById(HOUSEHOLD_ID)).willReturn(List.of(goal(JAPAN_ID, "0")));
-      given(summaryRepository.findMonthlyAmounts(HOUSEHOLD_ID)).willReturn(List.of(
+      given(summaryRepository.findMonthlyAmountsOfType(HOUSEHOLD_ID, TransactionType.SAVING)).willReturn(List.of(
         saving(2026, 10, 999L, FILIP_ID, "700"),
-        expense(2026, 10, JAPAN_ID, FILIP_ID, false, "50"),
         saving(2026, 10, JAPAN_ID, FILIP_ID, "100")
       ));
 
@@ -221,7 +222,7 @@ class SummaryServiceTest {
     void reportsGoalWithoutDeposits() {
       // Given
       given(savingsGoalRepository.findAllByHouseholdIdOrderById(HOUSEHOLD_ID)).willReturn(List.of(goal(JAPAN_ID, "2000")));
-      given(summaryRepository.findMonthlyAmounts(HOUSEHOLD_ID)).willReturn(List.of());
+      given(summaryRepository.findMonthlyAmountsOfType(HOUSEHOLD_ID, TransactionType.SAVING)).willReturn(List.of());
 
       // When
       var progress = summaryService.getGoalProgress(HOUSEHOLD_ID).getFirst();
@@ -245,7 +246,7 @@ class SummaryServiceTest {
   }
 
   private SavingsGoal goal(Long id, String initialAmount) {
-    return SavingsGoal.builder().id(id).householdId(HOUSEHOLD_ID).name("Wakacje w Japonii").icon("pi-sun").color("#f97316").active(true)
+    return SavingsGoal.builder().id(id).householdId(HOUSEHOLD_ID).name("Wakacje w Japonii").icon("pi-sun").color("#f97316")
                       .note("").initialAmount(new BigDecimal(initialAmount)).targetAmount(new BigDecimal("18000")).build();
   }
 

@@ -1,6 +1,6 @@
-import {BudgetItem} from '../../../models/BudgetItem';
-import {Member} from '../../../models/Member';
-import {Transaction, TransactionType} from '../../../models/Transaction';
+import {BudgetItem} from '../../../models/budget-item.model';
+import {Member} from '../../../models/member.model';
+import {Transaction} from '../../../models/transaction.model';
 
 export interface MonthTransactions {
   current: Transaction[];
@@ -26,7 +26,3 @@ export interface DayGroup {
   expenses: number;
   transactions: Transaction[];
 }
-
-export const ALL_TYPES = 'ALL';
-
-export type FeedFilter = TransactionType | typeof ALL_TYPES;

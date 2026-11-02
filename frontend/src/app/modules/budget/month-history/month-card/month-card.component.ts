@@ -1,8 +1,8 @@
 import {ChangeDetectionStrategy, Component, computed, inject, input} from '@angular/core';
-import {MonthSummary} from '../../../../models/Summary';
+import {MonthSummary} from '../../../../models/summary.model';
 import {BudgetConfigStore} from '../../../../stores/budget-config.store';
-import {TransactionType} from '../../../../models/Transaction';
-import {BudgetItem} from '../../../../models/BudgetItem';
+import {TransactionType} from '../../../../models/transaction.model';
+import {BudgetItem} from '../../../../models/budget-item.model';
 import {monthName, yearOfMonth} from '../../../../shared/utils/month';
 import {percentOf} from '../../../../shared/utils/money';
 import {monthDetailRoute} from '../../../../app-routes';

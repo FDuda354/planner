@@ -1,5 +1,5 @@
 import {ChangeDetectionStrategy, Component, inject} from '@angular/core';
-import {SummaryStore} from './stories/summary-store';
+import {SummaryStore} from './stores/summary.store';
 
 @Component({
   selector: 'app-summary',

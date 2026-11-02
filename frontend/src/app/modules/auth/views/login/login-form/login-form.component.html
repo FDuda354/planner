@@ -15,9 +15,7 @@
            [formField]="loginForm.email"
            (change)="trimEmail()"
            autocomplete="username"/>
-    @if (loginForm.email().touched() && loginForm.email().invalid()) {
-      <small class="p-error auth-form__error">{{ loginForm.email().errors()[0].message }}</small>
-    }
+    <ui-field-error [field]="loginForm.email"/>
 
     <label class="auth-form__label" for="login-password">Hasło</label>
     <p-iconfield>
@@ -36,9 +34,7 @@
         </button>
       </p-inputicon>
     </p-iconfield>
-    @if (loginForm.password().touched() && loginForm.password().invalid()) {
-      <small class="p-error auth-form__error">{{ loginForm.password().errors()[0].message }}</small>
-    }
+    <ui-field-error [field]="loginForm.password"/>
 
     @if (errorMessage()) {
       <p-message severity="error">{{ errorMessage() }}</p-message>

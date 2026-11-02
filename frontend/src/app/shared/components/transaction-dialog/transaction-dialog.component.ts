@@ -11,12 +11,11 @@ import {BudgetConfigStore} from '../../../stores/budget-config.store';
 import {CalendarStore} from '../../../stores/calendar.store';
 import {HouseholdStore} from '../../../stores/household.store';
 import {AuthService} from '../../../modules/auth/services/auth.service';
-import {TRANSACTION_TYPE_OPTIONS, TransactionRequest, TransactionType} from '../../../models/Transaction';
-import {BudgetItem} from '../../../models/BudgetItem';
-import {Member} from '../../../models/Member';
+import {belongsToNobody, isSharedByDefault, itemLabelOf, TRANSACTION_TYPE_OPTIONS, TransactionRequest, TransactionType} from '../../../models/transaction.model';
+import {Member} from '../../../models/member.model';
 import {monthLabel, parseMonthKey, toMonthKey} from '../../utils/month';
 import {prepareFormSubmission} from '../../forms/prepare-form-submission';
-import {showServerError, showSuccess} from '../../../utils/NotificationHelper';
+import {showServerError, showSuccess} from '../../utils/notifications';
 import {transactionLabel} from '../../utils/transaction-label';
 import {AppRoute} from '../../../app-routes';
 import {editTransactionModel, newTransactionModel, toTransactionRequest, TransactionFormModel, transactionSchema} from './models/form-transaction';
@@ -25,12 +24,6 @@ interface QuickDate {
   label: string;
   daysAgo: number;
 }
-
-const ITEM_LABELS: Record<TransactionType, string> = {
-  [TransactionType.EXPENSE]: 'Na co',
-  [TransactionType.INCOME]: 'Skąd',
-  [TransactionType.SAVING]: 'Na jaki cel',
-};
 
 @Component({
   selector: 'app-transaction-dialog',
@@ -51,7 +44,6 @@ export class TransactionDialogComponent {
   private readonly amountInput = viewChild(InputNumber);
 
   readonly typeOptions = TRANSACTION_TYPE_OPTIONS;
-  readonly sharedInputId = 'transaction-shared';
   readonly quickDates: QuickDate[] = [
     {label: 'Dziś', daysAgo: 0},
     {label: 'Wczoraj', daysAgo: 1},
@@ -62,7 +54,6 @@ export class TransactionDialogComponent {
   readonly state = this.editor.state;
   readonly isEdit = computed(() => this.state().editing !== null);
   readonly isWorking = signal(false);
-  readonly showErrors = signal(false);
 
   readonly model = signal<TransactionFormModel>(newTransactionModel(this.state().draft, this.calendar.today(), this.currentMemberId()));
   readonly transactionForm = form(this.model, (path) => {
@@ -70,11 +61,11 @@ export class TransactionDialogComponent {
     disabled(path, {when: () => this.isWorking()});
   });
 
-  readonly items = computed(() => this.selectableItems(this.model().type));
+  readonly items = computed(() => this.configStore.itemsOf(this.model().type));
   readonly members = computed(() => this.selectableMembers());
-  readonly isExpense = computed(() => this.model().type === TransactionType.EXPENSE);
+  readonly isAssignedToMember = computed(() => !belongsToNobody(this.model()));
   readonly pastMonthLabel = computed(() => this.pastMonthLabelOf(this.model().date));
-  readonly itemLabel = computed(() => ITEM_LABELS[this.model().type]);
+  readonly itemLabel = computed(() => itemLabelOf(this.model().type));
   readonly submitLabel = computed(() => this.isEdit()
     ? 'Zapisz zmiany'
     : this.typeOptions.find(option => option.type === this.model().type)!.verb);
@@ -83,23 +74,20 @@ export class TransactionDialogComponent {
     effect(() => {
       const state = this.state();
       if (state.visible) {
-        untracked(() => {
-          this.showErrors.set(false);
-          this.transactionForm().reset(this.initialModel(state));
-        });
+        untracked(() => this.transactionForm().reset(this.initialModel(state)));
       }
     });
   }
 
   selectType(type: TransactionType): void {
-    this.model.update(model => ({...model, type, itemId: null, shared: true}));
+    this.model.update(model => ({...model, type, itemId: null, shared: isSharedByDefault(type)}));
   }
 
   selectItem(itemId: number): void {
     this.transactionForm.itemId().value.set(itemId);
   }
 
-  selectMember(memberId: number): void {
+  selectMember(memberId: number | null): void {
     this.transactionForm.memberId().value.set(memberId);
   }
 
@@ -135,7 +123,6 @@ export class TransactionDialogComponent {
   }
 
   private submit(addNext: boolean): void {
-    this.showErrors.set(true);
     if (!prepareFormSubmission(this.transactionForm, this.isWorking())) {
       return;
     }
@@ -147,7 +134,6 @@ export class TransactionDialogComponent {
         next: () => {
           showSuccess(this.isEdit() ? 'Zapisano zmiany' : 'Dodano', this.describe(request), this.messageService);
           if (addNext) {
-            this.showErrors.set(false);
             this.transactionForm().reset({...this.model(), amount: null, note: ''});
             this.focusAmount();
           } else {
@@ -178,11 +164,6 @@ export class TransactionDialogComponent {
     return month < this.calendar.currentMonth() ? monthLabel(month) : null;
   }
 
-  private selectableItems(type: TransactionType): BudgetItem[] {
-    const editing = this.state().editing;
-    const editedItemId = editing?.type === type ? editing.itemId : null;
-    return this.configStore.itemsOf(type).filter(item => item.active || item.id === editedItemId);
-  }
 
   private selectableMembers(): Member[] {
     const members = this.householdStore.members();

@@ -3,17 +3,14 @@ package pl.dudios.planner.recurring.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pl.dudios.planner.budgetconfig.model.BudgetItem;
-import pl.dudios.planner.budgetconfig.service.BudgetConfigService;
 import pl.dudios.planner.exception.RequestValidationException;
 import pl.dudios.planner.exception.ResourceNotFoundException;
-import pl.dudios.planner.member.service.MemberAssignmentValidator;
 import pl.dudios.planner.recurring.model.RecurrenceFrequency;
 import pl.dudios.planner.recurring.model.RecurringTransaction;
 import pl.dudios.planner.recurring.model.dto.RecurringTransactionDTO;
 import pl.dudios.planner.recurring.model.request.RecurringTransactionRequest;
 import pl.dudios.planner.recurring.repository.RecurringTransactionRepository;
-import pl.dudios.planner.transaction.model.TransactionType;
+import pl.dudios.planner.transaction.service.TransactionDetailsValidator;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -28,8 +25,7 @@ public class RecurringTransactionService {
 
   private final RecurringTransactionRepository recurringTransactionRepository;
   private final RecurringTransactionGenerator generator;
-  private final BudgetConfigService budgetConfigService;
-  private final MemberAssignmentValidator memberAssignmentValidator;
+  private final TransactionDetailsValidator transactionDetailsValidator;
 
   @Transactional(readOnly = true)
   public List<RecurringTransactionDTO> getRecurringTransactions(Long householdId) {
@@ -44,10 +40,8 @@ public class RecurringTransactionService {
       ? RecurringTransaction.builder().householdId(householdId).build()
       : getRecurringTransaction(householdId, request.id());
 
-    validateItem(householdId, recurring, request);
-    memberAssignmentValidator.validateAssignment(householdId, request.memberId(), recurring.getMemberId());
-    validateSharedFlag(request);
     validateSchedule(request);
+    transactionDetailsValidator.validate(householdId, request, recurring.getMemberId());
 
     LocalDate today = LocalDate.now(POLAND);
     boolean needsScheduling = needsScheduling(recurring, request);
@@ -90,14 +84,6 @@ public class RecurringTransactionService {
            || !Objects.equals(recurring.getMonthOfYear(), monthOfYearOf(request));
   }
 
-  private void validateItem(Long householdId, RecurringTransaction recurring, RecurringTransactionRequest request) {
-    BudgetItem item = budgetConfigService.getItem(householdId, request.type(), request.itemId());
-    boolean keepsCurrentItem = recurring.getType() == request.type() && Objects.equals(recurring.getItemId(), request.itemId());
-    if (!item.isActive() && !keepsCurrentItem) {
-      throw new RequestValidationException("Pozycja „" + item.getName() + "” jest wstrzymana — przywróć ją w konfiguracji, aby ustawić stałą transakcję");
-    }
-  }
-
   private void validateSchedule(RecurringTransactionRequest request) {
     if (request.frequency() != RecurrenceFrequency.YEARLY) {
       return;
@@ -112,12 +98,6 @@ public class RecurringTransactionService {
 
   private Integer monthOfYearOf(RecurringTransactionRequest request) {
     return request.frequency() == RecurrenceFrequency.YEARLY ? request.monthOfYear() : null;
-  }
-
-  private void validateSharedFlag(RecurringTransactionRequest request) {
-    if (request.shared() && request.type() != TransactionType.EXPENSE) {
-      throw new RequestValidationException("Na dobro wspólne można oznaczyć tylko wydatek");
-    }
   }
 
 }

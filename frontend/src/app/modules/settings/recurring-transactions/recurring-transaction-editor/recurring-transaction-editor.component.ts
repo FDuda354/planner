@@ -3,20 +3,19 @@ import {apply, disabled, form} from '@angular/forms/signals';
 import {MessageService} from 'primeng/api';
 import {finalize} from 'rxjs';
 import {isSameDay} from 'date-fns';
-import {RecurringEditorState, RecurringTransactionsStore} from '../../stories/recurring-transactions-store';
+import {RecurringEditorState, RecurringTransactionsStore} from '../../stores/recurring-transactions.store';
 import {RecurringTransactionService} from '../../../../services/recurring-transaction.service';
 import {BudgetConfigStore} from '../../../../stores/budget-config.store';
 import {HouseholdStore} from '../../../../stores/household.store';
 import {CalendarStore} from '../../../../stores/calendar.store';
 import {AuthService} from '../../../auth/services/auth.service';
-import {TRANSACTION_TYPE_OPTIONS, TransactionType} from '../../../../models/Transaction';
-import {BudgetItem} from '../../../../models/BudgetItem';
+import {belongsToNobody, isSharedByDefault, itemLabelOf, TransactionType} from '../../../../models/transaction.model';
 import {prepareFormSubmission} from '../../../../shared/forms/prepare-form-submission';
-import {showServerError, showSuccess} from '../../../../utils/NotificationHelper';
+import {showServerError, showSuccess} from '../../../../shared/utils/notifications';
 import {parseDateKey} from '../../../../shared/utils/month';
 import {editRecurringModel, newRecurringModel, RecurringFormModel, recurringSchema, scheduleOf, toRecurringRequest} from '../models/form-recurring-transaction';
 import {maxDayOf, MONTH_OPTIONS, nextOccurrenceFrom, RecurrenceSchedule, SHORTEST_MONTH_LENGTH} from '../models/recurring-schedule';
-import {RECURRENCE_FREQUENCY_OPTIONS, RecurrenceFrequency, RecurringTransaction} from '../../../../models/RecurringTransaction';
+import {RECURRENCE_FREQUENCY_OPTIONS, RecurrenceFrequency, RecurringTransaction} from '../../../../models/recurring-transaction.model';
 
 const FEBRUARY = 2;
 
@@ -42,10 +41,8 @@ export class RecurringTransactionEditorComponent {
   private readonly messageService = inject(MessageService);
   readonly householdStore = inject(HouseholdStore);
 
-  readonly typeOptions = TRANSACTION_TYPE_OPTIONS;
   readonly frequencyOptions = RECURRENCE_FREQUENCY_OPTIONS;
   readonly monthOptions = MONTH_OPTIONS;
-  readonly sharedInputId = 'recurring-shared';
   readonly state = this.store.editor;
   readonly isEdit = computed(() => this.state().recurring !== null);
   readonly isWorking = signal(false);
@@ -56,8 +53,9 @@ export class RecurringTransactionEditorComponent {
     disabled(path, {when: () => this.isWorking()});
   });
 
-  readonly items = computed(() => this.selectableItems(this.model().type));
-  readonly isExpense = computed(() => this.model().type === TransactionType.EXPENSE);
+  readonly items = computed(() => this.configStore.itemsOf(this.model().type));
+  readonly itemLabel = computed(() => itemLabelOf(this.model().type));
+  readonly isAssignedToMember = computed(() => !belongsToNobody(this.model()));
   readonly nextOccurrence = computed(() => this.predictNextOccurrence(this.model()));
   readonly isBookedToday = computed(() => this.isToday(this.nextOccurrence()));
   readonly shortPeriodHint = computed(() => this.shortPeriodHintOf(scheduleOf(this.model())));
@@ -74,7 +72,7 @@ export class RecurringTransactionEditorComponent {
   }
 
   selectType(type: TransactionType): void {
-    this.model.update(model => ({...model, type, itemId: null, shared: true}));
+    this.model.update(model => ({...model, type, itemId: null, shared: isSharedByDefault(type)}));
   }
 
   selectItem(itemId: number): void {
@@ -85,7 +83,7 @@ export class RecurringTransactionEditorComponent {
     this.recurringForm.frequency().value.set(frequency);
   }
 
-  selectMember(memberId: number): void {
+  selectMember(memberId: number | null): void {
     this.recurringForm.memberId().value.set(memberId);
   }
 
@@ -144,9 +142,4 @@ export class RecurringTransactionEditorComponent {
     return schedule.monthOfYear === FEBRUARY ? 'W latach nieprzestępnych zaksięguje się 28 lutego.' : null;
   }
 
-  private selectableItems(type: TransactionType): BudgetItem[] {
-    const editing = this.state().recurring;
-    const editedItemId = editing?.type === type ? editing.itemId : null;
-    return this.configStore.itemsOf(type).filter(item => item.active || item.id === editedItemId);
-  }
 }

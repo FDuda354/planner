@@ -26,22 +26,15 @@
 
   <p-divider/>
 
-  <div class="flex flex-col gap-12">
-    <span class="overline">Kto ile wydał na siebie w tym roku</span>
-    @for (total of store.memberTotals(); track total.member.id) {
-      <div class="flex flex-col gap-4">
-        <div class="flex flex-row items-center gap-8">
-          <ui-member-avatar [member]="total.member" size="sm"/>
-          <span class="income__name">{{ total.member.firstName }}</span>
-          <span class="amount">{{ total.total | money: 'whole' }}</span>
-        </div>
-        <span class="income__track"><span [style.width.%]="total.share * 100" [style.background]="total.member.color"></span></span>
-      </div>
-    }
-    <div class="flex flex-row items-center gap-8 income__shared">
-      <i class="pi pi-home" aria-hidden="true"></i>
-      <span class="income__name">Wspólne wydatki</span>
-      <span class="amount">{{ store.sharedExpenses() | money: 'whole' }}</span>
-    </div>
-  </div>
+  <app-member-year-totals title="Kto ile wpłacił do budżetu w tym roku"
+                          [totals]="store.memberIncomeTotals()"
+                          sharedLabel="Otrzymane wspólnie"
+                          [sharedAmount]="store.sharedIncome()"/>
+
+  <p-divider/>
+
+  <app-member-year-totals title="Kto ile wydał na siebie w tym roku"
+                          [totals]="store.memberTotals()"
+                          sharedLabel="Dobro wspólne"
+                          [sharedAmount]="store.sharedExpenses()"/>
 </section>

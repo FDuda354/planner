@@ -2,9 +2,9 @@ import {inject, Injectable} from '@angular/core';
 import {ConfirmationService, MessageService} from 'primeng/api';
 import {TransactionService} from './transaction.service';
 import {BudgetConfigStore} from '../stores/budget-config.store';
-import {Transaction} from '../models/Transaction';
+import {Transaction} from '../models/transaction.model';
 import {transactionLabel} from '../shared/utils/transaction-label';
-import {showServerError, showSuccess} from '../utils/NotificationHelper';
+import {showServerError, showSuccess} from '../shared/utils/notifications';
 
 @Injectable({providedIn: 'root'})
 export class TransactionDeletionService {

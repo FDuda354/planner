@@ -1,5 +1,5 @@
 <div class="item-list animation-stagger-children">
-  @for (item of sortedItems(); track item.id) {
+  @for (item of items(); track item.id) {
     <app-budget-item-card [item]="item" [kind]="kind()"/>
   }
   <button type="button" class="item-list__add" (click)="create()">

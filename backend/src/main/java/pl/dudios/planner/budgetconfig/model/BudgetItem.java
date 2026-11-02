@@ -29,16 +29,12 @@ public abstract class BudgetItem {
   @Column(name = "color", nullable = false)
   private String color;
 
-  @Column(name = "active", nullable = false)
-  private boolean active;
-
   public abstract Long getId();
 
-  public void applyDetails(String name, String icon, String color, boolean active) {
+  public void applyDetails(String name, String icon, String color) {
     this.name = name;
     this.icon = icon;
     this.color = color;
-    this.active = active;
   }
 
 }

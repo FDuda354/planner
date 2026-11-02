@@ -1,15 +1,10 @@
-import {ChangeDetectionStrategy, Component, computed, inject, input, linkedSignal} from '@angular/core';
-import {form} from '@angular/forms/signals';
-import {MessageService} from 'primeng/api';
-import {BudgetItem, SavingsGoal} from '../../../../models/BudgetItem';
+import {ChangeDetectionStrategy, Component, computed, inject, input} from '@angular/core';
+import {BudgetItem, SavingsGoal} from '../../../../models/budget-item.model';
 import {HouseholdStore} from '../../../../stores/household.store';
 import {formatMoney} from '../../../../shared/utils/money';
-import {TransactionType} from '../../../../models/Transaction';
-import {BudgetItemEditorStore} from '../../stories/budget-item-editor-store';
-import {BudgetItemSaverService} from '../../services/budget-item-saver.service';
+import {TransactionType} from '../../../../models/transaction.model';
+import {BudgetItemEditorStore} from '../../stores/budget-item-editor.store';
 import {BudgetItemRemoverService} from '../../services/budget-item-remover.service';
-import {editBudgetItemModel} from '../../budget-item-editor/models/form-budget-item';
-import {showServerError, showSuccess} from '../../../../utils/NotificationHelper';
 
 @Component({
   selector: 'app-budget-item-card',
@@ -20,25 +15,13 @@ import {showServerError, showSuccess} from '../../../../utils/NotificationHelper
 })
 export class BudgetItemCardComponent {
   private readonly editor = inject(BudgetItemEditorStore);
-  private readonly saver = inject(BudgetItemSaverService);
   private readonly remover = inject(BudgetItemRemoverService);
-  private readonly messageService = inject(MessageService);
   private readonly householdStore = inject(HouseholdStore);
 
   readonly item = input.required<BudgetItem>();
   readonly kind = input.required<TransactionType>();
 
-  readonly activeForm = form(linkedSignal(() => ({active: this.item().active})));
-  readonly meta = computed(() => {
-    const status = this.item().active ? 'Aktywna' : 'Wstrzymana';
-    switch (this.kind()) {
-      case TransactionType.EXPENSE:
-      case TransactionType.INCOME:
-        return status;
-      case TransactionType.SAVING:
-        return this.goalMeta(this.item() as SavingsGoal);
-    }
-  });
+  readonly meta = computed(() => this.kind() === TransactionType.SAVING ? this.goalMeta(this.item() as SavingsGoal) : null);
 
   edit(): void {
     this.editor.edit(this.kind(), this.item());
@@ -46,15 +29,6 @@ export class BudgetItemCardComponent {
 
   delete(): void {
     this.remover.confirmDeletion(this.kind(), this.item());
-  }
-
-  toggleActive(): void {
-    const item = this.item();
-    const model = {...editBudgetItemModel(item), active: !item.active};
-    this.saver.save(this.kind(), model).subscribe({
-      next: () => showSuccess(model.active ? 'Przywrócono' : 'Wstrzymano', item.name, this.messageService),
-      error: (error) => showServerError('Nie udało się zmienić statusu', error, this.messageService),
-    });
   }
 
   private goalMeta(goal: SavingsGoal): string {

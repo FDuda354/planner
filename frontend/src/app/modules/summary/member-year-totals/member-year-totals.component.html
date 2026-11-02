@@ -1,0 +1,18 @@
+<div class="flex flex-col gap-12">
+  <span class="overline">{{ title() }}</span>
+  @for (total of totals(); track total.member.id) {
+    <div class="flex flex-col gap-4">
+      <div class="flex flex-row items-center gap-8">
+        <ui-member-avatar [member]="total.member" size="sm"/>
+        <span class="member-totals__name">{{ total.member.firstName }}</span>
+        <span class="amount">{{ total.total | money: 'whole' }}</span>
+      </div>
+      <span class="member-totals__track"><span [style.width.%]="total.share * 100" [style.background]="total.member.color"></span></span>
+    </div>
+  }
+  <div class="flex flex-row items-center gap-8 member-totals__shared">
+    <i class="pi pi-home" aria-hidden="true"></i>
+    <span class="member-totals__name">{{ sharedLabel() }}</span>
+    <span class="amount">{{ sharedAmount() | money: 'whole' }}</span>
+  </div>
+</div>

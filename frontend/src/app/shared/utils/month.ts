@@ -65,6 +65,10 @@ export function monthShortName(monthKey: string): string {
   return capitalize(format(parseMonthKey(monthKey), 'LLL', {locale: pl}));
 }
 
+export function monthNameOf(monthOfYear: number): string {
+  return capitalize(format(new Date(2000, monthOfYear - 1, 1), 'LLLL', {locale: pl}));
+}
+
 function capitalize(text: string): string {
   return text.charAt(0).toUpperCase() + text.slice(1);
 }

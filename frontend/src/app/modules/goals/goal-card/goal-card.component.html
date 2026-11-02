@@ -66,15 +66,8 @@
     </div>
   </div>
 
-  @if (view().goal.active) {
-    <button pButton type="button" class="goal-card__deposit action-button--solid" (click)="deposit()">
-      <i class="pi pi-plus" aria-hidden="true"></i>
-      Wpłać na cel
-    </button>
-  } @else {
-    <a pButton variant="outlined" class="goal-card__deposit" [routerLink]="AppRoute.SETTINGS" [queryParams]="{tab: 'goals'}">
-      <i class="pi pi-replay" aria-hidden="true"></i>
-      Wstrzymany — przywróć w konfiguracji
-    </a>
-  }
+  <button pButton type="button" class="goal-card__deposit action-button--solid" (click)="deposit()">
+    <i class="pi pi-plus" aria-hidden="true"></i>
+    Wpłać na cel
+  </button>
 </article>

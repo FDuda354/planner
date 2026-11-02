@@ -5,6 +5,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import pl.dudios.planner.summary.model.MonthlyAmount;
 import pl.dudios.planner.transaction.model.Transaction;
+import pl.dudios.planner.transaction.model.TransactionType;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -29,6 +30,10 @@ public interface SummaryRepository extends org.springframework.data.repository.R
 
   @Query(SELECT_MONTHLY_AMOUNTS + GROUP_BY_MONTH_AND_ITEM)
   List<MonthlyAmount> findMonthlyAmounts(@Param("householdId") Long householdId);
+
+  @Query(SELECT_MONTHLY_AMOUNTS + "and t.type = :type\n" + GROUP_BY_MONTH_AND_ITEM)
+  List<MonthlyAmount> findMonthlyAmountsOfType(@Param("householdId") Long householdId,
+                                               @Param("type") TransactionType type);
 
   @Query(SELECT_MONTHLY_AMOUNTS + "and t.date >= :from and t.date < :to\n" + GROUP_BY_MONTH_AND_ITEM)
   List<MonthlyAmount> findMonthlyAmountsBetween(@Param("householdId") Long householdId,

@@ -1,19 +1,19 @@
 import {ChangeDetectionStrategy, Component, computed, inject, input, linkedSignal} from '@angular/core';
 import {form} from '@angular/forms/signals';
 import {ConfirmationService, MessageService} from 'primeng/api';
-import {RecurringTransactionsStore} from '../../stories/recurring-transactions-store';
+import {RecurringTransactionsStore} from '../../stores/recurring-transactions.store';
 import {RecurringTransactionService} from '../../../../services/recurring-transaction.service';
 import {BudgetConfigStore} from '../../../../stores/budget-config.store';
 import {HouseholdStore} from '../../../../stores/household.store';
 import {CalendarStore} from '../../../../stores/calendar.store';
 import {parseDateKey} from '../../../../shared/utils/month';
-import {RecurrenceFrequency, RecurringTransaction} from '../../../../models/RecurringTransaction';
+import {RecurrenceFrequency, RecurringTransaction} from '../../../../models/recurring-transaction.model';
 import {annualDateOf, SHORTEST_MONTH_LENGTH} from '../models/recurring-schedule';
 import {format} from 'date-fns';
 import {pl} from 'date-fns/locale';
-import {TransactionType} from '../../../../models/Transaction';
+import {amountSignOf, belongsToNobody} from '../../../../models/transaction.model';
 import {editRecurringModel, toRecurringRequest} from '../models/form-recurring-transaction';
-import {showServerError, showSuccess} from '../../../../utils/NotificationHelper';
+import {showServerError, showSuccess} from '../../../../shared/utils/notifications';
 
 function scheduleLabel(recurring: RecurringTransaction): string {
   if (recurring.frequency === RecurrenceFrequency.YEARLY) {
@@ -22,12 +22,6 @@ function scheduleLabel(recurring: RecurringTransaction): string {
   const lastDayHint = recurring.dayOfMonth > SHORTEST_MONTH_LENGTH ? ' (w krótszych miesiącach ostatniego dnia)' : '';
   return `Co miesiąc, ${recurring.dayOfMonth}. dnia${lastDayHint}`;
 }
-
-const AMOUNT_SIGNS: Record<TransactionType, string> = {
-  [TransactionType.EXPENSE]: '−',
-  [TransactionType.INCOME]: '+',
-  [TransactionType.SAVING]: '',
-};
 
 @Component({
   selector: 'app-recurring-transaction-card',
@@ -51,7 +45,8 @@ export class RecurringTransactionCardComponent {
   readonly item = computed(() => this.configStore.itemOf(this.recurring().type, this.recurring().itemId));
   readonly itemName = computed(() => this.item()?.name ?? '');
   readonly member = computed(() => this.householdStore.memberOf(this.recurring().memberId));
-  readonly sign = computed(() => AMOUNT_SIGNS[this.recurring().type]);
+  readonly isAssignedToMember = computed(() => !belongsToNobody(this.recurring()));
+  readonly sign = computed(() => amountSignOf(this.recurring().type));
   readonly schedule = computed(() => scheduleLabel(this.recurring()));
   readonly isYearly = computed(() => this.recurring().frequency === RecurrenceFrequency.YEARLY);
   readonly nextOccurrenceFormat = computed(() => this.isNextOccurrenceInAnotherYear() ? 'd MMMM y' : 'd MMMM');

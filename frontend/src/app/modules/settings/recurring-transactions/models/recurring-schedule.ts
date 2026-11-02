@@ -1,6 +1,6 @@
-import {addMonths, addYears, format, getDaysInMonth, isBefore, setDate, setMonth, startOfMonth} from 'date-fns';
-import {pl} from 'date-fns/locale';
-import {RecurrenceFrequency} from '../../../../models/RecurringTransaction';
+import {addMonths, addYears, getDaysInMonth, isBefore, setDate, setMonth, startOfMonth} from 'date-fns';
+import {monthNameOf} from '../../../../shared/utils/month';
+import {RecurrenceFrequency} from '../../../../models/recurring-transaction.model';
 
 export const SHORTEST_MONTH_LENGTH = 28;
 const MAX_DAYS_IN_MONTH = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
@@ -12,7 +12,7 @@ export interface MonthOption {
 
 export const MONTH_OPTIONS: MonthOption[] = Array.from({length: 12}, (_, index) => ({
   value: index + 1,
-  label: capitalize(format(new Date(2000, index, 1), 'LLLL', {locale: pl})),
+  label: monthNameOf(index + 1),
 }));
 
 export function maxDayOf(monthOfYear: number | null): number {
@@ -49,8 +49,4 @@ function occurrenceInPeriodOf(schedule: RecurrenceSchedule, date: Date): Date {
     ? startOfMonth(date)
     : setMonth(startOfMonth(date), schedule.monthOfYear! - 1);
   return setDate(month, Math.min(schedule.dayOfMonth, getDaysInMonth(month)));
-}
-
-function capitalize(text: string): string {
-  return text.charAt(0).toUpperCase() + text.slice(1);
 }

@@ -1,7 +1,7 @@
-import {ChangeDetectionStrategy, Component, computed, inject, input} from '@angular/core';
-import {BudgetItem} from '../../../models/BudgetItem';
-import {TransactionType} from '../../../models/Transaction';
-import {BudgetItemEditorStore} from '../stories/budget-item-editor-store';
+import {ChangeDetectionStrategy, Component, inject, input} from '@angular/core';
+import {BudgetItem} from '../../../models/budget-item.model';
+import {TransactionType} from '../../../models/transaction.model';
+import {BudgetItemEditorStore} from '../stores/budget-item-editor.store';
 
 @Component({
   selector: 'app-budget-item-list',
@@ -16,8 +16,6 @@ export class BudgetItemListComponent {
   readonly kind = input.required<TransactionType>();
   readonly items = input.required<BudgetItem[]>();
   readonly addLabel = input.required<string>();
-
-  readonly sortedItems = computed(() => [...this.items()].sort((a, b) => Number(b.active) - Number(a.active)));
 
   create(): void {
     this.editor.create(this.kind());

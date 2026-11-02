@@ -1,23 +1,15 @@
 import {ChangeDetectionStrategy, Component, inject} from '@angular/core';
-import {form} from '@angular/forms/signals';
-import {RecurringTransactionsStore} from '../stories/recurring-transactions-store';
+import {RecurringTransactionsStore} from '../stores/recurring-transactions.store';
 import {HouseholdStore} from '../../../stores/household.store';
-import {TransactionType} from '../../../models/Transaction';
-import {RecurrenceFrequency} from '../../../models/RecurringTransaction';
+import {TransactionType} from '../../../models/transaction.model';
+import {RecurrenceFrequency} from '../../../models/recurring-transaction.model';
 
-interface FilterOption<T> {
-  value: T | null;
+interface FrequencyFilterOption {
+  value: RecurrenceFrequency | null;
   label: string;
 }
 
-const TYPE_FILTERS: FilterOption<TransactionType>[] = [
-  {value: null, label: 'Wszystkie'},
-  {value: TransactionType.EXPENSE, label: 'Wydatki'},
-  {value: TransactionType.INCOME, label: 'Wpływy'},
-  {value: TransactionType.SAVING, label: 'Oszczędności'},
-];
-
-const FREQUENCY_FILTERS: FilterOption<RecurrenceFrequency>[] = [
+const FREQUENCY_FILTERS: FrequencyFilterOption[] = [
   {value: null, label: 'Każda'},
   {value: RecurrenceFrequency.MONTHLY, label: 'Co miesiąc'},
   {value: RecurrenceFrequency.YEARLY, label: 'Co rok'},
@@ -35,15 +27,10 @@ export class RecurringTransactionsComponent {
   readonly store = inject(RecurringTransactionsStore);
   readonly householdStore = inject(HouseholdStore);
 
-  readonly typeFilters = TYPE_FILTERS;
   readonly frequencyFilters = FREQUENCY_FILTERS;
-  readonly filterForm = form(this.store.filters);
+  readonly countOfType = (type: TransactionType | null) => this.store.countOfType(type);
 
-  selectType(type: TransactionType | null): void {
-    this.filterForm.type().value.set(type);
-  }
-
-  selectFrequency(frequency: RecurrenceFrequency | null): void {
-    this.filterForm.frequency().value.set(frequency);
+  onSearch(event: Event): void {
+    this.store.setSearch((event.target as HTMLInputElement).value);
   }
 }

@@ -1,7 +1,8 @@
 import {ChangeDetectionStrategy, Component, computed, inject} from '@angular/core';
-import {MonthStore} from '../../stories/month-store';
+import {MonthStore} from '../../stores/month.store';
+import {MonthForecastStore} from '../../stores/month-forecast.store';
 import {BudgetConfigStore} from '../../../../stores/budget-config.store';
-import {TransactionType} from '../../../../models/Transaction';
+import {TransactionType} from '../../../../models/transaction.model';
 import {monthLabel, monthNameInLocative, shiftMonth} from '../../../../shared/utils/month';
 import {percentOf} from '../../../../shared/utils/money';
 
@@ -19,10 +20,12 @@ interface FlowSegment {
 })
 export class MonthBalanceComponent {
   readonly store = inject(MonthStore);
+  readonly forecast = inject(MonthForecastStore);
   private readonly configStore = inject(BudgetConfigStore);
 
   readonly title = computed(() => monthLabel(this.store.month()));
   readonly isOverspent = computed(() => this.store.balance() < 0);
+  readonly isForecastNegative = computed(() => this.forecast.forecastBalance() < 0);
 
   readonly flow = computed<FlowSegment[]>(() => {
     const base = Math.max(this.store.income(), this.store.expenses() + this.store.savings());

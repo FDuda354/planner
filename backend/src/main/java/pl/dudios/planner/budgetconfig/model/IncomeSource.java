@@ -35,7 +35,7 @@ public class IncomeSource extends BudgetItem {
   private Long id;
 
   public IncomeSourceDTO toDTO() {
-    return new IncomeSourceDTO(id, getName(), getIcon(), getColor(), isActive());
+    return new IncomeSourceDTO(id, getName(), getIcon(), getColor());
   }
 
 }

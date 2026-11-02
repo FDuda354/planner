@@ -3,11 +3,11 @@ import {ConfirmationService, MessageService} from 'primeng/api';
 import {BudgetConfigService} from '../../../services/budget-config.service';
 import {TransactionService} from '../../../services/transaction.service';
 import {BudgetConfigStore} from '../../../stores/budget-config.store';
-import {BudgetItem, ItemUsage} from '../../../models/BudgetItem';
-import {TransactionType} from '../../../models/Transaction';
+import {BudgetItem, ItemUsage} from '../../../models/budget-item.model';
+import {TransactionType} from '../../../models/transaction.model';
 import {formatMoney} from '../../../shared/utils/money';
 import {pluralPl} from '../../../shared/utils/plural';
-import {showServerError, showSuccess} from '../../../utils/NotificationHelper';
+import {showServerError, showSuccess} from '../../../shared/utils/notifications';
 
 const DELETE_HEADERS: Record<TransactionType, string> = {
   [TransactionType.EXPENSE]: 'Usunąć kategorię?',
@@ -59,5 +59,5 @@ function deletionMessage(item: BudgetItem, usage: ItemUsage): string {
   }
   const transactions = `${usage.transactionCount} ${pluralPl(usage.transactionCount, 'transakcję', 'transakcje', 'transakcji')}`;
   return `Razem z „${item.name}” usuniesz ${transactions} na łączną kwotę ${formatMoney(usage.totalAmount)}. `
-    + 'Znikną też z podsumowań poprzednich miesięcy i tego nie da się cofnąć. Jeśli chcesz tylko ukryć tę pozycję, wstrzymaj ją.';
+    + 'Znikną też z podsumowań poprzednich miesięcy i tego nie da się cofnąć.';
 }

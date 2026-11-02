@@ -1,6 +1,6 @@
 import {ChangeDetectionStrategy, Component, computed, inject} from '@angular/core';
 import {ChartConfiguration} from 'chart.js';
-import {SummaryStore} from '../stories/summary-store';
+import {SummaryStore} from '../stores/summary.store';
 import {AppearanceService} from '../../../services/appearance.service';
 import {chartTheme, moneyTooltip} from '../../../shared/utils/chart-theme';
 import {formatMoney} from '../../../shared/utils/money';

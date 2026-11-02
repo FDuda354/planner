@@ -19,6 +19,7 @@ import pl.dudios.planner.member.service.MemberAssignmentValidator;
 import pl.dudios.planner.transaction.model.TransactionType;
 import pl.dudios.planner.transaction.model.dto.ItemUsageDTO;
 import pl.dudios.planner.transaction.repository.TransactionRepository;
+import pl.dudios.planner.transaction.service.TransactionDetailsValidator;
 import pl.dudios.planner.transaction.service.TransactionService;
 
 import java.math.BigDecimal;
@@ -58,8 +59,9 @@ class BudgetItemRemovalServiceTest {
 
   @BeforeEach
   void setUp() {
-    var budgetConfigService = new BudgetConfigService(expenseCategoryRepository, incomeSourceRepository, savingsGoalRepository, memberRepository);
-    var transactionService = new TransactionService(transactionRepository, budgetConfigService, new MemberAssignmentValidator(memberRepository));
+    var memberAssignmentValidator = new MemberAssignmentValidator(memberRepository);
+    var budgetConfigService = new BudgetConfigService(expenseCategoryRepository, incomeSourceRepository, savingsGoalRepository, memberAssignmentValidator);
+    var transactionService = new TransactionService(transactionRepository, new TransactionDetailsValidator(budgetConfigService, memberAssignmentValidator));
     removalService = new BudgetItemRemovalService(budgetConfigService, transactionService);
   }
 
@@ -129,7 +131,7 @@ class BudgetItemRemovalServiceTest {
   }
 
   private SavingsGoal goal() {
-    return SavingsGoal.builder().id(GOAL_ID).householdId(HOUSEHOLD_ID).name("Wakacje").icon("pi-sun").color("#f97316").active(true)
+    return SavingsGoal.builder().id(GOAL_ID).householdId(HOUSEHOLD_ID).name("Wakacje").icon("pi-sun").color("#f97316")
                       .note("").initialAmount(BigDecimal.ZERO).targetAmount(new BigDecimal("10000")).build();
   }
 

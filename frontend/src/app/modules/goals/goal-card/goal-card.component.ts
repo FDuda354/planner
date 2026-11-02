@@ -1,9 +1,8 @@
 import {ChangeDetectionStrategy, Component, computed, inject, input} from '@angular/core';
-import {GoalView} from '../stories/goals-store';
+import {GoalView} from '../stores/goals.store';
 import {TransactionEditorStore} from '../../../stores/transaction-editor.store';
-import {TransactionType} from '../../../models/Transaction';
+import {TransactionType} from '../../../models/transaction.model';
 import {HouseholdStore} from '../../../stores/household.store';
-import {AppRoute} from '../../../app-routes';
 
 @Component({
   selector: 'app-goal-card',
@@ -28,6 +27,4 @@ export class GoalCardComponent {
   deposit(): void {
     this.editor.create({type: TransactionType.SAVING, itemId: this.view().goal.id});
   }
-
-  protected readonly AppRoute = AppRoute;
 }
