@@ -39,7 +39,6 @@ public class RecurringTransactionGenerator {
     log.info("Processed {} due recurring transactions", dueTransactions.size());
   }
 
-  @Transactional
   public void generateDue(RecurringTransaction recurring, LocalDate today) {
     while (recurring.isDueOn(today)) {
       if (canBeBooked(recurring)) {

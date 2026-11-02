@@ -98,7 +98,7 @@ public class RecurringTransaction {
   }
 
   public void scheduleFrom(LocalDate today) {
-    YearMonth month = nextOccurrence == null || nextOccurrence.isBefore(today) ? YearMonth.from(today) : YearMonth.from(nextOccurrence);
+    YearMonth month = YearMonth.from(nextOccurrence == null || nextOccurrence.isBefore(today) ? today : nextOccurrence);
     LocalDate candidate = occurrenceIn(month);
     nextOccurrence = candidate.isBefore(today) ? occurrenceIn(month.plusMonths(1)) : candidate;
   }
