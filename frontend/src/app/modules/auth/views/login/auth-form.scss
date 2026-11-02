@@ -1,8 +1,12 @@
-.login-form {
-  display: flex;
-  flex-direction: column;
+:host {
+  display: block;
   width: 380px;
   max-width: 100%;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
   gap: 28px;
 
   &__title {
@@ -45,14 +49,14 @@
   }
 }
 
-.login-form__switch {
+.auth-form__switch {
   margin: 0;
   text-align: center;
   font-size: 14px;
   color: var(--p-text-muted-color);
 }
 
-.login-form__link {
+.auth-form__link {
   padding: 0;
   border: none;
   background: none;

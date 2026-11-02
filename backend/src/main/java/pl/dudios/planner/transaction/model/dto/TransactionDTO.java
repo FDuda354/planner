@@ -13,7 +13,8 @@ public record TransactionDTO(
   LocalDate date,
   Long memberId,
   boolean shared,
-  String note
+  String note,
+  boolean recurring
 ) {
 
 }

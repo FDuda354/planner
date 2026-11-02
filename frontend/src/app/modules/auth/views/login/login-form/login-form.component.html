@@ -1,30 +1,30 @@
-<form class="login-form" [formRoot]="loginForm" (submit)="login($event)">
-  <div class="login-form__header">
-    <h1 class="login-form__title">Witaj z powrotem</h1>
-    <p class="login-form__subtitle">Zaloguj się do wspólnego budżetu</p>
+<form class="auth-form" [formRoot]="loginForm" (submit)="login($event)">
+  <div class="auth-form__header">
+    <h1 class="auth-form__title">Witaj z powrotem</h1>
+    <p class="auth-form__subtitle">Zaloguj się do wspólnego budżetu</p>
   </div>
 
-  <div class="login-form__body">
-    <label class="login-form__label" for="login-email">E-mail</label>
+  <div class="auth-form__body">
+    <label class="auth-form__label" for="login-email">E-mail</label>
     <input pInputText
            id="login-email"
            type="email"
            placeholder="ty@example.com"
-           class="login-form__input"
+           class="auth-form__input"
            [pAutoFocus]="true"
            [formField]="loginForm.email"
            (change)="trimEmail()"
            autocomplete="username"/>
     @if (loginForm.email().touched() && loginForm.email().invalid()) {
-      <small class="p-error login-form__error">{{ loginForm.email().errors()[0].message }}</small>
+      <small class="p-error auth-form__error">{{ loginForm.email().errors()[0].message }}</small>
     }
 
-    <label class="login-form__label" for="login-password">Hasło</label>
+    <label class="auth-form__label" for="login-password">Hasło</label>
     <p-iconfield>
       <input pInputPassword
              id="login-password"
              placeholder="••••••••"
-             class="login-form__input"
+             class="auth-form__input"
              [mask]="passwordMasked()"
              [formField]="loginForm.password"
              autocomplete="current-password"/>
@@ -37,7 +37,7 @@
       </p-inputicon>
     </p-iconfield>
     @if (loginForm.password().touched() && loginForm.password().invalid()) {
-      <small class="p-error login-form__error">{{ loginForm.password().errors()[0].message }}</small>
+      <small class="p-error auth-form__error">{{ loginForm.password().errors()[0].message }}</small>
     }
 
     @if (errorMessage()) {
@@ -46,7 +46,7 @@
   </div>
 
   <button pButton
-          class="login-form__submit action-button--solid"
+          class="auth-form__submit action-button--solid"
           type="submit"
           [disabled]="isWorking()"
           [attr.aria-busy]="isWorking()">
@@ -56,8 +56,8 @@
     Zaloguj się
   </button>
 
-  <p class="login-form__switch">
+  <p class="auth-form__switch">
     Nie masz jeszcze konta?
-    <button type="button" class="login-form__link" (click)="switchToRegister.emit()">Załóż je</button>
+    <button type="button" class="auth-form__link" (click)="switchToRegister.emit()">Załóż je</button>
   </p>
 </form>

@@ -110,6 +110,9 @@
                       @if (transaction.shared) {
                         <span class="tx-row__shared"><i class="pi pi-home" aria-hidden="true"></i>wspólne</span>
                       }
+                      @if (transaction.recurring) {
+                        <span class="tx-row__shared"><i class="pi pi-sync" aria-hidden="true"></i>stała</span>
+                      }
                     </span>
                   </div>
                   <span class="amount tx-row__amount" [class]="'amount--' + transaction.type.toLowerCase()">

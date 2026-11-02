@@ -13,6 +13,7 @@ export interface Transaction {
   memberId: number;
   shared: boolean;
   note: string;
+  recurring: boolean;
 }
 
 export interface TransactionRequest {

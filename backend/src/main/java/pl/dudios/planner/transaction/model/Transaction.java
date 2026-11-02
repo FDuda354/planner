@@ -73,6 +73,9 @@ public class Transaction {
   @Column(name = "note", nullable = false)
   private String note;
 
+  @Column(name = "recurring_transaction_id")
+  private Long recurringTransactionId;
+
   public Long getItemId() {
     return switch (type) {
       case EXPENSE -> expenseCategoryId;
@@ -89,7 +92,7 @@ public class Transaction {
   }
 
   public TransactionDTO toDTO() {
-    return new TransactionDTO(id, type, getItemId(), amount, date, memberId, shared, note);
+    return new TransactionDTO(id, type, getItemId(), amount, date, memberId, shared, note, recurringTransactionId != null);
   }
 
 }

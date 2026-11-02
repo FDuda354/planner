@@ -30,6 +30,9 @@
         <p class="muted settings__intro">Na co odkładacie. Wpłaty na cele dodajecie jak zwykłą transakcję typu „Oszczędność”.</p>
         <app-budget-item-list [kind]="TransactionType.SAVING" [items]="configStore.savingsGoals()" addLabel="Dodaj cel"/>
       }
+      @case (SettingsTab.RECURRING) {
+        <app-recurring-transactions/>
+      }
       @case (SettingsTab.HOUSEHOLD) {
         <app-household-members/>
       }

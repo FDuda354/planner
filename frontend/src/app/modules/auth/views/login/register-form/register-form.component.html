@@ -1,42 +1,42 @@
-<form class="register-form" [formRoot]="registerForm" (submit)="register($event)">
-  <div class="register-form__header">
-    <h1 class="register-form__title">Załóż konto</h1>
-    <p class="register-form__subtitle">Jeśli ktoś zaprosił Cię do swojego budżetu, użyj adresu e-mail z zaproszenia — od razu do niego dołączysz.</p>
+<form class="auth-form" [formRoot]="registerForm" (submit)="register($event)">
+  <div class="auth-form__header">
+    <h1 class="auth-form__title">Załóż konto</h1>
+    <p class="auth-form__subtitle">Jeśli ktoś zaprosił Cię do swojego budżetu, użyj adresu e-mail z zaproszenia — od razu do niego dołączysz.</p>
   </div>
 
-  <div class="register-form__body">
-    <label class="register-form__label" for="register-first-name">Imię</label>
+  <div class="auth-form__body">
+    <label class="auth-form__label" for="register-first-name">Imię</label>
     <input pInputText
            id="register-first-name"
            type="text"
            placeholder="np. Klaudia"
-           class="register-form__input"
+           class="auth-form__input"
            [pAutoFocus]="true"
            [formField]="registerForm.firstName"
            autocomplete="given-name"/>
     @if (registerForm.firstName().touched() && registerForm.firstName().invalid()) {
-      <small class="p-error register-form__error">{{ registerForm.firstName().errors()[0].message }}</small>
+      <small class="p-error auth-form__error">{{ registerForm.firstName().errors()[0].message }}</small>
     }
 
-    <label class="register-form__label" for="register-email">E-mail</label>
+    <label class="auth-form__label" for="register-email">E-mail</label>
     <input pInputText
            id="register-email"
            type="email"
            placeholder="ty@example.com"
-           class="register-form__input"
+           class="auth-form__input"
            [formField]="registerForm.email"
            (change)="trimEmail()"
            autocomplete="email"/>
     @if (registerForm.email().touched() && registerForm.email().invalid()) {
-      <small class="p-error register-form__error">{{ registerForm.email().errors()[0].message }}</small>
+      <small class="p-error auth-form__error">{{ registerForm.email().errors()[0].message }}</small>
     }
 
-    <label class="register-form__label" for="register-password">Hasło</label>
+    <label class="auth-form__label" for="register-password">Hasło</label>
     <p-iconfield>
       <input pInputPassword
              id="register-password"
              placeholder="co najmniej 8 znaków"
-             class="register-form__input"
+             class="auth-form__input"
              [mask]="passwordMasked()"
              [formField]="registerForm.password"
              autocomplete="new-password"/>
@@ -49,7 +49,7 @@
       </p-inputicon>
     </p-iconfield>
     @if (registerForm.password().touched() && registerForm.password().invalid()) {
-      <small class="p-error register-form__error">{{ registerForm.password().errors()[0].message }}</small>
+      <small class="p-error auth-form__error">{{ registerForm.password().errors()[0].message }}</small>
     }
 
     @if (errorMessage()) {
@@ -58,7 +58,7 @@
   </div>
 
   <button pButton
-          class="register-form__submit action-button--solid"
+          class="auth-form__submit action-button--solid"
           type="submit"
           [disabled]="isWorking()"
           [attr.aria-busy]="isWorking()">
@@ -68,8 +68,8 @@
     Załóż konto
   </button>
 
-  <p class="register-form__switch">
+  <p class="auth-form__switch">
     Masz już konto?
-    <button type="button" class="register-form__link" (click)="switchToLogin.emit()">Zaloguj się</button>
+    <button type="button" class="auth-form__link" (click)="switchToLogin.emit()">Zaloguj się</button>
   </p>
 </form>

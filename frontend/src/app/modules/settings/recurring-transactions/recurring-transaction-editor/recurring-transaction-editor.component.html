@@ -1,0 +1,98 @@
+<p-dialog [visible]="state().visible"
+          (visibleChange)="onVisibleChange($event)"
+          [header]="isEdit() ? 'Edytuj stałą transakcję' : 'Nowa stała transakcja'"
+          [modal]="true"
+          [draggable]="false"
+          [resizable]="false"
+          [dismissableMask]="true"
+          [style]="{width: '580px', maxWidth: 'calc(100vw - 24px)'}"
+          appendTo="body">
+  <form [formRoot]="recurringForm" (submit)="save($event)" class="flex flex-col gap-20 recurring-form">
+    <div class="segmented recurring-form__types" role="radiogroup" aria-label="Rodzaj transakcji">
+      @for (option of typeOptions; track option.type) {
+        <label class="segmented__option radio-option" [class.segmented__option--active]="model().type === option.type">
+          <input type="radio" name="recurring-type" [checked]="model().type === option.type" (change)="selectType(option.type)">
+          <i [class]="option.icon" aria-hidden="true"></i>
+          {{ option.label }}
+        </label>
+      }
+    </div>
+
+    <div class="flex flex-row gap-12 md-down:flex-col">
+      <div class="flex flex-col gap-8 flex-1">
+        <label class="overline" for="recurring-amount">Kwota</label>
+        <p-inputnumber [formField]="recurringForm.amount" inputId="recurring-amount" mode="currency" currency="PLN" locale="pl-PL"
+                       placeholder="0,00 zł" [fluid]="true"/>
+        @if (recurringForm.amount().touched() && recurringForm.amount().invalid()) {
+          <small class="p-error">{{ recurringForm.amount().errors()[0].message }}</small>
+        }
+      </div>
+      <div class="flex flex-col gap-8 flex-1">
+        <label class="overline" for="recurring-day">Dzień miesiąca</label>
+        <p-inputnumber [formField]="recurringForm.dayOfMonth" inputId="recurring-day" [min]="1" [max]="31" [useGrouping]="false"
+                       [showButtons]="true" [fluid]="true"/>
+        @if (recurringForm.dayOfMonth().touched() && recurringForm.dayOfMonth().invalid()) {
+          <small class="p-error">{{ recurringForm.dayOfMonth().errors()[0].message }}</small>
+        }
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-8">
+      <span class="overline">Pozycja</span>
+      <div class="flex flex-row flex-wrap gap-8" role="radiogroup" aria-label="Pozycja">
+        @for (item of items(); track item.id) {
+          <label class="choice-chip radio-option" [class.choice-chip--active]="model().itemId === item.id">
+            <input type="radio" name="recurring-item" [checked]="model().itemId === item.id" (change)="selectItem(item.id)">
+            <ui-item-icon [icon]="item.icon" [color]="item.color" size="sm"/>
+            {{ item.name }}
+          </label>
+        } @empty {
+          <span class="muted">Brak aktywnych pozycji tego rodzaju — dodaj je w konfiguracji.</span>
+        }
+      </div>
+      @if (recurringForm.itemId().touched() && recurringForm.itemId().invalid()) {
+        <small class="p-error">{{ recurringForm.itemId().errors()[0].message }}</small>
+      }
+    </div>
+
+    <div class="flex flex-col gap-8">
+      <span class="overline">Czyja</span>
+      <div class="flex flex-row flex-wrap gap-8" role="radiogroup" aria-label="Czyja transakcja">
+        @for (member of householdStore.members(); track member.id) {
+          <label class="choice-chip choice-chip--member radio-option" [class.choice-chip--active]="model().memberId === member.id">
+            <input type="radio" name="recurring-member" [checked]="model().memberId === member.id" (change)="selectMember(member.id)">
+            <ui-member-avatar [member]="member" size="xs"/>
+            {{ member.firstName }}
+          </label>
+        }
+      </div>
+      @if (recurringForm.memberId().touched() && recurringForm.memberId().invalid()) {
+        <small class="p-error">{{ recurringForm.memberId().errors()[0].message }}</small>
+      }
+    </div>
+
+    @if (isExpense()) {
+      <label class="flex flex-row items-center gap-12 recurring-form__shared" [for]="sharedInputId">
+        <p-checkbox [formField]="recurringForm.shared" [binary]="true" [inputId]="sharedInputId"/>
+        <span class="flex flex-col">
+          <span class="recurring-form__shared-title"><i class="pi pi-home" aria-hidden="true"></i> Na dobro wspólne</span>
+          <span class="muted recurring-form__shared-hint">Np. czynsz czy rachunki — nie liczy się do niczyich osobistych wydatków</span>
+        </span>
+      </label>
+    }
+
+    <input pInputText
+           type="text"
+           [formField]="recurringForm.note"
+           placeholder="Nazwa (opcjonalnie), np. Czynsz za mieszkanie"
+           aria-label="Nazwa stałej transakcji"/>
+
+    <div class="flex flex-row justify-end gap-8">
+      <button pButton type="button" variant="text" severity="secondary" (click)="onVisibleChange(false)">Anuluj</button>
+      <button pButton type="submit" class="action-button--solid" [disabled]="isWorking()">
+        <i [class]="isWorking() ? 'pi pi-spin pi-spinner' : 'pi pi-check'" aria-hidden="true"></i>
+        Zapisz
+      </button>
+    </div>
+  </form>
+</p-dialog>

@@ -7,6 +7,9 @@ import {BudgetItemCardComponent} from './budget-item-list/budget-item-card/budge
 import {BudgetItemEditorComponent} from './budget-item-editor/budget-item-editor.component';
 import {HouseholdMembersComponent} from './household-members/household-members.component';
 import {AccountSettingsComponent} from './account-settings/account-settings.component';
+import {RecurringTransactionsComponent} from './recurring-transactions/recurring-transactions.component';
+import {RecurringTransactionCardComponent} from './recurring-transactions/recurring-transaction-card/recurring-transaction-card.component';
+import {RecurringTransactionEditorComponent} from './recurring-transactions/recurring-transaction-editor/recurring-transaction-editor.component';
 
 const SETTINGS_ROUTES: Routes = [
   {path: '', component: SettingsComponent},
@@ -20,6 +23,9 @@ const SETTINGS_ROUTES: Routes = [
     BudgetItemEditorComponent,
     HouseholdMembersComponent,
     AccountSettingsComponent,
+    RecurringTransactionsComponent,
+    RecurringTransactionCardComponent,
+    RecurringTransactionEditorComponent,
   ],
   imports: [
     SharedModule,

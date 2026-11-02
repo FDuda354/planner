@@ -13,7 +13,7 @@ import {serverMessage} from '../../../../../utils/NotificationHelper';
 @Component({
   selector: 'app-register-form',
   templateUrl: './register-form.component.html',
-  styleUrl: './register-form.component.scss',
+  styleUrl: '../auth-form.scss',
   standalone: false,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

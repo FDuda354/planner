@@ -1,0 +1,32 @@
+<div class="recurring-card" [class.recurring-card--inactive]="!recurring().active">
+  <button type="button" class="flex flex-row items-center gap-12 recurring-card__main" (click)="edit()">
+    <ui-item-icon [icon]="item()?.icon ?? 'pi-question'" [color]="item()?.color ?? '#94a3b8'"/>
+    <span class="flex flex-col recurring-card__text">
+      <span class="recurring-card__name">{{ recurring().note || itemName() }}</span>
+      <span class="flex flex-row flex-wrap items-center gap-4 recurring-card__meta">
+        <ui-member-avatar [member]="member()" size="xs"/>
+        <span>{{ member()?.firstName }}</span>
+        <span aria-hidden="true">·</span>
+        <span>{{ schedule() }}</span>
+        <span aria-hidden="true">·</span>
+        @if (recurring().active) {
+          <span>następna {{ recurring().nextOccurrence | date: 'd MMMM' }}</span>
+        } @else {
+          <span>wstrzymana</span>
+        }
+      </span>
+    </span>
+    <span class="amount recurring-card__amount" [class]="'amount--' + recurring().type.toLowerCase()">
+      {{ sign() }}{{ recurring().amount | money }}
+    </span>
+  </button>
+  <p-toggleswitch [formField]="activeForm.active"
+                  (onChange)="toggleActive()"
+                  [pTooltip]="recurring().active ? 'Wstrzymaj' : 'Wznów'"
+                  tooltipPosition="top"
+                  [ariaLabel]="(recurring().active ? 'Wstrzymaj ' : 'Wznów ') + itemName()"/>
+  <button pButton type="button" variant="text" severity="danger" [rounded]="true" class="recurring-card__delete"
+          pTooltip="Usuń" tooltipPosition="top" [attr.aria-label]="'Usuń stałą transakcję ' + itemName()" (click)="delete()">
+    <i class="pi pi-trash" aria-hidden="true"></i>
+  </button>
+</div>
