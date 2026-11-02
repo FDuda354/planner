@@ -2,16 +2,29 @@ import {ChangeDetectionStrategy, Component, computed, effect, inject, signal, un
 import {apply, disabled, form} from '@angular/forms/signals';
 import {MessageService} from 'primeng/api';
 import {finalize} from 'rxjs';
+import {isSameDay} from 'date-fns';
 import {RecurringEditorState, RecurringTransactionsStore} from '../../stories/recurring-transactions-store';
 import {RecurringTransactionService} from '../../../../services/recurring-transaction.service';
 import {BudgetConfigStore} from '../../../../stores/budget-config.store';
 import {HouseholdStore} from '../../../../stores/household.store';
+import {CalendarStore} from '../../../../stores/calendar.store';
 import {AuthService} from '../../../auth/services/auth.service';
 import {TRANSACTION_TYPE_OPTIONS, TransactionType} from '../../../../models/Transaction';
 import {BudgetItem} from '../../../../models/BudgetItem';
 import {prepareFormSubmission} from '../../../../shared/forms/prepare-form-submission';
 import {showServerError, showSuccess} from '../../../../utils/NotificationHelper';
-import {editRecurringModel, newRecurringModel, RecurringFormModel, recurringSchema, toRecurringRequest} from '../models/form-recurring-transaction';
+import {parseDateKey} from '../../../../shared/utils/month';
+import {editRecurringModel, newRecurringModel, RecurringFormModel, recurringSchema, scheduleOf, toRecurringRequest} from '../models/form-recurring-transaction';
+import {maxDayOf, MONTH_OPTIONS, nextOccurrenceFrom, RecurrenceSchedule, SHORTEST_MONTH_LENGTH} from '../models/recurring-schedule';
+import {RECURRENCE_FREQUENCY_OPTIONS, RecurrenceFrequency, RecurringTransaction} from '../../../../models/RecurringTransaction';
+
+const FEBRUARY = 2;
+
+function keepsSchedule(recurring: RecurringTransaction, schedule: RecurrenceSchedule): boolean {
+  return recurring.frequency === schedule.frequency
+         && recurring.dayOfMonth === schedule.dayOfMonth
+         && recurring.monthOfYear === schedule.monthOfYear;
+}
 
 @Component({
   selector: 'app-recurring-transaction-editor',
@@ -25,10 +38,13 @@ export class RecurringTransactionEditorComponent {
   private readonly recurringService = inject(RecurringTransactionService);
   private readonly configStore = inject(BudgetConfigStore);
   private readonly authService = inject(AuthService);
+  private readonly calendar = inject(CalendarStore);
   private readonly messageService = inject(MessageService);
   readonly householdStore = inject(HouseholdStore);
 
   readonly typeOptions = TRANSACTION_TYPE_OPTIONS;
+  readonly frequencyOptions = RECURRENCE_FREQUENCY_OPTIONS;
+  readonly monthOptions = MONTH_OPTIONS;
   readonly sharedInputId = 'recurring-shared';
   readonly state = this.store.editor;
   readonly isEdit = computed(() => this.state().recurring !== null);
@@ -42,6 +58,11 @@ export class RecurringTransactionEditorComponent {
 
   readonly items = computed(() => this.selectableItems(this.model().type));
   readonly isExpense = computed(() => this.model().type === TransactionType.EXPENSE);
+  readonly nextOccurrence = computed(() => this.predictNextOccurrence(this.model()));
+  readonly isBookedToday = computed(() => this.isToday(this.nextOccurrence()));
+  readonly shortPeriodHint = computed(() => this.shortPeriodHintOf(scheduleOf(this.model())));
+  readonly isYearly = computed(() => this.model().frequency === RecurrenceFrequency.YEARLY);
+  readonly maxDayOfMonth = computed(() => this.isYearly() ? maxDayOf(this.model().monthOfYear) : 31);
 
   constructor() {
     effect(() => {
@@ -58,6 +79,10 @@ export class RecurringTransactionEditorComponent {
 
   selectItem(itemId: number): void {
     this.recurringForm.itemId().value.set(itemId);
+  }
+
+  selectFrequency(frequency: RecurrenceFrequency): void {
+    this.recurringForm.frequency().value.set(frequency);
   }
 
   selectMember(memberId: number): void {
@@ -91,6 +116,32 @@ export class RecurringTransactionEditorComponent {
 
   private initialModel(state: RecurringEditorState): RecurringFormModel {
     return state.recurring ? editRecurringModel(state.recurring) : newRecurringModel(this.authService.currentMember()?.id ?? null);
+  }
+
+  private isToday(date: Date | null): boolean {
+    return date !== null && isSameDay(date, this.calendar.today());
+  }
+
+  private predictNextOccurrence(model: RecurringFormModel): Date | null {
+    const schedule = scheduleOf(model);
+    if (!model.active || schedule === null) {
+      return null;
+    }
+    const editing = this.state().recurring;
+    const scheduled = editing ? parseDateKey(editing.nextOccurrence) : null;
+    return editing !== null && editing.active && keepsSchedule(editing, schedule)
+      ? scheduled
+      : nextOccurrenceFrom(schedule, this.calendar.today(), scheduled);
+  }
+
+  private shortPeriodHintOf(schedule: RecurrenceSchedule | null): string | null {
+    if (schedule === null || schedule.dayOfMonth <= SHORTEST_MONTH_LENGTH) {
+      return null;
+    }
+    if (schedule.frequency === RecurrenceFrequency.MONTHLY) {
+      return `W miesiącach krótszych niż ${schedule.dayOfMonth} dni zaksięguje się ostatniego dnia miesiąca (np. 28 lub 29 lutego).`;
+    }
+    return schedule.monthOfYear === FEBRUARY ? 'W latach nieprzestępnych zaksięguje się 28 lutego.' : null;
   }
 
   private selectableItems(type: TransactionType): BudgetItem[] {

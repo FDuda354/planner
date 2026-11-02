@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import pl.dudios.planner.recurring.model.RecurrenceFrequency;
 import pl.dudios.planner.transaction.model.TransactionType;
 
 import java.math.BigDecimal;
@@ -24,10 +25,17 @@ public record RecurringTransactionRequest(
   @Digits(integer = 10, fraction = 2, message = "Niepoprawna kwota")
   BigDecimal amount,
 
+  @NotNull(message = "Wybierz, jak często naliczać")
+  RecurrenceFrequency frequency,
+
   @NotNull(message = "Wybierz dzień miesiąca")
   @Min(value = 1, message = "Dzień miesiąca musi być z zakresu 1–31")
   @Max(value = 31, message = "Dzień miesiąca musi być z zakresu 1–31")
   Integer dayOfMonth,
+
+  @Min(value = 1, message = "Miesiąc musi być z zakresu 1–12")
+  @Max(value = 12, message = "Miesiąc musi być z zakresu 1–12")
+  Integer monthOfYear,
 
   @NotNull(message = "Wybierz, czyja to transakcja")
   Long memberId,

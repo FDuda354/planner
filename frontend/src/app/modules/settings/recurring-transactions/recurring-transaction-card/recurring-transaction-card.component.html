@@ -2,7 +2,12 @@
   <button type="button" class="flex flex-row items-center gap-12 recurring-card__main" (click)="edit()">
     <ui-item-icon [icon]="item()?.icon ?? 'pi-question'" [color]="item()?.color ?? '#94a3b8'"/>
     <span class="flex flex-col recurring-card__text">
-      <span class="recurring-card__name">{{ recurring().note || itemName() }}</span>
+      <span class="flex flex-row items-center gap-4 recurring-card__title">
+        <span class="recurring-card__name">{{ recurring().note || itemName() }}</span>
+        <span class="meta-badge recurring-card__frequency" [class.recurring-card__frequency--yearly]="isYearly()">
+          <i [class]="isYearly() ? 'pi pi-calendar' : 'pi pi-sync'" aria-hidden="true"></i>{{ isYearly() ? 'roczna' : 'miesięczna' }}
+        </span>
+      </span>
       <span class="flex flex-row flex-wrap items-center gap-4 recurring-card__meta">
         <ui-member-avatar [member]="member()" size="xs"/>
         <span>{{ member()?.firstName }}</span>
@@ -10,9 +15,12 @@
         <span>{{ schedule() }}</span>
         <span aria-hidden="true">·</span>
         @if (recurring().active) {
-          <span>następna {{ recurring().nextOccurrence | date: 'd MMMM' }}</span>
+          <span>następna {{ recurring().nextOccurrence | date: nextOccurrenceFormat() }}</span>
         } @else {
           <span>wstrzymana</span>
+        }
+        @if (recurring().shared) {
+          <span class="meta-badge"><i class="pi pi-home" aria-hidden="true"></i>wspólne</span>
         }
       </span>
     </span>

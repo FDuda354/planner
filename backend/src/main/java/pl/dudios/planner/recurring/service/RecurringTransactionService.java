@@ -8,6 +8,7 @@ import pl.dudios.planner.budgetconfig.service.BudgetConfigService;
 import pl.dudios.planner.exception.RequestValidationException;
 import pl.dudios.planner.exception.ResourceNotFoundException;
 import pl.dudios.planner.member.service.MemberAssignmentValidator;
+import pl.dudios.planner.recurring.model.RecurrenceFrequency;
 import pl.dudios.planner.recurring.model.RecurringTransaction;
 import pl.dudios.planner.recurring.model.dto.RecurringTransactionDTO;
 import pl.dudios.planner.recurring.model.request.RecurringTransactionRequest;
@@ -15,6 +16,7 @@ import pl.dudios.planner.recurring.repository.RecurringTransactionRepository;
 import pl.dudios.planner.transaction.model.TransactionType;
 
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.List;
 import java.util.Objects;
 
@@ -45,12 +47,15 @@ public class RecurringTransactionService {
     validateItem(householdId, recurring, request);
     memberAssignmentValidator.validateAssignment(householdId, request.memberId(), recurring.getMemberId());
     validateSharedFlag(request);
+    validateSchedule(request);
 
     LocalDate today = LocalDate.now(POLAND);
     boolean needsScheduling = needsScheduling(recurring, request);
     recurring.assignItem(request.type(), request.itemId());
     recurring.setAmount(request.amount());
+    recurring.setFrequency(request.frequency());
     recurring.setDayOfMonth(request.dayOfMonth());
+    recurring.setMonthOfYear(monthOfYearOf(request));
     recurring.setMemberId(request.memberId());
     recurring.setShared(request.shared());
     recurring.setNote(request.note());
@@ -74,9 +79,15 @@ public class RecurringTransactionService {
 
   private boolean needsScheduling(RecurringTransaction recurring, RecurringTransactionRequest request) {
     boolean isNew = recurring.getNextOccurrence() == null;
-    boolean dayChanged = recurring.getDayOfMonth() != request.dayOfMonth();
+    boolean scheduleChanged = hasScheduleChanged(recurring, request);
     boolean resumed = request.active() && !recurring.isActive();
-    return isNew || dayChanged || resumed;
+    return isNew || scheduleChanged || resumed;
+  }
+
+  private boolean hasScheduleChanged(RecurringTransaction recurring, RecurringTransactionRequest request) {
+    return recurring.getFrequency() != request.frequency()
+           || recurring.getDayOfMonth() != request.dayOfMonth()
+           || !Objects.equals(recurring.getMonthOfYear(), monthOfYearOf(request));
   }
 
   private void validateItem(Long householdId, RecurringTransaction recurring, RecurringTransactionRequest request) {
@@ -85,6 +96,22 @@ public class RecurringTransactionService {
     if (!item.isActive() && !keepsCurrentItem) {
       throw new RequestValidationException("Pozycja „" + item.getName() + "” jest wstrzymana — przywróć ją w konfiguracji, aby ustawić stałą transakcję");
     }
+  }
+
+  private void validateSchedule(RecurringTransactionRequest request) {
+    if (request.frequency() != RecurrenceFrequency.YEARLY) {
+      return;
+    }
+    if (request.monthOfYear() == null) {
+      throw new RequestValidationException("Wybierz miesiąc rocznego naliczania");
+    }
+    if (request.dayOfMonth() > Month.of(request.monthOfYear()).maxLength()) {
+      throw new RequestValidationException("Wybrany miesiąc nie ma tylu dni");
+    }
+  }
+
+  private Integer monthOfYearOf(RecurringTransactionRequest request) {
+    return request.frequency() == RecurrenceFrequency.YEARLY ? request.monthOfYear() : null;
   }
 
   private void validateSharedFlag(RecurringTransactionRequest request) {

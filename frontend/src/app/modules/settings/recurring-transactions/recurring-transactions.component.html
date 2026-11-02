@@ -1,11 +1,49 @@
 <p class="muted recurring__intro">
-  Pensje, czynsz, rachunki czy stała wpłata na cel — ustaw je raz, a każdego miesiąca w wybranym dniu same pojawią się w budżecie.
+  Pensje, czynsz, rachunki czy stała wpłata na cel — ustaw je raz, a co miesiąc albo co rok w wybranym dniu same pojawią się w budżecie.
   Każdą tak dodaną transakcję możesz potem poprawić albo usunąć jak zwykłą.
 </p>
 
+@if (store.recurringTransactions().length > 0) {
+  <div class="flex flex-row flex-wrap items-center gap-8 recurring__filters">
+    <div class="segmented" role="radiogroup" aria-label="Rodzaj transakcji">
+      @for (option of typeFilters; track option.value) {
+        <label class="segmented__option radio-option" [class.segmented__option--active]="store.filters().type === option.value">
+          <input type="radio" name="recurring-filter-type" [checked]="store.filters().type === option.value" (change)="selectType(option.value)">
+          {{ option.label }}
+          <span class="recurring__filter-count">{{ store.countOfType(option.value) }}</span>
+        </label>
+      }
+    </div>
+    <div class="segmented" role="radiogroup" aria-label="Jak często">
+      @for (option of frequencyFilters; track option.value) {
+        <label class="segmented__option radio-option" [class.segmented__option--active]="store.filters().frequency === option.value">
+          <input type="radio" name="recurring-filter-frequency" [checked]="store.filters().frequency === option.value"
+                 (change)="selectFrequency(option.value)">
+          {{ option.label }}
+        </label>
+      }
+    </div>
+    <p-select [formField]="filterForm.memberId"
+              [options]="householdStore.everyone()"
+              optionLabel="firstName"
+              optionValue="id"
+              placeholder="Wszyscy domownicy"
+              [showClear]="true"
+              ariaLabel="Czyja transakcja"
+              styleClass="recurring__member-filter"/>
+  </div>
+}
+
 <div class="flex flex-col gap-8 recurring animation-stagger-children">
-  @for (recurring of store.recurringTransactions(); track recurring.id) {
+  @for (recurring of store.filteredRecurringTransactions(); track recurring.id) {
     <app-recurring-transaction-card [recurring]="recurring"/>
+  } @empty {
+    @if (store.isFiltered()) {
+      <div class="flex flex-row items-center justify-between gap-12 muted recurring__empty">
+        Brak stałych transakcji dla wybranych filtrów.
+        <button pButton type="button" variant="text" size="small" (click)="store.clearFilters()">Wyczyść filtry</button>
+      </div>
+    }
   }
   <button type="button" class="recurring__add" (click)="store.create()">
     <i class="pi pi-plus" aria-hidden="true"></i>

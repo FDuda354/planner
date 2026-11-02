@@ -18,6 +18,19 @@
       }
     </div>
 
+    <div class="flex flex-col gap-8">
+      <span class="overline">Jak często</span>
+      <div class="segmented recurring-form__types" role="radiogroup" aria-label="Jak często naliczać">
+        @for (option of frequencyOptions; track option.frequency) {
+          <label class="segmented__option radio-option" [class.segmented__option--active]="model().frequency === option.frequency">
+            <input type="radio" name="recurring-frequency" [checked]="model().frequency === option.frequency"
+                   (change)="selectFrequency(option.frequency)">
+            {{ option.label }}
+          </label>
+        }
+      </div>
+    </div>
+
     <div class="flex flex-row gap-12 md-down:flex-col">
       <div class="flex flex-col gap-8 flex-1">
         <label class="overline" for="recurring-amount">Kwota</label>
@@ -27,14 +40,43 @@
           <small class="p-error">{{ recurringForm.amount().errors()[0].message }}</small>
         }
       </div>
+      @if (isYearly()) {
+        <div class="flex flex-col gap-8 flex-1">
+          <label class="overline" for="recurring-month">Miesiąc</label>
+          <p-select [formField]="recurringForm.monthOfYear" inputId="recurring-month" [options]="monthOptions" optionLabel="label"
+                    optionValue="value" placeholder="Wybierz miesiąc" appendTo="body" [fluid]="true"/>
+          @if (recurringForm.monthOfYear().touched() && recurringForm.monthOfYear().invalid()) {
+            <small class="p-error">{{ recurringForm.monthOfYear().errors()[0].message }}</small>
+          }
+        </div>
+      }
       <div class="flex flex-col gap-8 flex-1">
-        <label class="overline" for="recurring-day">Dzień miesiąca</label>
-        <p-inputnumber [formField]="recurringForm.dayOfMonth" inputId="recurring-day" [min]="1" [max]="31" [useGrouping]="false"
+        <label class="overline" for="recurring-day">{{ isYearly() ? 'Dzień' : 'Dzień miesiąca' }}</label>
+        <p-inputnumber [formField]="recurringForm.dayOfMonth" inputId="recurring-day" [min]="1" [max]="maxDayOfMonth()" [useGrouping]="false"
                        [showButtons]="true" [fluid]="true"/>
         @if (recurringForm.dayOfMonth().touched() && recurringForm.dayOfMonth().invalid()) {
           <small class="p-error">{{ recurringForm.dayOfMonth().errors()[0].message }}</small>
         }
       </div>
+    </div>
+
+    <div class="flex flex-row items-start gap-8 recurring-form__schedule" aria-live="polite">
+      <i class="pi pi-calendar-clock" aria-hidden="true"></i>
+      <span class="flex flex-col gap-4">
+        @if (nextOccurrence(); as date) {
+          <span>
+            {{ isEdit() ? 'Najbliższe zaksięgowanie:' : 'Pierwsze zaksięgowanie:' }}
+            <strong>{{ isBookedToday() ? 'dziś, ' : '' }}{{ date | date: 'EEEE, d MMMM y' }}</strong>
+          </span>
+        } @else if (!model().active) {
+          <span>Transakcja jest wstrzymana — nie zaksięguje się, dopóki jej nie wznowisz.</span>
+        } @else {
+          <span>{{ isYearly() ? 'Wybierz miesiąc i dzień' : 'Podaj dzień miesiąca' }}, a pokażę, kiedy transakcja zaksięguje się pierwszy raz.</span>
+        }
+        @if (shortPeriodHint(); as hint) {
+          <span class="muted recurring-form__schedule-hint">{{ hint }}</span>
+        }
+      </span>
     </div>
 
     <div class="flex flex-col gap-8">

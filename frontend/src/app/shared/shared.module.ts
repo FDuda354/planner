@@ -18,6 +18,7 @@ import {InputIcon} from 'primeng/inputicon';
 import {AutoFocus} from 'primeng/autofocus';
 import {ToggleSwitch} from 'primeng/toggleswitch';
 import {SelectButton} from 'primeng/selectbutton';
+import {Select} from 'primeng/select';
 import {Tab, TabList, Tabs} from 'primeng/tabs';
 import {Tooltip} from 'primeng/tooltip';
 import {Skeleton} from 'primeng/skeleton';
@@ -36,7 +37,7 @@ import {TransactionDialogComponent} from './components/transaction-dialog/transa
 
 const PRIME_COMPONENTS = [
   ButtonDirective, Ripple, Toast, ConfirmDialog, ConfirmPopup, Dialog, InputText, InputNumber, InputPassword, Textarea,
-  DatePicker, IconField, InputIcon, AutoFocus, ToggleSwitch, SelectButton, Tabs, TabList, Tab, Tooltip, Skeleton, Menu,
+  DatePicker, IconField, InputIcon, AutoFocus, ToggleSwitch, SelectButton, Select, Tabs, TabList, Tab, Tooltip, Skeleton, Menu,
   Tag, Divider, Message, Checkbox,
 ];
 

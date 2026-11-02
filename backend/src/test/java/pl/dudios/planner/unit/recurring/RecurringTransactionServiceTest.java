@@ -19,6 +19,7 @@ import pl.dudios.planner.exception.ResourceNotFoundException;
 import pl.dudios.planner.member.model.Member;
 import pl.dudios.planner.member.repository.MemberRepository;
 import pl.dudios.planner.member.service.MemberAssignmentValidator;
+import pl.dudios.planner.recurring.model.RecurrenceFrequency;
 import pl.dudios.planner.recurring.model.RecurringTransaction;
 import pl.dudios.planner.recurring.model.request.RecurringTransactionRequest;
 import pl.dudios.planner.recurring.repository.RecurringTransactionRepository;
@@ -156,7 +157,7 @@ class RecurringTransactionServiceTest {
       // Given
       given(expenseCategoryRepository.findByIdAndHouseholdId(CATEGORY_ID, HOUSEHOLD_ID)).willReturn(Optional.of(
         ExpenseCategory.builder().id(CATEGORY_ID).householdId(HOUSEHOLD_ID).name("Mieszkanie").icon("pi-home").color("#6366f1").active(false).build()));
-      var request = new RecurringTransactionRequest(null, TransactionType.EXPENSE, CATEGORY_ID, new BigDecimal("2500"), 10, KLAUDIA_ID, true, "Czynsz", true);
+      var request = new RecurringTransactionRequest(null, TransactionType.EXPENSE, CATEGORY_ID, new BigDecimal("2500"), RecurrenceFrequency.MONTHLY, 10, null, KLAUDIA_ID, true, "Czynsz", true);
 
       // When / Then
       assertThatThrownBy(() -> service.saveRecurringTransaction(HOUSEHOLD_ID, request))
@@ -171,7 +172,7 @@ class RecurringTransactionServiceTest {
       // Given
       givenActiveSalarySource();
       givenKlaudia(true);
-      var request = new RecurringTransactionRequest(null, TransactionType.INCOME, SALARY_ID, new BigDecimal("8000"), 10, KLAUDIA_ID, true, "", true);
+      var request = new RecurringTransactionRequest(null, TransactionType.INCOME, SALARY_ID, new BigDecimal("8000"), RecurrenceFrequency.MONTHLY, 10, null, KLAUDIA_ID, true, "", true);
 
       // When / Then
       assertThatThrownBy(() -> service.saveRecurringTransaction(HOUSEHOLD_ID, request))
@@ -197,7 +198,7 @@ class RecurringTransactionServiceTest {
       givenSavedRecurringReturned();
 
       // When
-      service.saveRecurringTransaction(HOUSEHOLD_ID, new RecurringTransactionRequest(5L, TransactionType.INCOME, SALARY_ID, new BigDecimal("9000"), 10, KLAUDIA_ID, false, "", true));
+      service.saveRecurringTransaction(HOUSEHOLD_ID, new RecurringTransactionRequest(5L, TransactionType.INCOME, SALARY_ID, new BigDecimal("9000"), RecurrenceFrequency.MONTHLY, 10, null, KLAUDIA_ID, false, "", true));
 
       // Then
       assertThat(existing.getNextOccurrence()).isEqualTo(plannedDate);
@@ -244,6 +245,116 @@ class RecurringTransactionServiceTest {
     }
   }
 
+  @Nested
+  @DisplayName("Yearly schedule")
+  class YearlySchedule {
+
+    @Test
+    @DisplayName("a yearly date still ahead is scheduled for that date and nothing is booked yet")
+    void schedulesUpcomingYearlyDate() {
+      // Given
+      var tomorrow = LocalDate.now(POLAND).plusDays(1);
+      givenActiveSalarySource();
+      givenKlaudia(true);
+      givenSavedRecurringReturned();
+
+      // When
+      service.saveRecurringTransaction(HOUSEHOLD_ID, yearlySalary(null, tomorrow.getMonthValue(), tomorrow.getDayOfMonth()));
+
+      // Then
+      var saved = savedRecurring();
+      assertThat(saved.getFrequency()).isEqualTo(RecurrenceFrequency.YEARLY);
+      assertThat(saved.getNextOccurrence()).isEqualTo(tomorrow);
+      then(transactionRepository).should(never()).save(any());
+    }
+
+    @Test
+    @DisplayName("a yearly date that already passed this year is first booked next year")
+    void schedulesPassedYearlyDateForNextYear() {
+      // Given
+      var yesterday = LocalDate.now(POLAND).minusDays(1);
+      givenActiveSalarySource();
+      givenKlaudia(true);
+      givenSavedRecurringReturned();
+
+      // When
+      service.saveRecurringTransaction(HOUSEHOLD_ID, yearlySalary(null, yesterday.getMonthValue(), yesterday.getDayOfMonth()));
+
+      // Then
+      assertThat(savedRecurring().getNextOccurrence()).isEqualTo(yesterday.plusYears(1));
+      then(transactionRepository).should(never()).save(any());
+    }
+
+    @Test
+    @DisplayName("switching a monthly transaction to yearly moves the next date to the chosen day of the year")
+    void reschedulesWhenSwitchedToYearly() {
+      // Given
+      var existing = existingSalary(10, YearMonth.now(POLAND).plusMonths(1).atDay(10));
+      given(recurringTransactionRepository.findByIdAndHouseholdId(5L, HOUSEHOLD_ID)).willReturn(Optional.of(existing));
+      givenActiveSalarySource();
+      givenKlaudia(true);
+      givenSavedRecurringReturned();
+
+      // When
+      service.saveRecurringTransaction(HOUSEHOLD_ID, yearlySalary(5L, 6, 20));
+
+      // Then
+      assertThat(existing.getNextOccurrence().getMonthValue()).isEqualTo(6);
+      assertThat(existing.getNextOccurrence().getDayOfMonth()).isEqualTo(20);
+      assertThat(existing.getNextOccurrence()).isAfterOrEqualTo(LocalDate.now(POLAND));
+    }
+
+    @Test
+    @DisplayName("switching back to monthly forgets the month of the year")
+    void forgetsMonthWhenSwitchedToMonthly() {
+      // Given
+      var existing = existingSalary(20, LocalDate.now(POLAND).plusYears(1));
+      existing.setFrequency(RecurrenceFrequency.YEARLY);
+      existing.setMonthOfYear(6);
+      given(recurringTransactionRepository.findByIdAndHouseholdId(5L, HOUSEHOLD_ID)).willReturn(Optional.of(existing));
+      givenActiveSalarySource();
+      givenKlaudia(true);
+      givenSavedRecurringReturned();
+
+      // When
+      service.saveRecurringTransaction(HOUSEHOLD_ID, salary(5L, 20));
+
+      // Then
+      assertThat(existing.getFrequency()).isEqualTo(RecurrenceFrequency.MONTHLY);
+      assertThat(existing.getMonthOfYear()).isNull();
+    }
+
+    @Test
+    @DisplayName("refuses a yearly transaction without a month")
+    void refusesYearlyWithoutMonth() {
+      // Given
+      givenActiveSalarySource();
+      givenKlaudia(true);
+      var request = yearlySalary(null, null, 15);
+
+      // When / Then
+      assertThatThrownBy(() -> service.saveRecurringTransaction(HOUSEHOLD_ID, request))
+        .isInstanceOf(RequestValidationException.class)
+        .hasMessageContaining("miesiąc");
+      then(recurringTransactionRepository).should(never()).save(any());
+    }
+
+    @Test
+    @DisplayName("refuses a day that the chosen month never has, such as 31 April")
+    void refusesDayOutsideMonth() {
+      // Given
+      givenActiveSalarySource();
+      givenKlaudia(true);
+      var request = yearlySalary(null, 4, 31);
+
+      // When / Then
+      assertThatThrownBy(() -> service.saveRecurringTransaction(HOUSEHOLD_ID, request))
+        .isInstanceOf(RequestValidationException.class)
+        .hasMessageContaining("dni");
+      then(recurringTransactionRepository).should(never()).save(any());
+    }
+  }
+
   private void givenActiveSalarySource() {
     given(incomeSourceRepository.findByIdAndHouseholdId(SALARY_ID, HOUSEHOLD_ID)).willReturn(Optional.of(
       IncomeSource.builder().id(SALARY_ID).householdId(HOUSEHOLD_ID).name("Wynagrodzenie").icon("pi-briefcase").color("#059669").active(true).build()));
@@ -265,7 +376,11 @@ class RecurringTransactionServiceTest {
   }
 
   private RecurringTransactionRequest salary(Long id, int dayOfMonth) {
-    return new RecurringTransactionRequest(id, TransactionType.INCOME, SALARY_ID, new BigDecimal("8000"), dayOfMonth, KLAUDIA_ID, false, "Pensja", true);
+    return new RecurringTransactionRequest(id, TransactionType.INCOME, SALARY_ID, new BigDecimal("8000"), RecurrenceFrequency.MONTHLY, dayOfMonth, null, KLAUDIA_ID, false, "Pensja", true);
+  }
+
+  private RecurringTransactionRequest yearlySalary(Long id, Integer monthOfYear, int dayOfMonth) {
+    return new RecurringTransactionRequest(id, TransactionType.INCOME, SALARY_ID, new BigDecimal("8000"), RecurrenceFrequency.YEARLY, dayOfMonth, monthOfYear, KLAUDIA_ID, false, "Pensja", true);
   }
 
   private RecurringTransaction existingSalary(int dayOfMonth, LocalDate nextOccurrence) {

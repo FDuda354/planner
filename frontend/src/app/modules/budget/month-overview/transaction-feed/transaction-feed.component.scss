@@ -166,19 +166,3 @@
     transition: opacity 0.15s ease;
   }
 }
-
-.tx-row__shared {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  margin-left: 4px;
-  padding: 0 6px;
-  border-radius: 999px;
-  font-size: 11px;
-  color: var(--p-text-muted-color);
-  background: var(--budget-surface-muted);
-
-  .pi {
-    font-size: 9px;
-  }
-}

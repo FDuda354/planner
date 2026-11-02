@@ -64,8 +64,16 @@ public class RecurringTransaction {
   @Column(name = "amount", nullable = false)
   private BigDecimal amount;
 
+  @Builder.Default
+  @Enumerated(EnumType.STRING)
+  @Column(name = "frequency", nullable = false)
+  private RecurrenceFrequency frequency = RecurrenceFrequency.MONTHLY;
+
   @Column(name = "day_of_month", nullable = false)
   private int dayOfMonth;
+
+  @Column(name = "month_of_year")
+  private Integer monthOfYear;
 
   @Column(name = "member_id", nullable = false)
   private Long memberId;
@@ -98,9 +106,9 @@ public class RecurringTransaction {
   }
 
   public void scheduleFrom(LocalDate today) {
-    YearMonth month = YearMonth.from(nextOccurrence == null || nextOccurrence.isBefore(today) ? today : nextOccurrence);
-    LocalDate candidate = occurrenceIn(month);
-    nextOccurrence = candidate.isBefore(today) ? occurrenceIn(month.plusMonths(1)) : candidate;
+    LocalDate reference = nextOccurrence == null || nextOccurrence.isBefore(today) ? today : nextOccurrence;
+    LocalDate candidate = occurrenceInPeriodOf(reference);
+    nextOccurrence = candidate.isBefore(today) ? occurrenceAfter(candidate) : candidate;
   }
 
   public boolean isDueOn(LocalDate today) {
@@ -121,15 +129,20 @@ public class RecurringTransaction {
     return transaction;
   }
 
-  public void advanceToNextMonth() {
-    nextOccurrence = occurrenceIn(YearMonth.from(nextOccurrence).plusMonths(1));
+  public void advanceToNextOccurrence() {
+    nextOccurrence = occurrenceAfter(nextOccurrence);
   }
 
   public RecurringTransactionDTO toDTO() {
-    return new RecurringTransactionDTO(id, type, getItemId(), amount, dayOfMonth, memberId, shared, note, active, nextOccurrence);
+    return new RecurringTransactionDTO(id, type, getItemId(), amount, frequency, dayOfMonth, monthOfYear, memberId, shared, note, active, nextOccurrence);
   }
 
-  private LocalDate occurrenceIn(YearMonth month) {
+  private LocalDate occurrenceAfter(LocalDate occurrence) {
+    return occurrenceInPeriodOf(occurrence.plus(frequency.getInterval()));
+  }
+
+  private LocalDate occurrenceInPeriodOf(LocalDate date) {
+    YearMonth month = frequency == RecurrenceFrequency.MONTHLY ? YearMonth.from(date) : YearMonth.of(date.getYear(), monthOfYear);
     return month.atDay(Math.min(dayOfMonth, month.lengthOfMonth()));
   }
 

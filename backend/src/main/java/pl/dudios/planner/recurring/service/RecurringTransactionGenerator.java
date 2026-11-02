@@ -44,7 +44,7 @@ public class RecurringTransactionGenerator {
       if (canBeBooked(recurring)) {
         transactionRepository.save(recurring.toTransaction());
       }
-      recurring.advanceToNextMonth();
+      recurring.advanceToNextOccurrence();
     }
   }
 

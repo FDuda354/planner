@@ -9,6 +9,24 @@
     cursor: pointer;
   }
 
+  &__schedule {
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: var(--p-highlight-background);
+    color: var(--p-highlight-color);
+    font-size: 13px;
+    line-height: 18px;
+
+    .pi {
+      margin-top: 2px;
+    }
+  }
+
+  &__schedule-hint {
+    font-size: 12px;
+    line-height: 16px;
+  }
+
   &__shared-title {
     font-weight: 700;
 

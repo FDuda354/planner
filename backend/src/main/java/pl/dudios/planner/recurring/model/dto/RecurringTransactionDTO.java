@@ -1,5 +1,6 @@
 package pl.dudios.planner.recurring.model.dto;
 
+import pl.dudios.planner.recurring.model.RecurrenceFrequency;
 import pl.dudios.planner.transaction.model.TransactionType;
 
 import java.math.BigDecimal;
@@ -10,7 +11,9 @@ public record RecurringTransactionDTO(
   TransactionType type,
   Long itemId,
   BigDecimal amount,
+  RecurrenceFrequency frequency,
   int dayOfMonth,
+  Integer monthOfYear,
   Long memberId,
   boolean shared,
   String note,

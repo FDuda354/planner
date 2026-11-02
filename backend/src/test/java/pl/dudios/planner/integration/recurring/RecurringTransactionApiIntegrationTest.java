@@ -97,6 +97,22 @@ class RecurringTransactionApiIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
+    @DisplayName("a yearly transaction is stored with its month and first scheduled for that day")
+    void storesYearlySchedule() throws Exception {
+      var tomorrow = LocalDate.now(POLAND).plusDays(1);
+      var body = """
+        {"type": "INCOME", "itemId": %d, "amount": 1200, "frequency": "YEARLY", "dayOfMonth": %d, "monthOfYear": %d, "memberId": %d, "shared": false, "note": "Premia", "active": true}
+        """.formatted(salary.getId(), tomorrow.getDayOfMonth(), tomorrow.getMonthValue(), klaudia.getId());
+
+      save(filip, body).andExpect(status().isNoContent());
+
+      mockMvc.perform(get(ROOT).with(auth.as(filip)))
+             .andExpect(jsonPath("$[0].frequency").value("YEARLY"))
+             .andExpect(jsonPath("$[0].monthOfYear").value(tomorrow.getMonthValue()))
+             .andExpect(jsonPath("$[0].nextOccurrence").value(tomorrow.toString()));
+    }
+
+    @Test
     @DisplayName("refuses a day of month outside 1–31 with HTTP 400")
     void refusesInvalidDay() throws Exception {
       save(filip, salaryJson(null, 32)).andExpect(status().isBadRequest());
@@ -182,7 +198,7 @@ class RecurringTransactionApiIntegrationTest extends AbstractIntegrationTest {
 
   private String salaryJson(Long id, int dayOfMonth) {
     return """
-      {"id": %s, "type": "INCOME", "itemId": %d, "amount": 8000, "dayOfMonth": %d, "memberId": %d, "shared": false, "note": "Pensja", "active": true}
+      {"id": %s, "type": "INCOME", "itemId": %d, "amount": 8000, "frequency": "MONTHLY", "dayOfMonth": %d, "memberId": %d, "shared": false, "note": "Pensja", "active": true}
       """.formatted(id, salary.getId(), dayOfMonth, klaudia.getId());
   }
 

@@ -5,10 +5,23 @@ import {RecurringTransactionsStore} from '../../stories/recurring-transactions-s
 import {RecurringTransactionService} from '../../../../services/recurring-transaction.service';
 import {BudgetConfigStore} from '../../../../stores/budget-config.store';
 import {HouseholdStore} from '../../../../stores/household.store';
-import {RecurringTransaction} from '../../../../models/RecurringTransaction';
+import {CalendarStore} from '../../../../stores/calendar.store';
+import {parseDateKey} from '../../../../shared/utils/month';
+import {RecurrenceFrequency, RecurringTransaction} from '../../../../models/RecurringTransaction';
+import {annualDateOf, SHORTEST_MONTH_LENGTH} from '../models/recurring-schedule';
+import {format} from 'date-fns';
+import {pl} from 'date-fns/locale';
 import {TransactionType} from '../../../../models/Transaction';
 import {editRecurringModel, toRecurringRequest} from '../models/form-recurring-transaction';
 import {showServerError, showSuccess} from '../../../../utils/NotificationHelper';
+
+function scheduleLabel(recurring: RecurringTransaction): string {
+  if (recurring.frequency === RecurrenceFrequency.YEARLY) {
+    return `Co roku, ${format(annualDateOf(recurring.monthOfYear!, recurring.dayOfMonth, new Date().getFullYear()), 'd MMMM', {locale: pl})}`;
+  }
+  const lastDayHint = recurring.dayOfMonth > SHORTEST_MONTH_LENGTH ? ' (w krótszych miesiącach ostatniego dnia)' : '';
+  return `Co miesiąc, ${recurring.dayOfMonth}. dnia${lastDayHint}`;
+}
 
 const AMOUNT_SIGNS: Record<TransactionType, string> = {
   [TransactionType.EXPENSE]: '−',
@@ -28,6 +41,7 @@ export class RecurringTransactionCardComponent {
   private readonly recurringService = inject(RecurringTransactionService);
   private readonly configStore = inject(BudgetConfigStore);
   private readonly householdStore = inject(HouseholdStore);
+  private readonly calendar = inject(CalendarStore);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly messageService = inject(MessageService);
 
@@ -38,11 +52,13 @@ export class RecurringTransactionCardComponent {
   readonly itemName = computed(() => this.item()?.name ?? '');
   readonly member = computed(() => this.householdStore.memberOf(this.recurring().memberId));
   readonly sign = computed(() => AMOUNT_SIGNS[this.recurring().type]);
-  readonly schedule = computed(() => {
-    const day = this.recurring().dayOfMonth;
-    const lastDayHint = day > 28 ? ' (w krótszych miesiącach ostatniego dnia)' : '';
-    return `Co miesiąc, ${day}. dnia${lastDayHint}`;
-  });
+  readonly schedule = computed(() => scheduleLabel(this.recurring()));
+  readonly isYearly = computed(() => this.recurring().frequency === RecurrenceFrequency.YEARLY);
+  readonly nextOccurrenceFormat = computed(() => this.isNextOccurrenceInAnotherYear() ? 'd MMMM y' : 'd MMMM');
+
+  private isNextOccurrenceInAnotherYear(): boolean {
+    return parseDateKey(this.recurring().nextOccurrence).getFullYear() !== this.calendar.currentYear();
+  }
 
   edit(): void {
     this.store.edit(this.recurring());
@@ -65,7 +81,7 @@ export class RecurringTransactionCardComponent {
     this.confirmationService.confirm({
       key: 'deleteConfirmDialog',
       header: 'Usunąć stałą transakcję?',
-      message: `„${name}” przestanie pojawiać się co miesiąc. Transakcje, które już się pojawiły, zostaną w historii.`,
+      message: `„${name}” przestanie się automatycznie księgować. Transakcje, które już się pojawiły, zostaną w historii.`,
       icon: 'pi pi-trash',
       acceptLabel: 'Usuń',
       rejectLabel: 'Anuluj',

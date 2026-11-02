@@ -108,10 +108,10 @@
                       <ui-member-avatar [member]="memberOf(transaction)" size="xs"/>
                       <span>{{ memberOf(transaction)?.firstName }}</span>
                       @if (transaction.shared) {
-                        <span class="tx-row__shared"><i class="pi pi-home" aria-hidden="true"></i>wspólne</span>
+                        <span class="meta-badge"><i class="pi pi-home" aria-hidden="true"></i>wspólne</span>
                       }
                       @if (transaction.recurring) {
-                        <span class="tx-row__shared"><i class="pi pi-sync" aria-hidden="true"></i>stała</span>
+                        <span class="meta-badge"><i class="pi pi-sync" aria-hidden="true"></i>stała</span>
                       }
                     </span>
                   </div>

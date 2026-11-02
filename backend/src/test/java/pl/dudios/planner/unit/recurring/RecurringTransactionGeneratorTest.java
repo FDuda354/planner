@@ -14,6 +14,7 @@ import pl.dudios.planner.budgetconfig.repository.IncomeSourceRepository;
 import pl.dudios.planner.budgetconfig.repository.SavingsGoalRepository;
 import pl.dudios.planner.budgetconfig.service.BudgetConfigService;
 import pl.dudios.planner.member.repository.MemberRepository;
+import pl.dudios.planner.recurring.model.RecurrenceFrequency;
 import pl.dudios.planner.recurring.model.RecurringTransaction;
 import pl.dudios.planner.recurring.repository.RecurringTransactionRepository;
 import pl.dudios.planner.recurring.service.RecurringTransactionGenerator;
@@ -188,6 +189,56 @@ class RecurringTransactionGeneratorTest {
     }
   }
 
+  @Nested
+  @DisplayName("Booking a yearly recurring transaction")
+  class YearlyBooking {
+
+    @Test
+    @DisplayName("books once on its day and moves to the same day next year")
+    void booksOnceAndMovesToNextYear() {
+      // Given
+      givenBookable(true, true);
+      var insurance = yearly(3, 15, LocalDate.of(2026, 3, 15));
+
+      // When
+      generator.generateDue(insurance, LocalDate.of(2026, 3, 15));
+
+      // Then
+      assertThat(bookedTransactions(1).getDate()).isEqualTo(LocalDate.of(2026, 3, 15));
+      assertThat(insurance.getNextOccurrence()).isEqualTo(LocalDate.of(2027, 3, 15));
+    }
+
+    @Test
+    @DisplayName("set for 29 February, it is booked on 28 February in a common year and on the 29th in a leap year")
+    void clampsLeapDayInCommonYear() {
+      // Given
+      givenBookable(true, true);
+      var subscription = yearly(2, 29, LocalDate.of(2027, 2, 28));
+
+      // When
+      generator.generateDue(subscription, LocalDate.of(2027, 2, 28));
+
+      // Then
+      assertThat(bookedTransactions(1).getDate()).isEqualTo(LocalDate.of(2027, 2, 28));
+      assertThat(subscription.getNextOccurrence()).isEqualTo(LocalDate.of(2028, 2, 29));
+    }
+
+    @Test
+    @DisplayName("books a missed yearly occurrence once, not for every month that passed")
+    void booksMissedYearlyOccurrenceOnce() {
+      // Given
+      givenBookable(true, true);
+      var insurance = yearly(3, 15, LocalDate.of(2026, 3, 15));
+
+      // When
+      generator.generateDue(insurance, LocalDate.of(2026, 11, 2));
+
+      // Then
+      then(transactionRepository).should(times(1)).save(any(Transaction.class));
+      assertThat(insurance.getNextOccurrence()).isEqualTo(LocalDate.of(2027, 3, 15));
+    }
+  }
+
   private void givenBookable(boolean memberActive, boolean categoryActive) {
     given(memberRepository.existsByIdAndActiveTrue(MEMBER_ID)).willReturn(memberActive);
     given(expenseCategoryRepository.findByIdAndHouseholdId(CATEGORY_ID, HOUSEHOLD_ID)).willReturn(Optional.of(
@@ -198,6 +249,13 @@ class RecurringTransactionGeneratorTest {
     var captor = ArgumentCaptor.forClass(Transaction.class);
     then(transactionRepository).should(times(expectedCount)).save(captor.capture());
     return captor.getValue();
+  }
+
+  private RecurringTransaction yearly(int monthOfYear, int dayOfMonth, LocalDate nextOccurrence) {
+    var recurring = recurring(dayOfMonth, nextOccurrence);
+    recurring.setFrequency(RecurrenceFrequency.YEARLY);
+    recurring.setMonthOfYear(monthOfYear);
+    return recurring;
   }
 
   private RecurringTransaction recurring(int dayOfMonth, LocalDate nextOccurrence) {

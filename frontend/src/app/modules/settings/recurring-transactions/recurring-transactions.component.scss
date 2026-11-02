@@ -6,6 +6,26 @@
     max-width: 720px;
   }
 
+  &__filters {
+    margin-bottom: 16px;
+  }
+
+  &__filter-count {
+    margin-left: 4px;
+    color: var(--p-text-muted-color);
+    font-weight: 400;
+  }
+
+  &__member-filter {
+    min-width: 200px;
+  }
+
+  &__empty {
+    padding: 12px 14px;
+    border: 1px solid var(--budget-border);
+    border-radius: var(--budget-radius-sm);
+  }
+
   &__add {
     display: flex;
     align-items: center;
