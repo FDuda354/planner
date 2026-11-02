@@ -9,12 +9,13 @@ export interface TransactionFormModel {
   itemId: number | null;
   amount: number | null;
   date: Date;
+  memberId: number | null;
   shared: boolean;
   note: string;
 }
 
-export function newTransactionModel(draft: TransactionDraft, date: Date): TransactionFormModel {
-  return {id: null, type: draft.type, itemId: draft.itemId, amount: null, date, shared: true, note: ''};
+export function newTransactionModel(draft: TransactionDraft, date: Date, memberId: number | null): TransactionFormModel {
+  return {id: null, type: draft.type, itemId: draft.itemId, amount: null, date, memberId, shared: true, note: ''};
 }
 
 export function editTransactionModel(transaction: Transaction): TransactionFormModel {
@@ -24,6 +25,7 @@ export function editTransactionModel(transaction: Transaction): TransactionFormM
     itemId: transaction.itemId,
     amount: transaction.amount,
     date: parseDateKey(transaction.date),
+    memberId: transaction.memberId,
     shared: transaction.shared,
     note: transaction.note,
   };
@@ -36,6 +38,7 @@ export function toTransactionRequest(model: TransactionFormModel): TransactionRe
     itemId: model.itemId!,
     amount: model.amount!,
     date: toDateKey(model.date),
+    memberId: model.memberId!,
     shared: model.type === TransactionType.EXPENSE && model.shared,
     note: model.note.trim(),
   };
@@ -46,4 +49,5 @@ export const transactionSchema = schema<TransactionFormModel>((path) => {
   min(path.amount, 0.01, {message: 'Kwota musi być większa od zera'});
   required(path.itemId, {message: 'Wybierz kategorię'});
   required(path.date, {message: 'Wybierz datę'});
+  required(path.memberId, {message: 'Wybierz, czyja to transakcja'});
 });

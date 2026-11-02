@@ -36,7 +36,7 @@ public class TransactionController {
   @PostMapping
   public ResponseEntity<Void> saveTransaction(@Valid @RequestBody TransactionRequest request,
                                               @AuthenticationPrincipal Member member) {
-    transactionService.saveTransaction(member, request);
+    transactionService.saveTransaction(member.getHouseholdId(), request);
     return ResponseEntity.noContent().build();
   }
 

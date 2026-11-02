@@ -19,6 +19,7 @@ import pl.dudios.planner.exception.RequestValidationException;
 import pl.dudios.planner.exception.ResourceNotFoundException;
 import pl.dudios.planner.member.model.Member;
 import pl.dudios.planner.member.repository.MemberRepository;
+import pl.dudios.planner.member.service.MemberAssignmentValidator;
 import pl.dudios.planner.transaction.model.Transaction;
 import pl.dudios.planner.transaction.model.TransactionType;
 import pl.dudios.planner.transaction.model.request.TransactionRequest;
@@ -68,14 +69,12 @@ class TransactionServiceTest {
 
   private TransactionService transactionService;
   private Member filip;
-  private Member klaudia;
 
   @BeforeEach
   void setUp() {
     var budgetConfigService = new BudgetConfigService(expenseCategoryRepository, incomeSourceRepository, savingsGoalRepository, memberRepository);
-    transactionService = new TransactionService(transactionRepository, budgetConfigService);
+    transactionService = new TransactionService(transactionRepository, budgetConfigService, new MemberAssignmentValidator(memberRepository));
     filip = member(FILIP_ID);
-    klaudia = member(KLAUDIA_ID);
   }
 
   @Nested
@@ -83,17 +82,18 @@ class TransactionServiceTest {
   class NewTransaction {
 
     @Test
-    @DisplayName("assigns the transaction to the logged-in member and their household")
-    void assignsLoggedInAuthor() {
+    @DisplayName("assigns the transaction to the chosen member and the household")
+    void assignsChosenMember() {
       // Given
       givenActiveCategory();
+      givenActiveFilip();
 
       // When
-      transactionService.saveTransaction(klaudia, expense(null, true));
+      transactionService.saveTransaction(HOUSEHOLD_ID, expense(null, true));
 
       // Then
       var saved = savedTransaction();
-      assertThat(saved.getMemberId()).isEqualTo(KLAUDIA_ID);
+      assertThat(saved.getMemberId()).isEqualTo(FILIP_ID);
       assertThat(saved.getHouseholdId()).isEqualTo(HOUSEHOLD_ID);
       assertThat(saved.getAmount()).isEqualByComparingTo("120.50");
       assertThat(saved.getDate()).isEqualTo(DATE);
@@ -105,11 +105,12 @@ class TransactionServiceTest {
     @DisplayName("links a saving to its goal and to no category or income source")
     void linksSavingToGoal() {
       // Given
+      givenActiveFilip();
       given(savingsGoalRepository.findByIdAndHouseholdId(7L, HOUSEHOLD_ID)).willReturn(Optional.of(goal(7L, true)));
-      var request = new TransactionRequest(null, TransactionType.SAVING, 7L, new BigDecimal("500"), DATE, false, "");
+      var request = new TransactionRequest(null, TransactionType.SAVING, 7L, new BigDecimal("500"), DATE, FILIP_ID, false, "");
 
       // When
-      transactionService.saveTransaction(filip, request);
+      transactionService.saveTransaction(HOUSEHOLD_ID, request);
 
       // Then
       var saved = savedTransaction();
@@ -126,7 +127,7 @@ class TransactionServiceTest {
 
       // When / Then
       var request = expense(null, false);
-      assertThatThrownBy(() -> transactionService.saveTransaction(filip, request))
+      assertThatThrownBy(() -> transactionService.saveTransaction(HOUSEHOLD_ID, request))
         .isInstanceOf(RequestValidationException.class)
         .hasMessageContaining("Jedzenie");
       then(transactionRepository).should(never()).save(any());
@@ -140,7 +141,7 @@ class TransactionServiceTest {
 
       // When / Then
       var request = expense(null, false);
-      assertThatThrownBy(() -> transactionService.saveTransaction(filip, request))
+      assertThatThrownBy(() -> transactionService.saveTransaction(HOUSEHOLD_ID, request))
         .isInstanceOf(ResourceNotFoundException.class);
       then(transactionRepository).should(never()).save(any());
     }
@@ -151,10 +152,10 @@ class TransactionServiceTest {
       // Given
       givenActiveCategory();
       var firstDayOfNextMonth = YearMonth.now(EARLIEST_ON_EARTH).plusMonths(1).atDay(1);
-      var request = new TransactionRequest(null, TransactionType.EXPENSE, CATEGORY_ID, new BigDecimal("10"), firstDayOfNextMonth, false, "");
+      var request = new TransactionRequest(null, TransactionType.EXPENSE, CATEGORY_ID, new BigDecimal("10"), firstDayOfNextMonth, FILIP_ID, false, "");
 
       // When / Then
-      assertThatThrownBy(() -> transactionService.saveTransaction(filip, request))
+      assertThatThrownBy(() -> transactionService.saveTransaction(HOUSEHOLD_ID, request))
         .isInstanceOf(RequestValidationException.class)
         .hasMessageContaining("bieżącego miesiąca");
       then(transactionRepository).should(never()).save(any());
@@ -164,12 +165,13 @@ class TransactionServiceTest {
     @DisplayName("accepts a planned transaction on the last day of the current month")
     void acceptsLastDayOfCurrentMonth() {
       // Given
+      givenActiveFilip();
       givenActiveCategory();
       var lastDayOfMonth = YearMonth.now(EARLIEST_ON_EARTH).atEndOfMonth();
-      var request = new TransactionRequest(null, TransactionType.EXPENSE, CATEGORY_ID, new BigDecimal("10"), lastDayOfMonth, false, "");
+      var request = new TransactionRequest(null, TransactionType.EXPENSE, CATEGORY_ID, new BigDecimal("10"), lastDayOfMonth, FILIP_ID, false, "");
 
       // When
-      transactionService.saveTransaction(filip, request);
+      transactionService.saveTransaction(HOUSEHOLD_ID, request);
 
       // Then
       assertThat(savedTransaction().getDate()).isEqualTo(lastDayOfMonth);
@@ -179,11 +181,12 @@ class TransactionServiceTest {
     @DisplayName("accepts today's date in the earliest time zone")
     void acceptsTodayInEarliestZone() {
       // Given
+      givenActiveFilip();
       givenActiveCategory();
-      var request = new TransactionRequest(null, TransactionType.EXPENSE, CATEGORY_ID, new BigDecimal("10"), LocalDate.now(EARLIEST_ON_EARTH), false, "");
+      var request = new TransactionRequest(null, TransactionType.EXPENSE, CATEGORY_ID, new BigDecimal("10"), LocalDate.now(EARLIEST_ON_EARTH), FILIP_ID, false, "");
 
       // When
-      transactionService.saveTransaction(filip, request);
+      transactionService.saveTransaction(HOUSEHOLD_ID, request);
 
       // Then
       then(transactionRepository).should().save(any(Transaction.class));
@@ -194,10 +197,10 @@ class TransactionServiceTest {
     void refusesSharedIncome() {
       // Given
       given(incomeSourceRepository.findByIdAndHouseholdId(5L, HOUSEHOLD_ID)).willReturn(Optional.of(incomeSource()));
-      var request = new TransactionRequest(null, TransactionType.INCOME, 5L, new BigDecimal("8000"), DATE, true, "");
+      var request = new TransactionRequest(null, TransactionType.INCOME, 5L, new BigDecimal("8000"), DATE, FILIP_ID, true, "");
 
       // When / Then
-      assertThatThrownBy(() -> transactionService.saveTransaction(filip, request))
+      assertThatThrownBy(() -> transactionService.saveTransaction(HOUSEHOLD_ID, request))
         .isInstanceOf(RequestValidationException.class)
         .hasMessageContaining("wydatek");
       then(transactionRepository).should(never()).save(any());
@@ -209,18 +212,19 @@ class TransactionServiceTest {
   class EditTransaction {
 
     @Test
-    @DisplayName("keeps the original author when another member edits it")
-    void keepsOriginalAuthor() {
+    @DisplayName("reassigns the transaction to the member chosen in the edit")
+    void reassignsChosenMember() {
       // Given
       givenActiveCategory();
+      givenActiveFilip();
       given(transactionRepository.findByIdAndHouseholdId(50L, HOUSEHOLD_ID)).willReturn(Optional.of(existingExpense(KLAUDIA_ID, CATEGORY_ID)));
 
       // When
-      transactionService.saveTransaction(filip, expense(50L, false));
+      transactionService.saveTransaction(HOUSEHOLD_ID, expense(50L, false));
 
       // Then
       var saved = savedTransaction();
-      assertThat(saved.getMemberId()).isEqualTo(KLAUDIA_ID);
+      assertThat(saved.getMemberId()).isEqualTo(FILIP_ID);
       assertThat(saved.isShared()).isFalse();
     }
 
@@ -228,11 +232,12 @@ class TransactionServiceTest {
     @DisplayName("allows keeping a category that was paused after the transaction was recorded")
     void keepsPausedCategoryOfEditedTransaction() {
       // Given
+      givenActiveFilip();
       given(expenseCategoryRepository.findByIdAndHouseholdId(CATEGORY_ID, HOUSEHOLD_ID)).willReturn(Optional.of(category(false)));
       given(transactionRepository.findByIdAndHouseholdId(50L, HOUSEHOLD_ID)).willReturn(Optional.of(existingExpense(FILIP_ID, CATEGORY_ID)));
 
       // When
-      transactionService.saveTransaction(filip, expense(50L, false));
+      transactionService.saveTransaction(HOUSEHOLD_ID, expense(50L, false));
 
       // Then
       assertThat(savedTransaction().getExpenseCategoryId()).isEqualTo(CATEGORY_ID);
@@ -247,7 +252,7 @@ class TransactionServiceTest {
 
       // When / Then
       var request = expense(50L, false);
-      assertThatThrownBy(() -> transactionService.saveTransaction(filip, request))
+      assertThatThrownBy(() -> transactionService.saveTransaction(HOUSEHOLD_ID, request))
         .isInstanceOf(RequestValidationException.class);
       then(transactionRepository).should(never()).save(any());
     }
@@ -260,7 +265,7 @@ class TransactionServiceTest {
 
       // When / Then
       var request = expense(50L, false);
-      assertThatThrownBy(() -> transactionService.saveTransaction(filip, request))
+      assertThatThrownBy(() -> transactionService.saveTransaction(HOUSEHOLD_ID, request))
         .isInstanceOf(ResourceNotFoundException.class);
       then(transactionRepository).should(never()).save(any());
     }
@@ -325,7 +330,7 @@ class TransactionServiceTest {
   }
 
   private TransactionRequest expense(Long id, boolean shared) {
-    return new TransactionRequest(id, TransactionType.EXPENSE, CATEGORY_ID, new BigDecimal("120.50"), DATE, shared, "Biedronka");
+    return new TransactionRequest(id, TransactionType.EXPENSE, CATEGORY_ID, new BigDecimal("120.50"), DATE, FILIP_ID, shared, "Biedronka");
   }
 
   private Transaction existingExpense(Long authorId, Long categoryId) {
@@ -340,6 +345,10 @@ class TransactionServiceTest {
                                  .build();
     transaction.assignItem(TransactionType.EXPENSE, categoryId);
     return transaction;
+  }
+
+  private void givenActiveFilip() {
+    given(memberRepository.findByIdAndHouseholdId(FILIP_ID, HOUSEHOLD_ID)).willReturn(Optional.of(filip));
   }
 
   private Member member(Long id) {

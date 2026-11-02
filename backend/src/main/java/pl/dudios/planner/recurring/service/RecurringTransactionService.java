@@ -7,8 +7,7 @@ import pl.dudios.planner.budgetconfig.model.BudgetItem;
 import pl.dudios.planner.budgetconfig.service.BudgetConfigService;
 import pl.dudios.planner.exception.RequestValidationException;
 import pl.dudios.planner.exception.ResourceNotFoundException;
-import pl.dudios.planner.member.model.Member;
-import pl.dudios.planner.member.repository.MemberRepository;
+import pl.dudios.planner.member.service.MemberAssignmentValidator;
 import pl.dudios.planner.recurring.model.RecurringTransaction;
 import pl.dudios.planner.recurring.model.dto.RecurringTransactionDTO;
 import pl.dudios.planner.recurring.model.request.RecurringTransactionRequest;
@@ -28,7 +27,7 @@ public class RecurringTransactionService {
   private final RecurringTransactionRepository recurringTransactionRepository;
   private final RecurringTransactionGenerator generator;
   private final BudgetConfigService budgetConfigService;
-  private final MemberRepository memberRepository;
+  private final MemberAssignmentValidator memberAssignmentValidator;
 
   @Transactional(readOnly = true)
   public List<RecurringTransactionDTO> getRecurringTransactions(Long householdId) {
@@ -44,7 +43,7 @@ public class RecurringTransactionService {
       : getRecurringTransaction(householdId, request.id());
 
     validateItem(householdId, recurring, request);
-    validateMember(householdId, recurring, request.memberId());
+    memberAssignmentValidator.validateAssignment(householdId, request.memberId(), recurring.getMemberId());
     validateSharedFlag(request);
 
     LocalDate today = LocalDate.now(POLAND);
@@ -85,14 +84,6 @@ public class RecurringTransactionService {
     boolean keepsCurrentItem = recurring.getType() == request.type() && Objects.equals(recurring.getItemId(), request.itemId());
     if (!item.isActive() && !keepsCurrentItem) {
       throw new RequestValidationException("Pozycja „" + item.getName() + "” jest wstrzymana — przywróć ją w konfiguracji, aby ustawić stałą transakcję");
-    }
-  }
-
-  private void validateMember(Long householdId, RecurringTransaction recurring, Long memberId) {
-    Member member = memberRepository.findByIdAndHouseholdId(memberId, householdId)
-                                    .orElseThrow(() -> new RequestValidationException("Wybrana osoba nie należy do Waszego budżetu"));
-    if (!member.isActive() && !Objects.equals(recurring.getMemberId(), memberId)) {
-      throw new RequestValidationException("Nie można przypisać stałej transakcji osobie usuniętej z budżetu");
     }
   }
 

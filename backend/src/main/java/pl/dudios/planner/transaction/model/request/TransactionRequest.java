@@ -26,6 +26,9 @@ public record TransactionRequest(
   @NotNull(message = "Wybierz datę")
   LocalDate date,
 
+  @NotNull(message = "Wybierz, czyja to transakcja")
+  Long memberId,
+
   boolean shared,
 
   @Size(max = 255, message = "Notatka może mieć maksymalnie 255 znaków")

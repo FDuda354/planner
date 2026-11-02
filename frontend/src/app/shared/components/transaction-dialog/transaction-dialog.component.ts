@@ -9,8 +9,11 @@ import {TransactionDeletionService} from '../../../services/transaction-deletion
 import {TransactionEditorState, TransactionEditorStore} from '../../../stores/transaction-editor.store';
 import {BudgetConfigStore} from '../../../stores/budget-config.store';
 import {CalendarStore} from '../../../stores/calendar.store';
+import {HouseholdStore} from '../../../stores/household.store';
+import {AuthService} from '../../../modules/auth/services/auth.service';
 import {TRANSACTION_TYPE_OPTIONS, TransactionRequest, TransactionType} from '../../../models/Transaction';
 import {BudgetItem} from '../../../models/BudgetItem';
+import {Member} from '../../../models/Member';
 import {monthLabel, parseMonthKey, toMonthKey} from '../../utils/month';
 import {prepareFormSubmission} from '../../forms/prepare-form-submission';
 import {showServerError, showSuccess} from '../../../utils/NotificationHelper';
@@ -43,6 +46,8 @@ export class TransactionDialogComponent {
   private readonly deletion = inject(TransactionDeletionService);
   private readonly configStore = inject(BudgetConfigStore);
   private readonly calendar = inject(CalendarStore);
+  private readonly householdStore = inject(HouseholdStore);
+  private readonly authService = inject(AuthService);
   private readonly amountInput = viewChild(InputNumber);
 
   readonly typeOptions = TRANSACTION_TYPE_OPTIONS;
@@ -59,13 +64,14 @@ export class TransactionDialogComponent {
   readonly isWorking = signal(false);
   readonly showErrors = signal(false);
 
-  readonly model = signal<TransactionFormModel>(newTransactionModel(this.state().draft, this.calendar.today()));
+  readonly model = signal<TransactionFormModel>(newTransactionModel(this.state().draft, this.calendar.today(), this.currentMemberId()));
   readonly transactionForm = form(this.model, (path) => {
     apply(path, transactionSchema);
     disabled(path, {when: () => this.isWorking()});
   });
 
   readonly items = computed(() => this.selectableItems(this.model().type));
+  readonly members = computed(() => this.selectableMembers());
   readonly isExpense = computed(() => this.model().type === TransactionType.EXPENSE);
   readonly pastMonthLabel = computed(() => this.pastMonthLabelOf(this.model().date));
   readonly itemLabel = computed(() => ITEM_LABELS[this.model().type]);
@@ -91,6 +97,10 @@ export class TransactionDialogComponent {
 
   selectItem(itemId: number): void {
     this.transactionForm.itemId().value.set(itemId);
+  }
+
+  selectMember(memberId: number): void {
+    this.transactionForm.memberId().value.set(memberId);
   }
 
   selectQuickDate(quickDate: QuickDate): void {
@@ -155,7 +165,7 @@ export class TransactionDialogComponent {
   private initialModel(state: TransactionEditorState): TransactionFormModel {
     return state.editing
       ? editTransactionModel(state.editing)
-      : newTransactionModel(state.draft, this.defaultDate());
+      : newTransactionModel(state.draft, this.defaultDate(), this.currentMemberId());
   }
 
   private defaultDate(): Date {
@@ -172,6 +182,17 @@ export class TransactionDialogComponent {
     const editing = this.state().editing;
     const editedItemId = editing?.type === type ? editing.itemId : null;
     return this.configStore.itemsOf(type).filter(item => item.active || item.id === editedItemId);
+  }
+
+  private selectableMembers(): Member[] {
+    const members = this.householdStore.members();
+    const editing = this.state().editing;
+    const editedMember = editing ? this.householdStore.memberOf(editing.memberId) : undefined;
+    return editedMember && !members.includes(editedMember) ? [...members, editedMember] : members;
+  }
+
+  private currentMemberId(): number | null {
+    return this.authService.currentMember()?.id ?? null;
   }
 
   protected readonly AppRoute = AppRoute;

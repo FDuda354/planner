@@ -65,21 +65,21 @@ class TransactionApiIntegrationTest extends AbstractIntegrationTest {
   class Recording {
 
     @Test
-    @DisplayName("assigns the transaction to the logged-in member")
-    void assignsLoggedInMember() throws Exception {
-      mockMvc.perform(post(ROOT).with(auth.as(klaudia)).contentType(APPLICATION_JSON)
+    @DisplayName("assigns the transaction to the chosen member and their household")
+    void assignsChosenMember() throws Exception {
+      mockMvc.perform(post(ROOT).with(auth.as(filip)).contentType(APPLICATION_JSON)
                                 .content(json(expense(null, "120.50", DATE, true))))
              .andExpect(status().isNoContent());
 
       var saved = transactionRepository.findAll().getFirst();
-      assertThat(saved.getMemberId()).isEqualTo(klaudia.getId());
-      assertThat(saved.getHouseholdId()).isEqualTo(klaudia.getHouseholdId());
+      assertThat(saved.getMemberId()).isEqualTo(filip.getId());
+      assertThat(saved.getHouseholdId()).isEqualTo(filip.getHouseholdId());
       assertThat(saved.isShared()).isTrue();
     }
 
     @Test
-    @DisplayName("ignores a payer smuggled into the request body")
-    void ignoresPayerFromBody() throws Exception {
+    @DisplayName("records the transaction for another household member chosen in the request")
+    void recordsForChosenHouseholdMember() throws Exception {
       var body = """
         {"type": "EXPENSE", "itemId": %d, "amount": 10, "date": "%s", "memberId": %d, "shared": false, "note": ""}
         """.formatted(food.getId(), DATE, filip.getId());
@@ -87,7 +87,7 @@ class TransactionApiIntegrationTest extends AbstractIntegrationTest {
       mockMvc.perform(post(ROOT).with(auth.as(klaudia)).contentType(APPLICATION_JSON).content(body))
              .andExpect(status().isNoContent());
 
-      assertThat(transactionRepository.findAll().getFirst().getMemberId()).isEqualTo(klaudia.getId());
+      assertThat(transactionRepository.findAll().getFirst().getMemberId()).isEqualTo(filip.getId());
     }
 
     @Test
@@ -128,7 +128,7 @@ class TransactionApiIntegrationTest extends AbstractIntegrationTest {
     @DisplayName("refuses a paused category with HTTP 400")
     void refusesPausedCategory() throws Exception {
       var paused = fixtures.expenseCategory(household, "Stare", false);
-      var request = new TransactionRequest(null, TransactionType.EXPENSE, paused.getId(), new BigDecimal("10"), DATE, false, "");
+      var request = new TransactionRequest(null, TransactionType.EXPENSE, paused.getId(), new BigDecimal("10"), DATE, filip.getId(), false, "");
 
       mockMvc.perform(post(ROOT).with(auth.as(filip)).contentType(APPLICATION_JSON).content(json(request)))
              .andExpect(status().isBadRequest());
@@ -140,7 +140,7 @@ class TransactionApiIntegrationTest extends AbstractIntegrationTest {
     @DisplayName("refuses a shared income with HTTP 400")
     void refusesSharedIncome() throws Exception {
       var salary = fixtures.incomeSource(household, "Wynagrodzenie");
-      var request = new TransactionRequest(null, TransactionType.INCOME, salary.getId(), new BigDecimal("8000"), DATE, true, "");
+      var request = new TransactionRequest(null, TransactionType.INCOME, salary.getId(), new BigDecimal("8000"), DATE, filip.getId(), true, "");
 
       mockMvc.perform(post(ROOT).with(auth.as(filip)).contentType(APPLICATION_JSON).content(json(request)))
              .andExpect(status().isBadRequest());
@@ -164,8 +164,8 @@ class TransactionApiIntegrationTest extends AbstractIntegrationTest {
   class EditingAndDeleting {
 
     @Test
-    @DisplayName("editing by the partner keeps the original author")
-    void editKeepsAuthor() throws Exception {
+    @DisplayName("editing reassigns the transaction to the member chosen in the request")
+    void editReassignsChosenMember() throws Exception {
       var transaction = fixtures.transaction(klaudia, TransactionType.EXPENSE, food.getId(), "40", DATE, true);
 
       mockMvc.perform(post(ROOT).with(auth.as(filip)).contentType(APPLICATION_JSON)
@@ -173,7 +173,7 @@ class TransactionApiIntegrationTest extends AbstractIntegrationTest {
              .andExpect(status().isNoContent());
 
       var edited = reload(transaction);
-      assertThat(edited.getMemberId()).isEqualTo(klaudia.getId());
+      assertThat(edited.getMemberId()).isEqualTo(filip.getId());
       assertThat(edited.getAmount()).isEqualByComparingTo("55");
       assertThat(edited.isShared()).isFalse();
     }
@@ -236,7 +236,7 @@ class TransactionApiIntegrationTest extends AbstractIntegrationTest {
   }
 
   private TransactionRequest expense(Long id, String amount, LocalDate date, boolean shared) {
-    return new TransactionRequest(id, TransactionType.EXPENSE, food.getId(), new BigDecimal(amount), date, shared, "");
+    return new TransactionRequest(id, TransactionType.EXPENSE, food.getId(), new BigDecimal(amount), date, filip.getId(), shared, "");
   }
 
   private Transaction reload(Transaction transaction) {

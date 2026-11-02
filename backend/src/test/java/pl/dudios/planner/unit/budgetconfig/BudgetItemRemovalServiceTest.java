@@ -15,6 +15,7 @@ import pl.dudios.planner.budgetconfig.service.BudgetConfigService;
 import pl.dudios.planner.budgetconfig.service.BudgetItemRemovalService;
 import pl.dudios.planner.exception.ResourceNotFoundException;
 import pl.dudios.planner.member.repository.MemberRepository;
+import pl.dudios.planner.member.service.MemberAssignmentValidator;
 import pl.dudios.planner.transaction.model.TransactionType;
 import pl.dudios.planner.transaction.model.dto.ItemUsageDTO;
 import pl.dudios.planner.transaction.repository.TransactionRepository;
@@ -58,7 +59,7 @@ class BudgetItemRemovalServiceTest {
   @BeforeEach
   void setUp() {
     var budgetConfigService = new BudgetConfigService(expenseCategoryRepository, incomeSourceRepository, savingsGoalRepository, memberRepository);
-    var transactionService = new TransactionService(transactionRepository, budgetConfigService);
+    var transactionService = new TransactionService(transactionRepository, budgetConfigService, new MemberAssignmentValidator(memberRepository));
     removalService = new BudgetItemRemovalService(budgetConfigService, transactionService);
   }
 

@@ -94,6 +94,24 @@
       </div>
     </div>
 
+    @if (members().length > 1) {
+      <div class="flex flex-col gap-8">
+        <span class="overline">Czyja</span>
+        <div class="flex flex-row flex-wrap gap-8" role="radiogroup" aria-label="Czyja transakcja">
+          @for (member of members(); track member.id) {
+            <label class="choice-chip choice-chip--member radio-option" [class.choice-chip--active]="model().memberId === member.id">
+              <input type="radio" name="transaction-member" [checked]="model().memberId === member.id" (change)="selectMember(member.id)">
+              <ui-member-avatar [member]="member" size="xs"/>
+              {{ member.firstName }}
+            </label>
+          }
+        </div>
+        @if (showErrors() && transactionForm.memberId().invalid()) {
+          <small class="p-error">{{ transactionForm.memberId().errors()[0].message }}</small>
+        }
+      </div>
+    }
+
     @if (isExpense()) {
       <label class="shared-toggle" [class.shared-toggle--active]="model().shared" [for]="sharedInputId">
         <p-checkbox [formField]="transactionForm.shared" [binary]="true" [inputId]="sharedInputId"/>

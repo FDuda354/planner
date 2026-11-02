@@ -18,6 +18,7 @@ import pl.dudios.planner.exception.RequestValidationException;
 import pl.dudios.planner.exception.ResourceNotFoundException;
 import pl.dudios.planner.member.model.Member;
 import pl.dudios.planner.member.repository.MemberRepository;
+import pl.dudios.planner.member.service.MemberAssignmentValidator;
 import pl.dudios.planner.recurring.model.RecurringTransaction;
 import pl.dudios.planner.recurring.model.request.RecurringTransactionRequest;
 import pl.dudios.planner.recurring.repository.RecurringTransactionRepository;
@@ -74,7 +75,7 @@ class RecurringTransactionServiceTest {
   void setUp() {
     var budgetConfigService = new BudgetConfigService(expenseCategoryRepository, incomeSourceRepository, savingsGoalRepository, memberRepository);
     var generator = new RecurringTransactionGenerator(recurringTransactionRepository, transactionRepository, budgetConfigService, memberRepository);
-    service = new RecurringTransactionService(recurringTransactionRepository, generator, budgetConfigService, memberRepository);
+    service = new RecurringTransactionService(recurringTransactionRepository, generator, budgetConfigService, new MemberAssignmentValidator(memberRepository));
   }
 
   @Nested

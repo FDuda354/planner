@@ -22,6 +22,7 @@ export interface TransactionRequest {
   itemId: number;
   amount: number;
   date: string;
+  memberId: number;
   shared: boolean;
   note: string;
 }

@@ -7,7 +7,7 @@ import pl.dudios.planner.budgetconfig.model.BudgetItem;
 import pl.dudios.planner.budgetconfig.service.BudgetConfigService;
 import pl.dudios.planner.exception.RequestValidationException;
 import pl.dudios.planner.exception.ResourceNotFoundException;
-import pl.dudios.planner.member.model.Member;
+import pl.dudios.planner.member.service.MemberAssignmentValidator;
 import pl.dudios.planner.transaction.model.Transaction;
 import pl.dudios.planner.transaction.model.TransactionType;
 import pl.dudios.planner.transaction.model.dto.ItemUsageDTO;
@@ -28,6 +28,7 @@ public class TransactionService {
 
   private final TransactionRepository transactionRepository;
   private final BudgetConfigService budgetConfigService;
+  private final MemberAssignmentValidator memberAssignmentValidator;
 
   @Transactional(readOnly = true)
   public List<TransactionDTO> getTransactions(Long householdId, YearMonth month) {
@@ -38,19 +39,20 @@ public class TransactionService {
   }
 
   @Transactional
-  public void saveTransaction(Member author, TransactionRequest request) {
-    Long householdId = author.getHouseholdId();
+  public void saveTransaction(Long householdId, TransactionRequest request) {
     Transaction transaction = request.id() == null
-      ? Transaction.builder().householdId(householdId).memberId(author.getId()).build()
+      ? Transaction.builder().householdId(householdId).build()
       : getTransaction(householdId, request.id());
 
     validateItem(householdId, transaction, request);
     validateDate(request.date());
     validateSharedFlag(request);
+    memberAssignmentValidator.validateAssignment(householdId, request.memberId(), transaction.getMemberId());
 
     transaction.assignItem(request.type(), request.itemId());
     transaction.setAmount(request.amount());
     transaction.setDate(request.date());
+    transaction.setMemberId(request.memberId());
     transaction.setShared(request.shared());
     transaction.setNote(request.note());
 
