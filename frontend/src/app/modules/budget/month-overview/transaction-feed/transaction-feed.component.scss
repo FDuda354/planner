@@ -33,13 +33,51 @@
 
 .planned {
   --planned-color: var(--budget-tag-planned);
-  padding: 14px 8px 6px;
+  padding: 14px 8px;
   border: 1.5px dashed color-mix(in srgb, var(--planned-color) 45%, transparent);
   border-radius: var(--budget-radius-sm);
   background: color-mix(in srgb, var(--planned-color) 5%, transparent);
 
-  &__header {
+  &__heading {
+    margin: 0;
+  }
+
+  &__toggle {
+    width: 100%;
     padding: 0 4px;
+    border: 0;
+    font: inherit;
+    text-align: left;
+    background: none;
+    cursor: pointer;
+
+    &:focus-visible {
+      outline: 2px solid var(--planned-color);
+      outline-offset: 2px;
+      border-radius: 10px;
+    }
+  }
+
+  &__count {
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--planned-color);
+    background: color-mix(in srgb, var(--planned-color) 14%, transparent);
+  }
+
+  &__chevron {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--planned-color);
+  }
+
+  &__days {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding-top: 20px;
   }
 
   &__icon {
@@ -66,7 +104,7 @@
   }
 
   @media (max-width: 640px) {
-    padding: 12px 4px 4px;
+    padding: 12px 4px;
   }
 }
 

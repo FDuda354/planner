@@ -32,4 +32,5 @@ export interface DayGroup {
 export interface FeedSection {
   planned: boolean;
   days: DayGroup[];
+  entryCount: number;
 }

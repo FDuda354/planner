@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, computed, inject} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, inject, signal} from '@angular/core';
 import {MonthStore} from '../../stores/month.store';
 import {TransactionFeedStore} from '../../stores/transaction-feed.store';
 import {BudgetConfigStore} from '../../../../stores/budget-config.store';
@@ -35,6 +35,11 @@ export class TransactionFeedComponent {
 
   readonly isFirstLoad = computed(() => this.store.data.isLoading() && this.store.transactions().length === 0);
   readonly countOfType = (type: TransactionType | null) => this.feed.countOfType(type);
+  readonly plannedExpanded = signal(false);
+
+  togglePlanned(): void {
+    this.plannedExpanded.update(expanded => !expanded);
+  }
 
   itemOf(entry: FeedRowEntry): BudgetItem | undefined {
     return this.configStore.itemOf(entry.type, entry.itemId);

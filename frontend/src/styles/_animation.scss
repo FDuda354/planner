@@ -48,6 +48,31 @@
   animation-delay: 0.5s;
 }
 
+.animation-expandable {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition: grid-template-rows 0.3s ease, opacity 0.3s ease;
+
+  > * {
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  &--expanded {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+}
+
+.animation-rotatable {
+  transition: transform 0.3s ease;
+
+  &--rotated {
+    transform: rotate(180deg);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animation-fadeIn,
   .animation-fadeInUp,
@@ -56,5 +81,10 @@
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;
+  }
+
+  .animation-expandable,
+  .animation-rotatable {
+    transition: none;
   }
 }

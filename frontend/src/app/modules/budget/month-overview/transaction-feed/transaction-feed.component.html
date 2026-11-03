@@ -61,49 +61,70 @@
   } @else {
     <div class="flex flex-col gap-20">
       @for (section of feed.sections(); track section.planned) {
-        <div class="flex flex-col gap-20" [class.planned]="section.planned">
-          @if (section.planned) {
-            <div class="flex flex-row items-center gap-12 planned__header">
-              <span class="planned__icon"><i class="pi pi-clock" aria-hidden="true"></i></span>
-              <h3 class="planned__title">Zaplanowane</h3>
-            </div>
-          }
-          @for (group of section.days; track group.date) {
-            <div class="day">
-              <div class="flex flex-row items-center justify-between day__header">
-                <span class="day__label">{{ group.label }}</span>
-                @if (group.expenses > 0) {
-                  <span class="day__total">−{{ group.expenses | money }}</span>
-                }
-              </div>
-              <div class="flex flex-col">
-                @for (transaction of group.transactions; track transaction.id) {
-                  <div class="tx-row">
-                    <button type="button" class="tx-row__main" (click)="editor.edit(transaction)">
-                      <ng-container [ngTemplateOutlet]="rowContent" [ngTemplateOutletContext]="{$implicit: transaction, recurring: transaction.recurring}"/>
-                    </button>
-                    <button type="button" class="tx-row__delete" pTooltip="Usuń" tooltipPosition="left"
-                            [attr.aria-label]="deleteLabel(transaction)" (click)="confirmDeletion(transaction, $event)">
-                      <i class="pi pi-trash" aria-hidden="true"></i>
-                    </button>
-                  </div>
-                }
-                @for (recurring of group.recurring; track recurring.id) {
-                  <div class="tx-row">
-                    <a class="tx-row__main" [routerLink]="AppRoute.SETTINGS" [queryParams]="{tab: 'recurring', edit: recurring.id}"
-                       pTooltip="Edytuj w konfiguracji" tooltipPosition="left">
-                      <ng-container [ngTemplateOutlet]="rowContent" [ngTemplateOutletContext]="{$implicit: recurring, recurring: true}"/>
-                    </a>
-                  </div>
-                }
+        @if (section.planned) {
+          <div class="planned">
+            <h3 class="planned__heading">
+              <button type="button" class="flex flex-row items-center gap-12 planned__toggle" aria-controls="planned-days"
+                      [attr.aria-expanded]="plannedExpanded()" (click)="togglePlanned()">
+                <span class="planned__icon"><i class="pi pi-clock" aria-hidden="true"></i></span>
+                <span class="planned__title">Zaplanowane</span>
+                <span class="planned__count">{{ section.entryCount }}</span>
+                <i class="pi pi-chevron-down planned__chevron animation-rotatable" [class.animation-rotatable--rotated]="plannedExpanded()"
+                   aria-hidden="true"></i>
+              </button>
+            </h3>
+            <div id="planned-days" class="animation-expandable" [class.animation-expandable--expanded]="plannedExpanded()"
+                 [inert]="!plannedExpanded()">
+              <div>
+                <div class="planned__days">
+                  <ng-container [ngTemplateOutlet]="dayList" [ngTemplateOutletContext]="{$implicit: section.days}"/>
+                </div>
               </div>
             </div>
-          }
-        </div>
+          </div>
+        } @else {
+          <div class="flex flex-col gap-20">
+            <ng-container [ngTemplateOutlet]="dayList" [ngTemplateOutletContext]="{$implicit: section.days}"/>
+          </div>
+        }
       }
     </div>
   }
 </section>
+
+<ng-template #dayList let-days>
+  @for (group of days; track group.date) {
+    <div class="day">
+      <div class="flex flex-row items-center justify-between day__header">
+        <span class="day__label">{{ group.label }}</span>
+        @if (group.expenses > 0) {
+          <span class="day__total">−{{ group.expenses | money }}</span>
+        }
+      </div>
+      <div class="flex flex-col">
+        @for (transaction of group.transactions; track transaction.id) {
+          <div class="tx-row">
+            <button type="button" class="tx-row__main" (click)="editor.edit(transaction)">
+              <ng-container [ngTemplateOutlet]="rowContent" [ngTemplateOutletContext]="{$implicit: transaction, recurring: transaction.recurring}"/>
+            </button>
+            <button type="button" class="tx-row__delete" pTooltip="Usuń" tooltipPosition="left"
+                    [attr.aria-label]="deleteLabel(transaction)" (click)="confirmDeletion(transaction, $event)">
+              <i class="pi pi-trash" aria-hidden="true"></i>
+            </button>
+          </div>
+        }
+        @for (recurring of group.recurring; track recurring.id) {
+          <div class="tx-row">
+            <a class="tx-row__main" [routerLink]="AppRoute.SETTINGS" [queryParams]="{tab: 'recurring', edit: recurring.id}"
+               pTooltip="Edytuj w konfiguracji" tooltipPosition="left">
+              <ng-container [ngTemplateOutlet]="rowContent" [ngTemplateOutletContext]="{$implicit: recurring, recurring: true}"/>
+            </a>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</ng-template>
 
 <ng-template #rowContent let-entry let-recurring="recurring">
   @let item = itemOf(entry);

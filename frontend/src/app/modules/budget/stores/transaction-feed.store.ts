@@ -40,8 +40,8 @@ export class TransactionFeedStore {
     return [...dates].sort((a, b) => b.localeCompare(a)).map(date => this.dayGroupOf(date));
   });
   readonly sections = computed<FeedSection[]>(() => [
-    {planned: true, days: this.dayGroups().filter(day => this.monthStore.isPlanned(day.date))},
-    {planned: false, days: this.dayGroups().filter(day => !this.monthStore.isPlanned(day.date))},
+    sectionOf(true, this.dayGroups().filter(day => this.monthStore.isPlanned(day.date))),
+    sectionOf(false, this.dayGroups().filter(day => !this.monthStore.isPlanned(day.date))),
   ].filter(section => section.days.length > 0));
 
   countOfType(type: TransactionType | null): number {
@@ -94,6 +94,10 @@ export class TransactionFeedStore {
 }
 
 type FeedEntry = FilterableTransaction & {itemId: number};
+
+function sectionOf(planned: boolean, days: DayGroup[]): FeedSection {
+  return {planned, days, entryCount: days.reduce((count, day) => count + day.transactions.length + day.recurring.length, 0)};
+}
 
 function dayLabel(dateKey: string, today: Date): string {
   const date = parseDateKey(dateKey);
