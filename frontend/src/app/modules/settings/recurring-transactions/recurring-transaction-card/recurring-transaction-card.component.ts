@@ -75,7 +75,7 @@ export class RecurringTransactionCardComponent {
     const name = this.itemName();
     this.confirmationService.confirm({
       key: 'deleteConfirmDialog',
-      header: 'Usunąć stałą transakcję?',
+      header: 'Usunąć cykliczną transakcję?',
       message: `„${name}” przestanie się automatycznie księgować. Transakcje, które już się pojawiły, zostaną w historii.`,
       icon: 'pi pi-trash',
       acceptLabel: 'Usuń',
@@ -84,7 +84,7 @@ export class RecurringTransactionCardComponent {
       rejectButtonStyleClass: 'p-button-text',
       accept: () => this.recurringService.deleteRecurringTransaction(recurring.id).subscribe({
         next: () => {
-          showSuccess('Usunięto stałą transakcję', name, this.messageService);
+          showSuccess('Usunięto cykliczną transakcję', name, this.messageService);
           this.store.reload();
         },
         error: (error) => showServerError('Nie udało się usunąć', error, this.messageService),

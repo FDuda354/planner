@@ -33,6 +33,12 @@
 
   &__actions {
     padding-top: 4px;
+
+    @media (max-width: 640px) {
+      flex-direction: column-reverse;
+      align-items: stretch;
+      gap: 4px;
+    }
   }
 
   &__submit-amount {

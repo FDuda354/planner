@@ -18,13 +18,33 @@
   }
 }
 
+.icon-picker {
+  max-height: 300px;
+  padding: 2px 4px 2px 2px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+
+  &__search {
+    width: 100%;
+  }
+
+  &__group {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--p-text-muted-color);
+  }
+
+  &__empty {
+    margin: 0;
+    padding: 12px 0;
+    font-size: 13px;
+  }
+}
+
 .icon-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
   gap: 6px;
-  max-height: 232px;
-  padding: 2px;
-  overflow-y: auto;
 
   &__option {
     display: inline-flex;
@@ -37,6 +57,10 @@
     color: var(--p-text-muted-color);
     cursor: pointer;
     transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease;
+
+    i {
+      font-size: 20px;
+    }
 
     &:hover {
       color: var(--item-color);

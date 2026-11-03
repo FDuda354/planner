@@ -15,6 +15,7 @@ import pl.dudios.planner.summary.repository.SummaryRepository;
 import pl.dudios.planner.transaction.model.TransactionType;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.Year;
 import java.time.YearMonth;
 import java.util.Comparator;
@@ -26,6 +27,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static pl.dudios.planner.utils.AppTimeZone.POLAND;
+
 @Service
 @RequiredArgsConstructor
 public class SummaryService {
@@ -35,7 +38,7 @@ public class SummaryService {
 
   @Transactional(readOnly = true)
   public List<MonthSummaryDTO> getMonthSummaries(Long householdId) {
-    Map<YearMonth, List<MonthlyAmount>> byMonth = groupByMonth(summaryRepository.findMonthlyAmounts(householdId));
+    Map<YearMonth, List<MonthlyAmount>> byMonth = groupByMonth(summaryRepository.findBookedMonthlyAmounts(householdId, today()));
     return byMonth.keySet().stream()
       .sorted(Comparator.reverseOrder())
       .map(month -> toMonthSummary(month, byMonth.get(month)))
@@ -44,7 +47,7 @@ public class SummaryService {
 
   @Transactional(readOnly = true)
   public List<MonthSummaryDTO> getYearSummary(Long householdId, int year) {
-    List<MonthlyAmount> amounts = summaryRepository.findMonthlyAmountsBetween(householdId, Year.of(year).atDay(1), Year.of(year + 1).atDay(1));
+    List<MonthlyAmount> amounts = summaryRepository.findBookedMonthlyAmountsBetween(householdId, Year.of(year).atDay(1), Year.of(year + 1).atDay(1), today());
     Map<YearMonth, List<MonthlyAmount>> byMonth = groupByMonth(amounts);
     return IntStream.rangeClosed(1, 12)
       .mapToObj(month -> YearMonth.of(year, month))
@@ -54,7 +57,7 @@ public class SummaryService {
 
   @Transactional(readOnly = true)
   public List<GoalProgressDTO> getGoalProgress(Long householdId) {
-    List<MonthlyAmount> savings = summaryRepository.findMonthlyAmountsOfType(householdId, TransactionType.SAVING);
+    List<MonthlyAmount> savings = summaryRepository.findBookedMonthlyAmountsOfType(householdId, TransactionType.SAVING, today());
     return budgetConfigService.getSavingsGoals(householdId).stream()
       .map(goal -> toGoalProgress(goal, savings))
       .toList();
@@ -118,6 +121,10 @@ public class SummaryService {
 
   private Map<YearMonth, List<MonthlyAmount>> groupByMonth(List<MonthlyAmount> amounts) {
     return amounts.stream().collect(Collectors.groupingBy(MonthlyAmount::yearMonth, TreeMap::new, Collectors.toList()));
+  }
+
+  private LocalDate today() {
+    return LocalDate.now(POLAND);
   }
 
 }

@@ -5,8 +5,8 @@ import {TransactionService} from '../../../services/transaction.service';
 import {BudgetConfigStore} from '../../../stores/budget-config.store';
 import {HouseholdStore} from '../../../stores/household.store';
 import {CalendarStore} from '../../../stores/calendar.store';
-import {Transaction, TransactionType} from '../../../models/transaction.model';
-import {daysInMonth, monthName, parseDateKey, shiftMonth} from '../../../shared/utils/month';
+import {netAmountOf, Transaction, TransactionType} from '../../../models/transaction.model';
+import {daysInMonth, monthName, parseDateKey, shiftMonth, toDateKey} from '../../../shared/utils/month';
 import {percentOf, sumAmounts} from '../../../shared/utils/money';
 import {reloadWhenChanged} from '../../../shared/utils/resource';
 import {CategoryShare, MemberShare, MonthTransactions} from '../models/month-view';
@@ -32,19 +32,24 @@ export class MonthStore {
     defaultValue: EMPTY_MONTH,
   });
 
+  private readonly todayKey = computed(() => toDateKey(this.calendar.today()));
+
   readonly transactions = computed(() => this.data.value().current);
+  readonly bookedTransactions = computed(() => this.transactions().filter(t => !this.isPlanned(t.date)));
+  readonly plannedTransactions = computed(() => this.transactions().filter(t => this.isPlanned(t.date)));
   readonly isCurrentMonth = computed(() => this._month() === this.calendar.currentMonth());
   readonly previousMonthName = computed(() => monthName(shiftMonth(this._month(), -1)));
   readonly daysInMonth = computed(() => daysInMonth(this._month()));
   readonly elapsedDays = computed(() => this.isCurrentMonth() ? this.calendar.today().getDate() : this.daysInMonth());
 
-  readonly income = computed(() => sumOf(this.transactions(), TransactionType.INCOME));
-  readonly expenses = computed(() => sumOf(this.transactions(), TransactionType.EXPENSE));
-  readonly savings = computed(() => sumOf(this.transactions(), TransactionType.SAVING));
+  readonly income = computed(() => sumOf(this.bookedTransactions(), TransactionType.INCOME));
+  readonly expenses = computed(() => sumOf(this.bookedTransactions(), TransactionType.EXPENSE));
+  readonly savings = computed(() => sumOf(this.bookedTransactions(), TransactionType.SAVING));
   readonly balance = computed(() => this.income() - this.expenses() - this.savings());
+  readonly plannedNet = computed(() => netAmountOf(this.plannedTransactions()));
   readonly averageDailyExpenses = computed(() => this.expenses() / this.elapsedDays());
 
-  readonly cumulativeExpenses = computed(() => cumulativeByDay(this.transactions(), this.daysInMonth(), this.elapsedDays()));
+  readonly cumulativeExpenses = computed(() => cumulativeByDay(this.bookedTransactions(), this.daysInMonth(), this.elapsedDays()));
   readonly previousCumulativeExpenses = computed(() => {
     const days = daysInMonth(shiftMonth(this._month(), -1));
     return cumulativeByDay(this.data.value().previous, days, days);
@@ -62,12 +67,12 @@ export class MonthStore {
     return previous === 0 ? null : (this.expenses() - previous) / previous;
   });
 
-  readonly biggestExpense = computed(() => this.transactions()
+  readonly biggestExpense = computed(() => this.bookedTransactions()
     .filter(t => t.type === TransactionType.EXPENSE)
     .reduce<Transaction | null>((biggest, t) => biggest === null || t.amount > biggest.amount ? t : biggest, null));
 
   readonly categoryShares = computed<CategoryShare[]>(() => {
-    const expenses = this.transactions().filter(t => t.type === TransactionType.EXPENSE);
+    const expenses = this.bookedTransactions().filter(t => t.type === TransactionType.EXPENSE);
     const total = this.expenses();
     return this.configStore.expenseCategories()
       .map(item => {
@@ -79,11 +84,11 @@ export class MonthStore {
       .sort((a, b) => b.amount - a.amount);
   });
 
-  readonly sharedExpenses = computed(() => sumAmounts(this.transactions().filter(t => t.type === TransactionType.EXPENSE && t.shared)));
+  readonly sharedExpenses = computed(() => sumAmounts(this.bookedTransactions().filter(t => t.type === TransactionType.EXPENSE && t.shared)));
 
   readonly memberShares = computed(() => this.sharesByMember(TransactionType.EXPENSE));
 
-  readonly sharedIncome = computed(() => sumAmounts(this.transactions().filter(t => t.type === TransactionType.INCOME && t.shared)));
+  readonly sharedIncome = computed(() => sumAmounts(this.bookedTransactions().filter(t => t.type === TransactionType.INCOME && t.shared)));
   readonly memberIncomeShares = computed(() => this.sharesByMember(TransactionType.INCOME));
 
   constructor() {
@@ -94,8 +99,12 @@ export class MonthStore {
     this._month.set(month);
   }
 
+  isPlanned(dateKey: string): boolean {
+    return dateKey > this.todayKey();
+  }
+
   private sharesByMember(type: TransactionType): MemberShare[] {
-    const personal = this.transactions().filter(t => t.type === type && !t.shared);
+    const personal = this.bookedTransactions().filter(t => t.type === type && !t.shared);
     const total = sumAmounts(personal);
     return this.householdStore.everyone()
       .map(member => {

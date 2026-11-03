@@ -41,9 +41,10 @@
     }
 
     @media (max-width: 420px) {
-      .pi {
-        display: none;
-      }
+      flex-direction: column;
+      gap: 2px;
+      padding: 8px 4px;
+      font-size: 13px;
     }
   }
 }

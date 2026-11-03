@@ -26,3 +26,8 @@ export interface DayGroup {
   expenses: number;
   transactions: Transaction[];
 }
+
+export interface FeedSection {
+  planned: boolean;
+  days: DayGroup[];
+}

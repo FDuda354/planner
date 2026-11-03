@@ -26,7 +26,7 @@ public record RecurringTransactionRequest(
   @Digits(integer = 10, fraction = 2, message = "Niepoprawna kwota")
   BigDecimal amount,
 
-  @NotNull(message = "Wybierz, jak często naliczać")
+  @NotNull(message = "Wybierz częstotliwość")
   RecurrenceFrequency frequency,
 
   @NotNull(message = "Wybierz dzień miesiąca")
@@ -38,7 +38,7 @@ public record RecurringTransactionRequest(
   @Max(value = 12, message = "Miesiąc musi być z zakresu 1–12")
   Integer monthOfYear,
 
-  @NotNull(message = "Wybierz, czyja to transakcja")
+  @NotNull(message = "Wybierz osobę dokonującą transakcji")
   Long memberId,
 
   boolean shared,

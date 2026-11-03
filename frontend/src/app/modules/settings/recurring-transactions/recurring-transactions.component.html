@@ -1,5 +1,5 @@
 <p class="muted recurring__intro">
-  Pensje, czynsz, rachunki czy stała wpłata na cel — ustaw je raz, a co miesiąc albo co rok w wybranym dniu same pojawią się w budżecie.
+  Pensje, czynsz, rachunki czy regularna wpłata na cel — ustaw je raz, a co miesiąc albo co rok w wybranym dniu same pojawią się w budżecie.
   Każdą tak dodaną transakcję możesz potem poprawić albo usunąć jak zwykłą.
 </p>
 
@@ -7,13 +7,13 @@
   @if (store.recurringTransactions().length > 0) {
     <p-iconfield class="recurring__search">
       <p-inputicon class="pi pi-search"/>
-      <input pInputText type="search" placeholder="Szukaj…" aria-label="Szukaj stałych transakcji"
+      <input pInputText type="search" placeholder="Szukaj…" aria-label="Szukaj cyklicznych transakcji"
              [value]="store.filters().search" (input)="onSearch($event)"/>
     </p-iconfield>
   }
   <button pButton type="button" class="action-button--solid recurring__add" (click)="store.create()">
     <i class="pi pi-plus" aria-hidden="true"></i>
-    Dodaj stałą transakcję
+    Dodaj cykliczną transakcję
   </button>
 </div>
 
@@ -21,7 +21,7 @@
   <div class="flex flex-row flex-wrap items-center gap-8 recurring__filters">
     <ui-type-filter name="recurring-filter-type" [value]="store.filters().type" [countOf]="countOfType"
                     (changed)="store.selectType($event)"/>
-    <div class="segmented" role="radiogroup" aria-label="Jak często">
+    <div class="segmented" role="radiogroup" aria-label="Częstotliwość">
       @for (option of frequencyFilters; track option.value) {
         <label class="segmented__option radio-option" [class.segmented__option--active]="store.filters().frequency === option.value">
           <input type="radio" name="recurring-filter-frequency" [checked]="store.filters().frequency === option.value"
@@ -30,7 +30,7 @@
         </label>
       }
     </div>
-    <ui-member-picker name="recurring-filter-member" label="Czyja transakcja" noneLabel="Wszyscy" [value]="store.filters().memberId"
+    <ui-member-picker name="recurring-filter-member" label="Osoba dokonująca transakcji" noneLabel="Wszyscy" [value]="store.filters().memberId"
                       [members]="householdStore.members()" (changed)="store.selectMember($event)"/>
     <ui-shared-filter [active]="store.filters().sharedOnly" (changed)="store.selectSharedOnly($event)"/>
     @if (store.isFiltered()) {
@@ -44,12 +44,12 @@
     <app-recurring-transaction-card [recurring]="recurring"/>
   } @empty {
     @if (store.isFiltered()) {
-      <ui-empty-state icon="pi-filter-slash" title="Nic nie pasuje do filtrów" text="Zmień albo wyczyść filtry, aby zobaczyć stałe transakcje.">
+      <ui-empty-state icon="pi-filter-slash" title="Nic nie pasuje do filtrów" text="Zmień albo wyczyść filtry, aby zobaczyć cykliczne transakcje.">
         <button pButton type="button" variant="outlined" (click)="store.clearFilters()">Wyczyść filtry</button>
       </ui-empty-state>
     } @else {
-      <ui-empty-state icon="pi-sync" title="Brak stałych transakcji"
-                      text="Dodajcie pierwszą przyciskiem „Dodaj stałą transakcję”."/>
+      <ui-empty-state icon="pi-sync" title="Brak cyklicznych transakcji"
+                      text="Dodajcie pierwszą przyciskiem „Dodaj cykliczną transakcję”."/>
     }
   }
 </div>

@@ -42,7 +42,7 @@ export class SettingsComponent {
     {tab: SettingsTab.CATEGORIES, label: 'Kategorie wydatków', icon: 'pi pi-shopping-cart'},
     {tab: SettingsTab.INCOMES, label: 'Źródła dochodu', icon: 'pi pi-briefcase'},
     {tab: SettingsTab.GOALS, label: 'Cele', icon: 'pi pi-bullseye'},
-    {tab: SettingsTab.RECURRING, label: 'Stałe', icon: 'pi pi-sync'},
+    {tab: SettingsTab.RECURRING, label: 'Cykliczne transakcje', icon: 'pi pi-sync'},
     {tab: SettingsTab.HOUSEHOLD, label: 'Domownicy', icon: 'pi pi-users'},
     {tab: SettingsTab.APPEARANCE, label: 'Wygląd', icon: 'pi pi-palette'},
     {tab: SettingsTab.ACCOUNT, label: 'Konto', icon: 'pi pi-user'},
@@ -50,6 +50,7 @@ export class SettingsComponent {
 
   readonly activeTab = computed(() => this.tabs.find(option => option.tab === this.tab())?.tab ?? SettingsTab.CATEGORIES);
   readonly activeLabel = computed(() => this.tabs.find(option => option.tab === this.activeTab())!.label);
+  readonly sectionForm = form(linkedSignal(() => ({tab: this.activeTab()})));
   readonly themeForm = form(linkedSignal(() => ({darkMode: this.appearance.darkMode()})));
 
   selectTab(tab: string | number | undefined): void {

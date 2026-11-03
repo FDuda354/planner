@@ -37,7 +37,7 @@
       <div class="flex flex-row justify-between items-center">
         <span class="muted">Najwięcej na</span>
         <span class="flex flex-row items-center gap-4 month-card__top">
-          <i class="pi" [class]="top.item.icon" [style.color]="top.item.color" aria-hidden="true"></i>
+          <i [class]="top.item.icon | iconClass" [style.color]="top.item.color" aria-hidden="true"></i>
           {{ top.item.name }}
         </span>
       </div>

@@ -12,15 +12,18 @@ import pl.dudios.planner.member.model.Member;
 import pl.dudios.planner.transaction.model.TransactionType;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static pl.dudios.planner.utils.AppTimeZone.POLAND;
 
 /**
  * Integration tests of {@code /api/summary}: the database aggregation of transactions into monthly
- * and yearly totals and into savings-goal progress, run against real PostgreSQL.
+ * and yearly totals and into savings-goal progress, run against real PostgreSQL. Only transactions
+ * booked by today count; the ones planned for a later date stay out of every summary.
  *
  * <p>Amounts are compared as numbers taken from the JSON response.</p>
  */
@@ -80,17 +83,42 @@ class SummaryApiIntegrationTest extends AbstractIntegrationTest {
   @Test
   @DisplayName("year summary has twelve months and leaves out transactions from other years")
   void summarizesYear() throws Exception {
-    fixtures.transaction(filip, TransactionType.INCOME, salary.getId(), "8000.00", LocalDate.of(2026, 1, 1), false);
-    fixtures.transaction(filip, TransactionType.INCOME, salary.getId(), "8100.00", LocalDate.of(2026, 12, 31), false);
-    fixtures.transaction(filip, TransactionType.INCOME, salary.getId(), "7000.00", LocalDate.of(2025, 12, 31), false);
-    fixtures.transaction(filip, TransactionType.INCOME, salary.getId(), "7500.00", LocalDate.of(2027, 1, 1), false);
+    fixtures.transaction(filip, TransactionType.INCOME, salary.getId(), "8000.00", LocalDate.of(2025, 1, 1), false);
+    fixtures.transaction(filip, TransactionType.INCOME, salary.getId(), "8100.00", LocalDate.of(2025, 12, 31), false);
+    fixtures.transaction(filip, TransactionType.INCOME, salary.getId(), "7000.00", LocalDate.of(2024, 12, 31), false);
+    fixtures.transaction(filip, TransactionType.INCOME, salary.getId(), "7500.00", LocalDate.of(2026, 1, 1), false);
 
-    mockMvc.perform(get(ROOT + "/year").param("year", "2026").with(auth.as(filip)))
+    mockMvc.perform(get(ROOT + "/year").param("year", "2025").with(auth.as(filip)))
            .andExpect(status().isOk())
            .andExpect(jsonPath("$", hasSize(12)))
            .andExpect(jsonPath("$[0].income").value(8000.0))
            .andExpect(jsonPath("$[5].income").value(0))
            .andExpect(jsonPath("$[11].income").value(8100.0));
+  }
+
+  @Test
+  @DisplayName("month summaries count transactions booked by today and leave out the ones planned for later")
+  void leavesPlannedTransactionsOutOfMonthSummaries() throws Exception {
+    var today = LocalDate.now(POLAND);
+    fixtures.transaction(filip, TransactionType.INCOME, salary.getId(), "100.00", today, false);
+    fixtures.transaction(filip, TransactionType.INCOME, salary.getId(), "500.00", today.plusDays(1), false);
+
+    mockMvc.perform(get(ROOT + "/months").with(auth.as(filip)))
+           .andExpect(status().isOk())
+           .andExpect(jsonPath("$", hasSize(1)))
+           .andExpect(jsonPath("$[0].month").value(YearMonth.from(today).toString()))
+           .andExpect(jsonPath("$[0].income").value(100.0));
+  }
+
+  @Test
+  @DisplayName("year summary leaves out a transaction planned for tomorrow")
+  void leavesPlannedTransactionsOutOfYearSummary() throws Exception {
+    var tomorrow = LocalDate.now(POLAND).plusDays(1);
+    fixtures.transaction(filip, TransactionType.INCOME, salary.getId(), "500.00", tomorrow, false);
+
+    mockMvc.perform(get(ROOT + "/year").param("year", String.valueOf(tomorrow.getYear())).with(auth.as(filip)))
+           .andExpect(status().isOk())
+           .andExpect(jsonPath("$[%d].income", tomorrow.getMonthValue() - 1).value(0));
   }
 
   @Test
@@ -115,6 +143,21 @@ class SummaryApiIntegrationTest extends AbstractIntegrationTest {
            .andExpect(jsonPath("$[0].contributions", hasSize(2)))
            .andExpect(jsonPath("$[0].contributions[0].month").value("2026-08"))
            .andExpect(jsonPath("$[0].contributions[0].amount").value(800.0));
+  }
+
+  @Test
+  @DisplayName("goal progress counts deposits booked by today and leaves out the ones planned for later")
+  void leavesPlannedDepositsOutOfGoalProgress() throws Exception {
+    var today = LocalDate.now(POLAND);
+    fixtures.transaction(filip, TransactionType.SAVING, japan.getId(), "500.00", today, false);
+    fixtures.transaction(filip, TransactionType.SAVING, japan.getId(), "1000.00", today.plusDays(1), false);
+
+    mockMvc.perform(get(ROOT + "/goals").with(auth.as(filip)))
+           .andExpect(status().isOk())
+           .andExpect(jsonPath("$[0].saved").value(2500.0))
+           .andExpect(jsonPath("$[0].contributions", hasSize(1)))
+           .andExpect(jsonPath("$[0].contributions[0].month").value(YearMonth.from(today).toString()))
+           .andExpect(jsonPath("$[0].contributions[0].amount").value(500.0));
   }
 
   @Test

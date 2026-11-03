@@ -89,5 +89,5 @@ export const recurringSchema = schema<RecurringFormModel>((path) => {
       ? {kind: 'dayOutsideMonth', message: 'Ten miesiąc nie ma tylu dni'}
       : null;
   });
-  required(path.memberId, {message: 'Wybierz, czyja to transakcja'});
+  required(path.memberId, {message: 'Wybierz osobę dokonującą transakcji'});
 });

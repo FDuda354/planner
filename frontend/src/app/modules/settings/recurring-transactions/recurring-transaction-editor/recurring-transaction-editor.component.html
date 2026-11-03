@@ -1,6 +1,6 @@
 <p-dialog [visible]="state().visible"
           (visibleChange)="onVisibleChange($event)"
-          [header]="isEdit() ? 'Edytuj stałą transakcję' : 'Nowa stała transakcja'"
+          [header]="isEdit() ? 'Edytuj cykliczną transakcję' : 'Nowa cykliczna transakcja'"
           [modal]="true"
           [draggable]="false"
           [resizable]="false"
@@ -11,8 +11,8 @@
     <ui-type-switch name="recurring-type" [value]="model().type" (changed)="selectType($event)"/>
 
     <div class="flex flex-col gap-8">
-      <span class="overline">Jak często</span>
-      <div class="segmented recurring-form__frequency" role="radiogroup" aria-label="Jak często naliczać">
+      <span class="overline">Częstotliwość</span>
+      <div class="segmented recurring-form__frequency" role="radiogroup" aria-label="Częstotliwość">
         @for (option of frequencyOptions; track option.frequency) {
           <label class="segmented__option radio-option" [class.segmented__option--active]="model().frequency === option.frequency">
             <input type="radio" name="recurring-frequency" [checked]="model().frequency === option.frequency"
@@ -75,8 +75,8 @@
 
     @if (isAssignedToMember()) {
       <div class="flex flex-col gap-8">
-        <span class="overline">Czyja</span>
-        <ui-member-picker name="recurring-member" label="Czyja transakcja" [value]="model().memberId" [members]="householdStore.members()"
+        <span class="overline">Osoba dokonująca transakcji</span>
+        <ui-member-picker name="recurring-member" label="Osoba dokonująca transakcji" [value]="model().memberId" [members]="householdStore.members()"
                           (changed)="selectMember($event)"/>
         <ui-field-error [field]="recurringForm.memberId"/>
       </div>
@@ -87,7 +87,7 @@
            type="text"
            [formField]="recurringForm.note"
            placeholder="Nazwa (opcjonalnie), np. Czynsz za mieszkanie"
-           aria-label="Nazwa stałej transakcji"/>
+           aria-label="Nazwa cyklicznej transakcji"/>
 
     <div class="flex flex-row justify-end gap-8">
       <button pButton type="button" variant="text" severity="secondary" (click)="onVisibleChange(false)">Anuluj</button>

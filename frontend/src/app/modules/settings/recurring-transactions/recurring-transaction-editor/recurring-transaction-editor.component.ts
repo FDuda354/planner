@@ -104,11 +104,11 @@ export class RecurringTransactionEditorComponent {
       .pipe(finalize(() => this.isWorking.set(false)))
       .subscribe({
         next: () => {
-          showSuccess('Zapisano stałą transakcję', this.configStore.itemOf(request.type, request.itemId)?.name ?? '', this.messageService);
+          showSuccess('Zapisano cykliczną transakcję', this.configStore.itemOf(request.type, request.itemId)?.name ?? '', this.messageService);
           this.store.reload();
           this.store.close();
         },
-        error: (error) => showServerError('Nie udało się zapisać stałej transakcji', error, this.messageService),
+        error: (error) => showServerError('Nie udało się zapisać cyklicznej transakcji', error, this.messageService),
       });
   }
 

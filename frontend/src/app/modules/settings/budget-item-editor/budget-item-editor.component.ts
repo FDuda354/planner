@@ -1,11 +1,12 @@
-import {ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, effect, inject, linkedSignal, signal, untracked} from '@angular/core';
 import {apply, applyWhen, disabled, form} from '@angular/forms/signals';
 import {MessageService} from 'primeng/api';
 import {finalize} from 'rxjs';
 import {BudgetItemEditorState, BudgetItemEditorStore} from '../stores/budget-item-editor.store';
 import {BudgetItemSaverService} from '../services/budget-item-saver.service';
 import {BudgetItemRemoverService} from '../services/budget-item-remover.service';
-import {BUDGET_COLORS, BUDGET_ICONS, BudgetItem} from '../../../models/budget-item.model';
+import {BUDGET_COLORS, BudgetItem} from '../../../models/budget-item.model';
+import {BUDGET_ICON_GROUPS, BudgetIconGroup, matchesIconSearch} from '../../../models/budget-icon.model';
 import {TransactionType} from '../../../models/transaction.model';
 import {HouseholdStore} from '../../../stores/household.store';
 import {prepareFormSubmission} from '../../../shared/forms/prepare-form-submission';
@@ -32,10 +33,13 @@ export class BudgetItemEditorComponent {
   private readonly messageService = inject(MessageService);
   readonly householdStore = inject(HouseholdStore);
 
-  readonly icons = BUDGET_ICONS;
   readonly colors = BUDGET_COLORS;
 
   readonly state = this.editor.state;
+  readonly iconSearch = linkedSignal({source: this.state, computation: () => ''});
+  readonly iconGroups = computed<BudgetIconGroup[]>(() => BUDGET_ICON_GROUPS
+    .map(group => ({...group, icons: group.icons.filter(icon => matchesIconSearch(icon, group, this.iconSearch()))}))
+    .filter(group => group.icons.length > 0));
   readonly isGoal = computed(() => this.state().kind === TransactionType.SAVING);
   readonly isWorking = signal(false);
   readonly header = computed(() => this.state().item ? KIND_NAMES[this.state().kind].edit : KIND_NAMES[this.state().kind].create);
@@ -55,6 +59,10 @@ export class BudgetItemEditorComponent {
         untracked(() => this.itemForm().reset(this.initialModel(state)));
       }
     });
+  }
+
+  onIconSearch(event: Event): void {
+    this.iconSearch.set((event.target as HTMLInputElement).value);
   }
 
   selectIcon(icon: string): void {

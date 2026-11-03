@@ -18,15 +18,13 @@
   </div>
 
   <div class="flex flex-row flex-wrap items-center gap-8 feed__filters">
-    <div class="feed__scroll">
-      <ui-type-filter name="feed-type" [value]="feed.filters().type" [countOf]="countOfType" (changed)="feed.selectType($event)"/>
-    </div>
-    <ui-member-picker name="feed-member" label="Czyja transakcja" noneLabel="Wszyscy" [value]="feed.filters().memberId"
+    <ui-type-filter name="feed-type" [value]="feed.filters().type" [countOf]="countOfType" (changed)="feed.selectType($event)"/>
+    <ui-member-picker name="feed-member" label="Osoba dokonująca transakcji" noneLabel="Wszyscy" [value]="feed.filters().memberId"
                       [members]="householdStore.members()" (changed)="feed.selectMember($event)"/>
     <ui-shared-filter [active]="feed.filters().sharedOnly" (changed)="feed.selectSharedOnly($event)"/>
     @if (selectedCategory(); as category) {
       <button type="button" class="choice-chip choice-chip--active" (click)="feed.toggleCategory(category.id)">
-        <i class="pi" [class]="category.icon" aria-hidden="true"></i>
+        <i [class]="category.icon | iconClass" aria-hidden="true"></i>
         {{ category.name }}
         <i class="pi pi-times" aria-label="Usuń filtr"></i>
       </button>
@@ -62,51 +60,63 @@
     </ui-empty-state>
   } @else {
     <div class="flex flex-col gap-20">
-      @for (group of feed.dayGroups(); track group.date) {
-        <div class="day">
-          <div class="flex flex-row items-center justify-between day__header">
-            <span class="day__label">{{ group.label }}</span>
-            @if (group.expenses > 0) {
-              <span class="day__total">−{{ group.expenses | money }}</span>
-            }
-          </div>
-          <div class="flex flex-col">
-            @for (transaction of group.transactions; track transaction.id) {
-              @let item = itemOf(transaction);
-              <div class="tx-row">
-                <button type="button" class="tx-row__main" (click)="editor.edit(transaction)">
-                  <ui-item-icon [icon]="item?.icon ?? 'pi-question'" [color]="item?.color ?? '#94a3b8'"/>
-                  <div class="flex flex-col tx-row__body">
-                    <span class="tx-row__title">{{ transaction.note || item?.name }}</span>
-                    <span class="flex flex-row items-center gap-4 tx-row__meta">
-                      @if (transaction.note) {
-                        <span>{{ item?.name }}</span>
-                        <span aria-hidden="true">·</span>
-                      }
-                      @if (isAssignedToMember(transaction)) {
-                        <ui-member-avatar [member]="memberOf(transaction)" size="xs"/>
-                        <span>{{ memberOf(transaction)?.firstName }}</span>
-                      }
-                      @if (transaction.shared) {
-                        <span class="meta-badge meta-badge--shared"><i class="pi pi-home" aria-hidden="true"></i>dobro wspólne</span>
-                      }
-                      @if (transaction.recurring) {
-                        <span class="meta-badge meta-badge--recurring"><i class="pi pi-sync" aria-hidden="true"></i>stała</span>
-                      }
-                    </span>
-                  </div>
-                  <span class="amount tx-row__amount" [class]="'amount--' + transaction.type.toLowerCase()">
-                    {{ signOf(transaction) }}{{ transaction.amount | money }}
-                  </span>
-                  <i class="pi pi-pencil tx-row__edit" aria-hidden="true"></i>
-                </button>
-                <button type="button" class="tx-row__delete" pTooltip="Usuń" tooltipPosition="left"
-                        [attr.aria-label]="deleteLabel(transaction)" (click)="confirmDeletion(transaction, $event)">
-                  <i class="pi pi-trash" aria-hidden="true"></i>
-                </button>
+      @for (section of feed.sections(); track section.planned) {
+        <div class="flex flex-col gap-20" [class.planned]="section.planned">
+          @if (section.planned) {
+            <div class="flex flex-row items-center gap-12 planned__header">
+              <span class="planned__icon"><i class="pi pi-clock" aria-hidden="true"></i></span>
+              <div class="flex flex-col">
+                <h3 class="planned__title">Zaplanowane</h3>
+                <p class="planned__hint">Nie wliczają się jeszcze do „Zostało do dyspozycji”, tylko do kwoty przewidywanej</p>
               </div>
-            }
-          </div>
+            </div>
+          }
+          @for (group of section.days; track group.date) {
+            <div class="day">
+              <div class="flex flex-row items-center justify-between day__header">
+                <span class="day__label">{{ group.label }}</span>
+                @if (group.expenses > 0) {
+                  <span class="day__total">−{{ group.expenses | money }}</span>
+                }
+              </div>
+              <div class="flex flex-col">
+                @for (transaction of group.transactions; track transaction.id) {
+                  @let item = itemOf(transaction);
+                  <div class="tx-row">
+                    <button type="button" class="tx-row__main" (click)="editor.edit(transaction)">
+                      <ui-item-icon class="tx-row__icon" [icon]="item?.icon ?? 'pi-question'" [color]="item?.color ?? '#94a3b8'"/>
+                      <span class="tx-row__title">{{ transaction.note || item?.name }}</span>
+                      <span class="flex flex-row flex-wrap items-center tx-row__meta">
+                        @if (transaction.note) {
+                          <span>{{ item?.name }} <span aria-hidden="true">·</span></span>
+                        }
+                        @if (isAssignedToMember(transaction)) {
+                          <span class="flex flex-row items-center gap-4">
+                            <ui-member-avatar [member]="memberOf(transaction)" size="xs"/>
+                            {{ memberOf(transaction)?.firstName }}
+                          </span>
+                        }
+                        @if (transaction.shared) {
+                          <span class="meta-badge meta-badge--shared"><i class="pi pi-home" aria-hidden="true"></i>dobro wspólne</span>
+                        }
+                        @if (transaction.recurring) {
+                          <span class="meta-badge meta-badge--recurring"><i class="pi pi-sync" aria-hidden="true"></i>cykliczna</span>
+                        }
+                      </span>
+                      <span class="amount tx-row__amount" [class]="'amount--' + transaction.type.toLowerCase()">
+                        {{ signOf(transaction) }}{{ transaction.amount | money }}
+                      </span>
+                      <i class="pi pi-pencil tx-row__edit" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" class="tx-row__delete" pTooltip="Usuń" tooltipPosition="left"
+                            [attr.aria-label]="deleteLabel(transaction)" (click)="confirmDeletion(transaction, $event)">
+                      <i class="pi pi-trash" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                }
+              </div>
+            </div>
+          }
         </div>
       }
     </div>

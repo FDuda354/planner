@@ -45,7 +45,7 @@
     </div>
 
     <div class="flex flex-col gap-8">
-      <span class="overline">Kiedy</span>
+      <span class="overline">Data</span>
       <div class="flex flex-row flex-wrap items-center gap-8">
         @for (quickDate of quickDates; track quickDate.daysAgo) {
           <button type="button"
@@ -68,8 +68,8 @@
 
     @if (members().length > 1 && isAssignedToMember()) {
       <div class="flex flex-col gap-8">
-        <span class="overline">Czyja</span>
-        <ui-member-picker name="transaction-member" label="Czyja transakcja" [value]="model().memberId" [members]="members()"
+        <span class="overline">Osoba dokonująca transakcji</span>
+        <ui-member-picker name="transaction-member" label="Osoba dokonująca transakcji" [value]="model().memberId" [members]="members()"
                           (changed)="selectMember($event)"/>
         <ui-field-error [field]="transactionForm.memberId"/>
       </div>

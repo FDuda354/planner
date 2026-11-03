@@ -24,6 +24,7 @@ import {Divider} from 'primeng/divider';
 import {Message} from 'primeng/message';
 import {Checkbox} from 'primeng/checkbox';
 import {MoneyPipe} from './pipes/money.pipe';
+import {IconClassPipe} from './pipes/icon-class.pipe';
 import {ChartDirective} from './components/ui/chart/chart.directive';
 import {ItemIconComponent} from './components/ui/item-icon/item-icon.component';
 import {MemberAvatarComponent} from './components/ui/member-avatar/member-avatar.component';
@@ -44,7 +45,7 @@ const PRIME_COMPONENTS = [
 ];
 
 const SHARED_DECLARATIONS = [
-  MoneyPipe, ChartDirective, ItemIconComponent, MemberAvatarComponent, ProgressRingComponent, EmptyStateComponent, FieldErrorComponent,
+  MoneyPipe, IconClassPipe, ChartDirective, ItemIconComponent, MemberAvatarComponent, ProgressRingComponent, EmptyStateComponent, FieldErrorComponent,
   TransactionDialogComponent, TypeFilterComponent, MemberPickerComponent, SharedFilterComponent,
   TypeSwitchComponent, ItemPickerComponent, SharedToggleComponent,
 ];

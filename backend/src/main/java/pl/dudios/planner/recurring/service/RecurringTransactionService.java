@@ -68,7 +68,7 @@ public class RecurringTransactionService {
 
   private RecurringTransaction getRecurringTransaction(Long householdId, Long recurringTransactionId) {
     return recurringTransactionRepository.findByIdAndHouseholdId(recurringTransactionId, householdId)
-                                         .orElseThrow(() -> new ResourceNotFoundException("Nie znaleziono stałej transakcji"));
+                                         .orElseThrow(() -> new ResourceNotFoundException("Nie znaleziono cyklicznej transakcji"));
   }
 
   private boolean needsScheduling(RecurringTransaction recurring, RecurringTransactionRequest request) {

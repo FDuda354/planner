@@ -10,7 +10,7 @@
     --p-tabs-tab-hover-background: transparent;
     --p-tabs-tab-active-background: transparent;
     --p-tabs-tab-font-weight: 700;
-    --p-tabs-tab-padding: 12px 18px;
+    --p-tabs-tab-padding: 12px 14px;
     margin-bottom: 20px;
   }
 
@@ -18,26 +18,27 @@
     margin-left: 8px;
   }
 
+  &__select {
+    display: none;
+    margin-bottom: 16px;
+    font-weight: 700;
+  }
+
+  &__option .pi {
+    color: var(--p-primary-color);
+  }
+
   &__intro {
     margin: 0 0 20px;
   }
 
-  &__panel-title {
-    display: none;
-    margin-bottom: 8px;
-  }
-
-  @media (max-width: 640px) {
+  @media (max-width: 991px) {
     &__tabs {
-      --p-tabs-tab-padding: 12px 14px;
-    }
-
-    &__tab-label {
       display: none;
     }
 
-    &__panel-title {
-      display: block;
+    &__select {
+      display: flex;
     }
   }
 

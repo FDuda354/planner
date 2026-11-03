@@ -1,0 +1,16 @@
+@media (max-width: 640px) {
+  :host {
+    width: 100%;
+  }
+
+  .segmented {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    box-sizing: border-box;
+    width: 100%;
+  }
+
+  .segmented__option {
+    text-align: center;
+  }
+}

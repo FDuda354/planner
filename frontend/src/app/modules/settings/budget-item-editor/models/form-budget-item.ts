@@ -1,7 +1,6 @@
 import {min, required, schema} from '@angular/forms/signals';
-import {
-  BUDGET_COLORS, BUDGET_ICONS, BudgetItem, BudgetItemRequest, SavingsGoal, SavingsGoalRequest
-} from '../../../../models/budget-item.model';
+import {BUDGET_COLORS, BudgetItem, BudgetItemRequest, SavingsGoal, SavingsGoalRequest} from '../../../../models/budget-item.model';
+import {DEFAULT_BUDGET_ICON} from '../../../../models/budget-icon.model';
 
 export interface BudgetItemFormModel {
   id: number | null;
@@ -16,7 +15,7 @@ export interface BudgetItemFormModel {
 
 export function newBudgetItemModel(): BudgetItemFormModel {
   return {
-    id: null, name: '', icon: BUDGET_ICONS[0], color: BUDGET_COLORS[Math.floor(Math.random() * BUDGET_COLORS.length)],
+    id: null, name: '', icon: DEFAULT_BUDGET_ICON, color: BUDGET_COLORS[Math.floor(Math.random() * BUDGET_COLORS.length)],
     note: '', initialAmount: 0, targetAmount: null, ownerId: null,
   };
 }

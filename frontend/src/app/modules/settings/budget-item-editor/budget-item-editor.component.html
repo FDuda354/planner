@@ -24,17 +24,32 @@
 
     <div class="flex flex-col gap-8">
       <span class="overline">Ikona</span>
-      <div class="icon-grid">
-        @for (icon of icons; track icon) {
-          <button type="button"
-                  class="icon-grid__option"
-                  [class.icon-grid__option--active]="model().icon === icon"
-                  [style.--item-color]="model().color"
-                  [attr.aria-label]="icon"
-                  [attr.aria-pressed]="model().icon === icon"
-                  (click)="selectIcon(icon)">
-            <i class="pi" [class]="icon" aria-hidden="true"></i>
-          </button>
+      <p-iconfield>
+        <p-inputicon class="pi pi-search"/>
+        <input pInputText type="search" class="icon-picker__search" placeholder="Szukaj, np. paliwo, lekarz, prezent" aria-label="Szukaj ikony"
+               [value]="iconSearch()" (input)="onIconSearch($event)" (keydown.enter)="$event.preventDefault()"/>
+      </p-iconfield>
+      <div class="flex flex-col gap-16 icon-picker">
+        @for (group of iconGroups(); track group.label) {
+          <div class="flex flex-col gap-8">
+            <span class="icon-picker__group">{{ group.label }}</span>
+            <div class="icon-grid" role="group" [attr.aria-label]="group.label">
+              @for (icon of group.icons; track icon.name) {
+                <button type="button"
+                        class="icon-grid__option"
+                        [class.icon-grid__option--active]="model().icon === icon.name"
+                        [style.--item-color]="model().color"
+                        [attr.title]="icon.keywords"
+                        [attr.aria-label]="icon.keywords"
+                        [attr.aria-pressed]="model().icon === icon.name"
+                        (click)="selectIcon(icon.name)">
+                  <i [class]="icon.name | iconClass" aria-hidden="true"></i>
+                </button>
+              }
+            </div>
+          </div>
+        } @empty {
+          <p class="muted icon-picker__empty">Nie ma ikony pasującej do „{{ iconSearch() }}”. Spróbuj innego słowa.</p>
         }
       </div>
     </div>

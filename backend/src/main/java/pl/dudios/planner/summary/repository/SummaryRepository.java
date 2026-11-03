@@ -13,13 +13,14 @@ import java.util.List;
 @Repository
 public interface SummaryRepository extends org.springframework.data.repository.Repository<Transaction, Long> {
 
-  String SELECT_MONTHLY_AMOUNTS = """
+  String SELECT_BOOKED_MONTHLY_AMOUNTS = """
     select new pl.dudios.planner.summary.model.MonthlyAmount(
       year(t.date), month(t.date), t.type,
       coalesce(t.expenseCategoryId, t.incomeSourceId, t.savingsGoalId),
       t.memberId, t.shared, sum(t.amount))
     from Transaction t
     where t.householdId = :householdId
+    and t.date <= :today
     """;
 
   String GROUP_BY_MONTH_AND_ITEM = """
@@ -28,16 +29,19 @@ public interface SummaryRepository extends org.springframework.data.repository.R
       t.memberId, t.shared
     """;
 
-  @Query(SELECT_MONTHLY_AMOUNTS + GROUP_BY_MONTH_AND_ITEM)
-  List<MonthlyAmount> findMonthlyAmounts(@Param("householdId") Long householdId);
+  @Query(SELECT_BOOKED_MONTHLY_AMOUNTS + GROUP_BY_MONTH_AND_ITEM)
+  List<MonthlyAmount> findBookedMonthlyAmounts(@Param("householdId") Long householdId,
+                                               @Param("today") LocalDate today);
 
-  @Query(SELECT_MONTHLY_AMOUNTS + "and t.type = :type\n" + GROUP_BY_MONTH_AND_ITEM)
-  List<MonthlyAmount> findMonthlyAmountsOfType(@Param("householdId") Long householdId,
-                                               @Param("type") TransactionType type);
+  @Query(SELECT_BOOKED_MONTHLY_AMOUNTS + "and t.type = :type\n" + GROUP_BY_MONTH_AND_ITEM)
+  List<MonthlyAmount> findBookedMonthlyAmountsOfType(@Param("householdId") Long householdId,
+                                                     @Param("type") TransactionType type,
+                                                     @Param("today") LocalDate today);
 
-  @Query(SELECT_MONTHLY_AMOUNTS + "and t.date >= :from and t.date < :to\n" + GROUP_BY_MONTH_AND_ITEM)
-  List<MonthlyAmount> findMonthlyAmountsBetween(@Param("householdId") Long householdId,
-                                                @Param("from") LocalDate from,
-                                                @Param("to") LocalDate to);
+  @Query(SELECT_BOOKED_MONTHLY_AMOUNTS + "and t.date >= :from and t.date < :to\n" + GROUP_BY_MONTH_AND_ITEM)
+  List<MonthlyAmount> findBookedMonthlyAmountsBetween(@Param("householdId") Long householdId,
+                                                      @Param("from") LocalDate from,
+                                                      @Param("to") LocalDate to,
+                                                      @Param("today") LocalDate today);
 
 }

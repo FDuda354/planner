@@ -29,14 +29,21 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static pl.dudios.planner.utils.AppTimeZone.POLAND;
 
 /**
  * Unit tests for {@link SummaryService}: monthly and yearly totals, the "who spent how much" split
- * (shared expenses excluded) and progress of savings goals.
+ * (shared expenses excluded), progress of savings goals and the rule that only transactions booked
+ * by today count, so the ones planned for a later date stay out of every summary.
  *
  * <p>{@link SummaryRepository} and the budget configuration repositories are mocked and return
- * pre-aggregated {@link MonthlyAmount} rows, exactly like the database aggregation does.</p>
+ * pre-aggregated {@link MonthlyAmount} rows, exactly like the database aggregation does. The database
+ * applies the cut-off date, so here it is only checked that the service asks for amounts booked by
+ * today in Poland.</p>
  */
 @ExtendWith(MockitoExtension.class)
 class SummaryServiceTest {
@@ -77,7 +84,7 @@ class SummaryServiceTest {
     @DisplayName("lists months from the newest to the oldest")
     void ordersNewestFirst() {
       // Given
-      given(summaryRepository.findMonthlyAmounts(HOUSEHOLD_ID)).willReturn(List.of(
+      given(summaryRepository.findBookedMonthlyAmounts(eq(HOUSEHOLD_ID), any())).willReturn(List.of(
         expense(2026, 8, FOOD_ID, FILIP_ID, false, "100"),
         expense(2026, 10, FOOD_ID, FILIP_ID, false, "100"),
         expense(2026, 9, FOOD_ID, FILIP_ID, false, "100")
@@ -94,7 +101,7 @@ class SummaryServiceTest {
     @DisplayName("totals incomes, expenses and savings of a month separately")
     void totalsPerType() {
       // Given
-      given(summaryRepository.findMonthlyAmounts(HOUSEHOLD_ID)).willReturn(List.of(
+      given(summaryRepository.findBookedMonthlyAmounts(eq(HOUSEHOLD_ID), any())).willReturn(List.of(
         income(2026, 10, SALARY_ID, FILIP_ID, "8000"),
         expense(2026, 10, FOOD_ID, FILIP_ID, true, "600"),
         expense(2026, 10, FUN_ID, KLAUDIA_ID, false, "150"),
@@ -114,7 +121,7 @@ class SummaryServiceTest {
     @DisplayName("counts only personal expenses in \"who spent how much\" and reports shared ones separately")
     void excludesSharedExpensesFromPersonalSplit() {
       // Given
-      given(summaryRepository.findMonthlyAmounts(HOUSEHOLD_ID)).willReturn(List.of(
+      given(summaryRepository.findBookedMonthlyAmounts(eq(HOUSEHOLD_ID), any())).willReturn(List.of(
         expense(2026, 10, FOOD_ID, FILIP_ID, true, "600"),
         expense(2026, 10, FUN_ID, FILIP_ID, false, "90"),
         expense(2026, 10, FUN_ID, KLAUDIA_ID, false, "150"),
@@ -135,7 +142,7 @@ class SummaryServiceTest {
     @DisplayName("ranks categories by the amount spent, the biggest first")
     void ranksCategories() {
       // Given
-      given(summaryRepository.findMonthlyAmounts(HOUSEHOLD_ID)).willReturn(List.of(
+      given(summaryRepository.findBookedMonthlyAmounts(eq(HOUSEHOLD_ID), any())).willReturn(List.of(
         expense(2026, 10, FUN_ID, FILIP_ID, false, "150"),
         expense(2026, 10, FOOD_ID, FILIP_ID, true, "300"),
         expense(2026, 10, FOOD_ID, KLAUDIA_ID, true, "400")
@@ -149,6 +156,19 @@ class SummaryServiceTest {
         .extracting(ItemAmountDTO::itemId, dto -> dto.amount().toPlainString())
         .containsExactly(tuple(FOOD_ID, "700"), tuple(FUN_ID, "150"));
     }
+
+    @Test
+    @DisplayName("counts only transactions booked by today in Poland, so the planned ones stay out")
+    void countsOnlyBookedTransactions() {
+      // Given
+      var today = LocalDate.now(POLAND);
+
+      // When
+      summaryService.getMonthSummaries(HOUSEHOLD_ID);
+
+      // Then
+      then(summaryRepository).should().findBookedMonthlyAmounts(HOUSEHOLD_ID, today);
+    }
   }
 
   @Nested
@@ -159,7 +179,7 @@ class SummaryServiceTest {
     @DisplayName("always returns all twelve months, with zeros for months without transactions")
     void returnsTwelveMonths() {
       // Given
-      given(summaryRepository.findMonthlyAmountsBetween(HOUSEHOLD_ID, LocalDate.of(2026, 1, 1), LocalDate.of(2027, 1, 1)))
+      given(summaryRepository.findBookedMonthlyAmountsBetween(eq(HOUSEHOLD_ID), eq(LocalDate.of(2026, 1, 1)), eq(LocalDate.of(2027, 1, 1)), any()))
         .willReturn(List.of(income(2026, 3, SALARY_ID, FILIP_ID, "8000")));
 
       // When
@@ -173,6 +193,20 @@ class SummaryServiceTest {
       assertThat(result.get(3).income()).isEqualByComparingTo(BigDecimal.ZERO);
       assertThat(result.get(3).expensesByCategory()).isEmpty();
     }
+
+    @Test
+    @DisplayName("counts only transactions of the year booked by today in Poland, so the planned ones stay out")
+    void countsOnlyBookedTransactions() {
+      // Given
+      var today = LocalDate.now(POLAND);
+
+      // When
+      summaryService.getYearSummary(HOUSEHOLD_ID, today.getYear());
+
+      // Then
+      then(summaryRepository).should().findBookedMonthlyAmountsBetween(
+        HOUSEHOLD_ID, LocalDate.of(today.getYear(), 1, 1), LocalDate.of(today.getYear() + 1, 1, 1), today);
+    }
   }
 
   @Nested
@@ -184,7 +218,7 @@ class SummaryServiceTest {
     void sumsDepositsOnTopOfInitialAmount() {
       // Given
       given(savingsGoalRepository.findAllByHouseholdIdOrderById(HOUSEHOLD_ID)).willReturn(List.of(goal(JAPAN_ID, "2000")));
-      given(summaryRepository.findMonthlyAmountsOfType(HOUSEHOLD_ID, TransactionType.SAVING)).willReturn(List.of(
+      given(summaryRepository.findBookedMonthlyAmountsOfType(eq(HOUSEHOLD_ID), eq(TransactionType.SAVING), any())).willReturn(List.of(
         saving(2026, 9, JAPAN_ID, FILIP_ID, "500"),
         saving(2026, 9, JAPAN_ID, KLAUDIA_ID, "300"),
         saving(2026, 10, JAPAN_ID, FILIP_ID, "1000")
@@ -205,7 +239,7 @@ class SummaryServiceTest {
     void ignoresOtherGoals() {
       // Given
       given(savingsGoalRepository.findAllByHouseholdIdOrderById(HOUSEHOLD_ID)).willReturn(List.of(goal(JAPAN_ID, "0")));
-      given(summaryRepository.findMonthlyAmountsOfType(HOUSEHOLD_ID, TransactionType.SAVING)).willReturn(List.of(
+      given(summaryRepository.findBookedMonthlyAmountsOfType(eq(HOUSEHOLD_ID), eq(TransactionType.SAVING), any())).willReturn(List.of(
         saving(2026, 10, 999L, FILIP_ID, "700"),
         saving(2026, 10, JAPAN_ID, FILIP_ID, "100")
       ));
@@ -222,7 +256,7 @@ class SummaryServiceTest {
     void reportsGoalWithoutDeposits() {
       // Given
       given(savingsGoalRepository.findAllByHouseholdIdOrderById(HOUSEHOLD_ID)).willReturn(List.of(goal(JAPAN_ID, "2000")));
-      given(summaryRepository.findMonthlyAmountsOfType(HOUSEHOLD_ID, TransactionType.SAVING)).willReturn(List.of());
+      given(summaryRepository.findBookedMonthlyAmountsOfType(eq(HOUSEHOLD_ID), eq(TransactionType.SAVING), any())).willReturn(List.of());
 
       // When
       var progress = summaryService.getGoalProgress(HOUSEHOLD_ID).getFirst();
@@ -230,6 +264,19 @@ class SummaryServiceTest {
       // Then
       assertThat(progress.saved()).isEqualByComparingTo("2000");
       assertThat(progress.contributions()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("counts only deposits booked by today in Poland, so the planned ones stay out")
+    void countsOnlyBookedDeposits() {
+      // Given
+      var today = LocalDate.now(POLAND);
+
+      // When
+      summaryService.getGoalProgress(HOUSEHOLD_ID);
+
+      // Then
+      then(summaryRepository).should().findBookedMonthlyAmountsOfType(HOUSEHOLD_ID, TransactionType.SAVING, today);
     }
   }
 

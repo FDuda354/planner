@@ -95,10 +95,14 @@ export function amountSignOf(type: TransactionType): string {
   return AMOUNT_SIGNS[type];
 }
 
+export function netAmountOf(entries: {type: TransactionType; amount: number}[]): number {
+  return entries.reduce((sum, entry) => entry.type === TransactionType.INCOME ? sum + entry.amount : sum - entry.amount, 0);
+}
+
 const ITEM_LABELS: Record<TransactionType, string> = {
-  [TransactionType.EXPENSE]: 'Na co',
-  [TransactionType.INCOME]: 'Skąd',
-  [TransactionType.SAVING]: 'Na jaki cel',
+  [TransactionType.EXPENSE]: 'Kategoria',
+  [TransactionType.INCOME]: 'Źródło dochodu',
+  [TransactionType.SAVING]: 'Cel',
 };
 
 export function itemLabelOf(type: TransactionType): string {

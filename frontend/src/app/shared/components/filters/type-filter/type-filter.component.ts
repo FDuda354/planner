@@ -4,6 +4,7 @@ import {TRANSACTION_TYPE_FILTER_OPTIONS, TransactionType} from '../../../../mode
 @Component({
   selector: 'ui-type-filter',
   templateUrl: './type-filter.component.html',
+  styleUrl: './type-filter.component.scss',
   standalone: false,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

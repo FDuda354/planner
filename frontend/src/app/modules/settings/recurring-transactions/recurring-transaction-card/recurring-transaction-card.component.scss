@@ -19,7 +19,14 @@
   }
 
   &__main {
+    display: grid;
     flex: 1;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      'icon title amount'
+      'icon meta amount';
+    align-items: center;
+    column-gap: 12px;
     min-width: 0;
     align-self: stretch;
     padding: 12px 0 12px 14px;
@@ -31,33 +38,30 @@
     cursor: pointer;
   }
 
-  &__text {
-    flex: 1;
-    min-width: 0;
+  &__icon {
+    grid-area: icon;
   }
 
   &__title {
-    min-width: 0;
+    grid-area: title;
+    font-weight: 700;
+    overflow-wrap: anywhere;
   }
 
   &__frequency {
-    flex: none;
-  }
-
-  &__name {
-    overflow: hidden;
-    font-weight: 700;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    margin-left: 4px;
+    vertical-align: 1px;
   }
 
   &__meta {
+    grid-area: meta;
+    gap: 2px 6px;
     font-size: 12px;
     color: var(--p-text-muted-color);
   }
 
   &__amount {
-    flex: none;
+    grid-area: amount;
     font-size: 15px;
 
     &.amount--expense {
@@ -65,10 +69,33 @@
     }
   }
 
+  &__actions {
+    flex: none;
+  }
+
   &__delete.p-button {
     flex: none;
     width: 34px;
     height: 34px;
     padding: 0;
+  }
+
+  @media (max-width: 640px) {
+    flex-wrap: wrap;
+    padding: 0;
+
+    &__main {
+      flex-basis: 100%;
+      grid-template-areas:
+        'icon title amount'
+        'icon meta meta';
+      padding: 12px 14px 0;
+    }
+
+    &__actions {
+      flex-basis: 100%;
+      justify-content: flex-end;
+      padding: 0 8px 8px;
+    }
   }
 }

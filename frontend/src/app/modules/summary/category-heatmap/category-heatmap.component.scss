@@ -37,11 +37,11 @@
   }
 
   &__category-name {
-    overflow: hidden;
+    min-width: 0;
     font-size: 14px;
     font-weight: 600;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    line-height: 18px;
+    overflow-wrap: anywhere;
   }
 
   &__cell {

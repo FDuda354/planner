@@ -5,7 +5,7 @@ import {TransactionService} from '../../../services/transaction.service';
 import {HouseholdStore} from '../../../stores/household.store';
 import {CalendarStore} from '../../../stores/calendar.store';
 import {RecurringTransaction} from '../../../models/recurring-transaction.model';
-import {belongsToNobody, TransactionType} from '../../../models/transaction.model';
+import {belongsToNobody, netAmountOf} from '../../../models/transaction.model';
 import {reloadWhenChanged} from '../../../shared/utils/resource';
 import {MonthStore} from './month.store';
 
@@ -23,8 +23,8 @@ export class MonthForecastStore {
   });
 
   private readonly upcomingRecurring = computed(() => this.recurring.value().filter(recurring => this.isBookedLaterThisMonth(recurring)));
-  private readonly upcomingNet = computed(() => this.upcomingRecurring().reduce((sum, recurring) => sum + signedAmountOf(recurring), 0));
-  readonly forecastBalance = computed(() => this.monthStore.balance() + this.upcomingNet());
+  private readonly upcomingRecurringNet = computed(() => netAmountOf(this.upcomingRecurring()));
+  readonly forecastBalance = computed(() => this.monthStore.balance() + this.monthStore.plannedNet() + this.upcomingRecurringNet());
 
   constructor() {
     reloadWhenChanged(this.transactionService.revision, this.recurring);
@@ -35,8 +35,4 @@ export class MonthForecastStore {
            && recurring.nextOccurrence.startsWith(this.calendar.currentMonth())
            && (belongsToNobody(recurring) || this.householdStore.isCurrentMember(recurring.memberId));
   }
-}
-
-function signedAmountOf(recurring: RecurringTransaction): number {
-  return recurring.type === TransactionType.INCOME ? recurring.amount : -recurring.amount;
 }

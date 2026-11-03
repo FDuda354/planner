@@ -1,5 +1,5 @@
 import {computed, inject, Injectable, linkedSignal} from '@angular/core';
-import {format, isSameDay, subDays} from 'date-fns';
+import {addDays, format, isSameDay, subDays} from 'date-fns';
 import {pl} from 'date-fns/locale';
 import {BudgetConfigStore} from '../../../stores/budget-config.store';
 import {CalendarStore} from '../../../stores/calendar.store';
@@ -9,7 +9,7 @@ import {sumAmounts} from '../../../shared/utils/money';
 import {
   hasTransactionFilters, matchesTransactionFilters, NO_TRANSACTION_FILTERS, TransactionFilters, withSharedOnly, withType
 } from '../../../shared/utils/transaction-filters';
-import {DayGroup} from '../models/month-view';
+import {DayGroup, FeedSection} from '../models/month-view';
 import {MonthStore} from './month.store';
 
 export interface FeedFilters extends TransactionFilters {
@@ -39,6 +39,10 @@ export class TransactionFeedStore {
       transactions,
     }));
   });
+  readonly sections = computed<FeedSection[]>(() => [
+    {planned: true, days: this.dayGroups().filter(day => this.monthStore.isPlanned(day.date))},
+    {planned: false, days: this.dayGroups().filter(day => !this.monthStore.isPlanned(day.date))},
+  ].filter(section => section.days.length > 0));
 
   countOfType(type: TransactionType | null): number {
     const filters = {...this.filters(), type};
@@ -81,6 +85,7 @@ function dayLabel(dateKey: string, today: Date): string {
   const date = parseDateKey(dateKey);
   const fullDate = format(date, 'EEEE, d MMMM', {locale: pl});
   if (isSameDay(date, today)) return `Dziś · ${fullDate}`;
+  if (isSameDay(date, addDays(today, 1))) return `Jutro · ${fullDate}`;
   if (isSameDay(date, subDays(today, 1))) return `Wczoraj · ${fullDate}`;
   return fullDate.charAt(0).toUpperCase() + fullDate.slice(1);
 }

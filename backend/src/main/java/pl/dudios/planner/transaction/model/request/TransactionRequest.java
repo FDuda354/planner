@@ -26,7 +26,7 @@ public record TransactionRequest(
   @NotNull(message = "Wybierz datę")
   LocalDate date,
 
-  @NotNull(message = "Wybierz, czyja to transakcja")
+  @NotNull(message = "Wybierz osobę dokonującą transakcji")
   Long memberId,
 
   boolean shared,

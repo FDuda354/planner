@@ -15,8 +15,18 @@
     </p-tablist>
   </p-tabs>
 
+  <p-select [formField]="sectionForm.tab" [options]="tabs" optionLabel="label" optionValue="tab" ariaLabel="Sekcja konfiguracji"
+            appendTo="body" scrollHeight="320px" [fluid]="true" class="settings__select" (onChange)="selectTab($event.value)">
+    <ng-template #selectedItem let-option>
+      <span class="flex flex-row items-center gap-8 settings__option"><i [class]="option.icon" aria-hidden="true"></i>{{ option.label }}</span>
+    </ng-template>
+    <ng-template #item let-option>
+      <span class="flex flex-row items-center gap-8 settings__option"><i [class]="option.icon" aria-hidden="true"></i>{{ option.label }}</span>
+    </ng-template>
+  </p-select>
+
   <section class="panel settings__panel animation-fadeIn">
-    <h2 class="panel__title settings__panel-title">{{ activeLabel() }}</h2>
+    <h2 class="visually-hidden">{{ activeLabel() }}</h2>
     @switch (activeTab()) {
       @case (SettingsTab.CATEGORIES) {
         <p class="muted settings__intro">Na co wydajecie pieniądze. Kategorie widać przy dodawaniu wydatku i w podsumowaniach.</p>

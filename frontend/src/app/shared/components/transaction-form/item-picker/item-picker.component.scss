@@ -49,8 +49,8 @@
   }
 
   &__name {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    min-width: 0;
+    line-height: 18px;
+    overflow-wrap: anywhere;
   }
 }

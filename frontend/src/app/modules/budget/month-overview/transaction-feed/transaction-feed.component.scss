@@ -19,12 +19,6 @@
     margin-bottom: 16px;
   }
 
-  &__scroll {
-    max-width: 100%;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-
   @media (max-width: 640px) {
     &__header {
       margin-bottom: 12px;
@@ -37,11 +31,61 @@
   }
 }
 
+.planned {
+  --planned-color: var(--budget-tag-planned);
+  padding: 14px 8px 6px;
+  border: 1.5px dashed color-mix(in srgb, var(--planned-color) 45%, transparent);
+  border-radius: var(--budget-radius-sm);
+  background: color-mix(in srgb, var(--planned-color) 5%, transparent);
+
+  &__header {
+    padding: 0 4px;
+  }
+
+  &__icon {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    color: var(--planned-color);
+    background: color-mix(in srgb, var(--planned-color) 14%, transparent);
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--planned-color);
+  }
+
+  &__hint {
+    margin: 0;
+    font-size: 12px;
+    line-height: 16px;
+    color: var(--p-text-muted-color);
+  }
+
+  .tx-row:hover {
+    background: color-mix(in srgb, var(--planned-color) 8%, transparent);
+  }
+
+  @media (max-width: 640px) {
+    padding: 12px 4px 4px;
+  }
+}
+
 .day {
   &__header {
     padding: 0 12px 6px;
     border-bottom: 1px solid var(--budget-border);
     margin-bottom: 4px;
+
+    @media (max-width: 640px) {
+      padding: 0 4px 6px;
+    }
   }
 
   &__label {
@@ -76,10 +120,14 @@
   }
 
   &__main {
-    display: flex;
+    display: grid;
     flex: 1;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    grid-template-areas:
+      'icon title amount edit'
+      'icon meta amount edit';
     align-items: center;
-    gap: 14px;
+    column-gap: 14px;
     min-width: 0;
     padding: 10px 4px 10px 12px;
     border: none;
@@ -119,24 +167,25 @@
     }
   }
 
-  &__body {
-    flex: 1;
-    min-width: 0;
+  &__icon {
+    grid-area: icon;
   }
 
   &__title {
-    overflow: hidden;
+    grid-area: title;
     font-weight: 600;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    overflow-wrap: anywhere;
   }
 
   &__meta {
+    grid-area: meta;
+    gap: 2px 6px;
     font-size: 12px;
     color: var(--p-text-muted-color);
   }
 
   &__amount {
+    grid-area: amount;
     font-size: 15px;
 
     &.amount--expense {
@@ -145,10 +194,27 @@
   }
 
   &__edit {
+    grid-area: edit;
     width: 16px;
     font-size: 13px;
     color: var(--p-text-muted-color);
     opacity: 0;
     transition: opacity 0.15s ease;
+  }
+
+  @media (max-width: 640px) {
+    &__main {
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      grid-template-areas:
+        'icon title amount'
+        'icon meta meta';
+      column-gap: 12px;
+      padding: 10px 4px;
+    }
+
+    &__edit,
+    &__delete {
+      display: none;
+    }
   }
 }

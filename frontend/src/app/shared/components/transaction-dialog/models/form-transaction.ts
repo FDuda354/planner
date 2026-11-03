@@ -49,5 +49,5 @@ export const transactionSchema = schema<TransactionFormModel>((path) => {
   min(path.amount, 0.01, {message: 'Kwota musi być większa od zera'});
   required(path.itemId, {message: 'Wybierz kategorię'});
   required(path.date, {message: 'Wybierz datę'});
-  required(path.memberId, {message: 'Wybierz, czyja to transakcja'});
+  required(path.memberId, {message: 'Wybierz osobę dokonującą transakcji'});
 });

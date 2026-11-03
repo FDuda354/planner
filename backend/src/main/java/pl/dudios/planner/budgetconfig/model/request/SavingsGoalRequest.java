@@ -17,7 +17,7 @@ public record SavingsGoalRequest(
   String name,
 
   @NotBlank(message = "Wybierz ikonę")
-  @Pattern(regexp = "^pi-[a-z0-9-]{1,37}$", message = "Niepoprawna ikona")
+  @Pattern(regexp = "^(pi|ti)-[a-z0-9-]{1,37}$", message = "Niepoprawna ikona")
   String icon,
 
   @NotBlank(message = "Wybierz kolor")

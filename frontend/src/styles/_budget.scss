@@ -15,6 +15,7 @@
   --budget-tag-shared: #15803d;
   --budget-tag-recurring: #c2410c;
   --budget-tag-frequency: #6d28d9;
+  --budget-tag-planned: #4f46e5;
 }
 
 .my-app-dark {
@@ -32,6 +33,7 @@
   --budget-tag-shared: #4ade80;
   --budget-tag-recurring: #fb923c;
   --budget-tag-frequency: #a78bfa;
+  --budget-tag-planned: #818cf8;
 }
 
 [data-transaction-type] {
@@ -58,6 +60,7 @@
 
   &__header {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
@@ -101,6 +104,8 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  box-sizing: border-box;
+  max-width: 100%;
   padding: 6px 12px;
   border: 1.5px solid var(--budget-border);
   border-radius: 999px;
@@ -108,7 +113,6 @@
   color: var(--p-text-color);
   font: inherit;
   font-size: 13px;
-  white-space: nowrap;
   cursor: pointer;
   transition: border-color 0.15s ease, background-color 0.15s ease;
 
@@ -137,11 +141,11 @@
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  margin-left: 4px;
   padding: 1px 7px;
   border-radius: 999px;
   font-size: 11px;
   font-weight: 600;
+  white-space: nowrap;
   color: var(--badge-color);
   background: color-mix(in srgb, var(--badge-color) 16%, transparent);
 
