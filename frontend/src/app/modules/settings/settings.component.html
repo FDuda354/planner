@@ -41,7 +41,7 @@
         <app-budget-item-list [kind]="TransactionType.SAVING" [items]="configStore.savingsGoals()" addLabel="Dodaj cel"/>
       }
       @case (SettingsTab.RECURRING) {
-        <app-recurring-transactions/>
+        <app-recurring-transactions [editId]="edit()"/>
       }
       @case (SettingsTab.HOUSEHOLD) {
         <app-household-members/>

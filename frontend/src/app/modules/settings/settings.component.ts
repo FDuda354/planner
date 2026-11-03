@@ -36,6 +36,7 @@ export class SettingsComponent {
   readonly appearance = inject(AppearanceService);
 
   readonly tab = input<string>();
+  readonly edit = input<string>();
   readonly darkModeInputId = 'settings-dark-mode';
 
   readonly tabs: SettingsTabOption[] = [

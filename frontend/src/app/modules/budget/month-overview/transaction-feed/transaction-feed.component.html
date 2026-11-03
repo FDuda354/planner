@@ -90,7 +90,7 @@
                 }
                 @for (recurring of group.recurring; track recurring.id) {
                   <div class="tx-row">
-                    <a class="tx-row__main" [routerLink]="AppRoute.SETTINGS" [queryParams]="{tab: 'recurring'}"
+                    <a class="tx-row__main" [routerLink]="AppRoute.SETTINGS" [queryParams]="{tab: 'recurring', edit: recurring.id}"
                        pTooltip="Edytuj w konfiguracji" tooltipPosition="left">
                       <ng-container [ngTemplateOutlet]="rowContent" [ngTemplateOutletContext]="{$implicit: recurring, recurring: true}"/>
                     </a>
