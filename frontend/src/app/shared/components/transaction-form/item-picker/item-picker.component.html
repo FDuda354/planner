@@ -1,17 +1,20 @@
-<div class="item-grid" role="group" [attr.aria-label]="label()">
-  @for (item of items(); track item.id) {
-    <button type="button"
-            class="item-tile"
-            [style.--item-color]="item.color"
-            [class.item-tile--selected]="value() === item.id"
-            [attr.aria-pressed]="value() === item.id"
-            (click)="changed.emit(item.id)">
-      <ui-item-icon [icon]="item.icon" [color]="item.color" size="sm"/>
-      <span class="item-tile__name">{{ item.name }}</span>
-    </button>
-  } @empty {
-    <div class="item-grid__empty">
-      <ng-content/>
-    </div>
-  }
-</div>
+<fieldset>
+  <legend class="overline item-picker__label">{{ label() }}</legend>
+  <div class="item-grid">
+    @for (item of items(); track item.id) {
+      <button type="button"
+              class="item-tile"
+              [style.--item-color]="item.color"
+              [class.item-tile--selected]="value() === item.id"
+              [attr.aria-pressed]="value() === item.id"
+              (click)="changed.emit(item.id)">
+        <ui-item-icon [icon]="item.icon" [color]="item.color" size="sm"/>
+        <span class="item-tile__name">{{ item.name }}</span>
+      </button>
+    } @empty {
+      <div class="item-grid__empty">
+        <ng-content/>
+      </div>
+    }
+  </div>
+</fieldset>

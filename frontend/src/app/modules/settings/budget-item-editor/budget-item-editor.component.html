@@ -31,9 +31,9 @@
       </p-iconfield>
       <div class="flex flex-col gap-16 icon-picker">
         @for (group of iconGroups(); track group.label) {
-          <div class="flex flex-col gap-8">
-            <span class="icon-picker__group">{{ group.label }}</span>
-            <div class="icon-grid" role="group" [attr.aria-label]="group.label">
+          <fieldset>
+            <legend class="icon-picker__group">{{ group.label }}</legend>
+            <div class="icon-grid">
               @for (icon of group.icons; track icon.name) {
                 <button type="button"
                         class="icon-grid__option"
@@ -47,7 +47,7 @@
                 </button>
               }
             </div>
-          </div>
+          </fieldset>
         } @empty {
           <p class="muted icon-picker__empty">Nie ma ikony pasującej do „{{ iconSearch() }}”. Spróbuj innego słowa.</p>
         }

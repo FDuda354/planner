@@ -22,19 +22,9 @@
     }
   </div>
 
-  <div class="flex flex-col balance__hero">
-    <span class="overline">{{ isOverspent() ? 'Wydaliście więcej niż wpłynęło' : (store.isCurrentMonth() ? 'Zostało do dyspozycji' : 'Zostało na koniec miesiąca') }}</span>
-    <span class="balance__amount">{{ store.balance() | money }}</span>
-  </div>
+  <span class="balance__amount">{{ store.balance() | money }}</span>
 
-  <div class="flex flex-col gap-8">
-    <div class="flex flex-row items-center justify-between gap-8 balance__income">
-      <span class="flex flex-row items-center gap-8">
-        <span class="balance__income-icon"><i class="pi pi-arrow-down-left" aria-hidden="true"></i></span>
-        Wpływy
-      </span>
-      <span class="amount amount--income">{{ store.income() | money }}</span>
-    </div>
+  <div>
     <div class="balance__flow" aria-hidden="true">
       @for (segment of flow(); track segment.kind) {
         <span class="balance__flow-segment" [class]="'balance__flow-segment--' + segment.kind"

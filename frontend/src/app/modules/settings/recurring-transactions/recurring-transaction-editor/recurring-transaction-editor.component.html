@@ -66,7 +66,6 @@
     </div>
 
     <div class="flex flex-col gap-8">
-      <span class="overline">{{ itemLabel() }}</span>
       <ui-item-picker [label]="itemLabel()" [items]="items()" [value]="model().itemId" (changed)="selectItem($event)">
         Brak pozycji tego rodzaju — dodaj je w zakładkach konfiguracji powyżej.
       </ui-item-picker>

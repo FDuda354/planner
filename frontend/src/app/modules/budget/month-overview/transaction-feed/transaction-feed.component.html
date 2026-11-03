@@ -65,10 +65,7 @@
           @if (section.planned) {
             <div class="flex flex-row items-center gap-12 planned__header">
               <span class="planned__icon"><i class="pi pi-clock" aria-hidden="true"></i></span>
-              <div class="flex flex-col">
-                <h3 class="planned__title">Zaplanowane</h3>
-                <p class="planned__hint">Nie wliczają się jeszcze do „Zostało do dyspozycji”, tylko do kwoty przewidywanej</p>
-              </div>
+              <h3 class="planned__title">Zaplanowane</h3>
             </div>
           }
           @for (group of section.days; track group.date) {

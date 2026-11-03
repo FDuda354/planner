@@ -61,13 +61,6 @@
     color: var(--planned-color);
   }
 
-  &__hint {
-    margin: 0;
-    font-size: 12px;
-    line-height: 16px;
-    color: var(--p-text-muted-color);
-  }
-
   .tx-row:hover {
     background: color-mix(in srgb, var(--planned-color) 8%, transparent);
   }

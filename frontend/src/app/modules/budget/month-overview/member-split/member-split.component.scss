@@ -6,6 +6,20 @@
   height: 100%;
   box-sizing: border-box;
 
+  &__kind {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    .pi {
+      font-size: 11px;
+    }
+
+    &.segmented__option--active .pi {
+      color: var(--type-color);
+    }
+  }
+
   &__bar {
     display: flex;
     gap: 3px;

@@ -8,7 +8,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import pl.dudios.planner.budgetconfig.model.ExpenseCategory;
 import pl.dudios.planner.budgetconfig.model.IncomeSource;
 import pl.dudios.planner.budgetconfig.model.SavingsGoal;
 import pl.dudios.planner.budgetconfig.repository.ExpenseCategoryRepository;
@@ -56,7 +55,6 @@ class RecurringTransactionServiceTest {
 
   private static final Long HOUSEHOLD_ID = 10L;
   private static final Long KLAUDIA_ID = 2L;
-  private static final Long CATEGORY_ID = 100L;
   private static final Long SALARY_ID = 200L;
   private static final Long GOAL_ID = 300L;
 

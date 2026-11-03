@@ -6,6 +6,7 @@ type SplitKind = TransactionType.EXPENSE | TransactionType.INCOME;
 
 interface SplitCopy {
   label: string;
+  icon: string;
   title: string;
   subtitle: string;
   shareLabel: string;
@@ -16,6 +17,7 @@ interface SplitCopy {
 const SPLIT_COPY: Record<SplitKind, SplitCopy> = {
   [TransactionType.EXPENSE]: {
     label: 'Wydatki',
+    icon: 'pi pi-arrow-up-right',
     title: 'Kto ile wydał na siebie',
     subtitle: 'Bez wydatków na dobro wspólne',
     shareLabel: 'wydatków osobistych',
@@ -24,6 +26,7 @@ const SPLIT_COPY: Record<SplitKind, SplitCopy> = {
   },
   [TransactionType.INCOME]: {
     label: 'Wpływy',
+    icon: 'pi pi-arrow-down-left',
     title: 'Kto ile wpłacił do budżetu',
     subtitle: 'Bez wspólnych wpływów',
     shareLabel: 'wpływów osobistych',
@@ -50,5 +53,9 @@ export class MemberSplitComponent {
 
   labelOf(kind: SplitKind): string {
     return SPLIT_COPY[kind].label;
+  }
+
+  iconOf(kind: SplitKind): string {
+    return SPLIT_COPY[kind].icon;
   }
 }

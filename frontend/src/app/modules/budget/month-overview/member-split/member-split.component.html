@@ -6,8 +6,10 @@
     </div>
     <div class="segmented" role="radiogroup" aria-label="Wydatki czy wpływy">
       @for (option of kinds; track option) {
-        <label class="segmented__option radio-option" [class.segmented__option--active]="kind() === option">
+        <label class="segmented__option radio-option members__kind" [class.segmented__option--active]="kind() === option"
+               [attr.data-transaction-type]="option">
           <input type="radio" name="member-split-kind" [checked]="kind() === option" (change)="kind.set(option)">
+          <i [class]="iconOf(option)" aria-hidden="true"></i>
           {{ labelOf(option) }}
         </label>
       }

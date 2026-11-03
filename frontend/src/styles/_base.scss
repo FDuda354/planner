@@ -3,6 +3,17 @@ dd {
   margin: 0;
 }
 
+fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+legend {
+  padding: 0;
+}
+
 .p-error {
   color: var(--p-red-500, #ef4444);
   font-size: 14px;

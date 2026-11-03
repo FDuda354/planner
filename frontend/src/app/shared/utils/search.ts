@@ -8,5 +8,5 @@ export function matchesSearch(query: string, entry: {note: string; amount: numbe
 }
 
 export function normalizeForSearch(text: string): string {
-  return text.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').replace(/ł/g, 'l');
+  return text.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').replaceAll('ł', 'l');
 }

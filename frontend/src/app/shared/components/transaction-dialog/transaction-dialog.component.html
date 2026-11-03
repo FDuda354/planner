@@ -36,7 +36,6 @@
     </div>
 
     <div class="flex flex-col gap-8">
-      <span class="overline">{{ itemLabel() }}</span>
       <ui-item-picker [label]="itemLabel()" [items]="items()" [value]="model().itemId" (changed)="selectItem($event)">
         Brak pozycji tego rodzaju.
         <a [routerLink]="AppRoute.SETTINGS" (click)="onVisibleChange(false)">Dodaj je w konfiguracji</a>
