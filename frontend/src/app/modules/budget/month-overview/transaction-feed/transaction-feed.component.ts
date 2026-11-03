@@ -8,6 +8,9 @@ import {TransactionDeletionService} from '../../../../services/transaction-delet
 import {amountSignOf, belongsToNobody, Transaction, TransactionType} from '../../../../models/transaction.model';
 import {BudgetItem} from '../../../../models/budget-item.model';
 import {Member} from '../../../../models/member.model';
+import {AppRoute} from '../../../../app-routes';
+
+type FeedRowEntry = Pick<Transaction, 'type' | 'itemId' | 'memberId' | 'shared'>;
 
 @Component({
   selector: 'app-transaction-feed',
@@ -23,6 +26,7 @@ export class TransactionFeedComponent {
   private readonly deletion = inject(TransactionDeletionService);
   private readonly configStore = inject(BudgetConfigStore);
   readonly householdStore = inject(HouseholdStore);
+  protected readonly AppRoute = AppRoute;
 
   readonly selectedCategory = computed(() => {
     const categoryId = this.feed.filters().categoryId;
@@ -32,20 +36,20 @@ export class TransactionFeedComponent {
   readonly isFirstLoad = computed(() => this.store.data.isLoading() && this.store.transactions().length === 0);
   readonly countOfType = (type: TransactionType | null) => this.feed.countOfType(type);
 
-  itemOf(transaction: Transaction): BudgetItem | undefined {
-    return this.configStore.itemOf(transaction.type, transaction.itemId);
+  itemOf(entry: FeedRowEntry): BudgetItem | undefined {
+    return this.configStore.itemOf(entry.type, entry.itemId);
   }
 
-  isAssignedToMember(transaction: Transaction): boolean {
-    return !belongsToNobody(transaction);
+  isAssignedToMember(entry: FeedRowEntry): boolean {
+    return !belongsToNobody(entry);
   }
 
-  memberOf(transaction: Transaction): Member | undefined {
-    return this.householdStore.memberOf(transaction.memberId);
+  memberOf(entry: FeedRowEntry): Member | undefined {
+    return this.householdStore.memberOf(entry.memberId);
   }
 
-  signOf(transaction: Transaction): string {
-    return amountSignOf(transaction.type);
+  signOf(entry: FeedRowEntry): string {
+    return amountSignOf(entry.type);
   }
 
   deleteLabel(transaction: Transaction): string {

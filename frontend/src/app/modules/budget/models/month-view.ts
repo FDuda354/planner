@@ -1,6 +1,7 @@
 import {BudgetItem} from '../../../models/budget-item.model';
 import {Member} from '../../../models/member.model';
 import {Transaction} from '../../../models/transaction.model';
+import {RecurringTransaction} from '../../../models/recurring-transaction.model';
 
 export interface MonthTransactions {
   current: Transaction[];
@@ -25,6 +26,7 @@ export interface DayGroup {
   label: string;
   expenses: number;
   transactions: Transaction[];
+  recurring: RecurringTransaction[];
 }
 
 export interface FeedSection {

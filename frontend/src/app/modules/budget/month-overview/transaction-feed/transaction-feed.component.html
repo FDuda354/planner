@@ -4,9 +4,9 @@
       <h2 class="panel__title">Transakcje</h2>
       <p class="panel__subtitle">
         @if (feed.isFiltered()) {
-          {{ feed.filteredTransactions().length }} z {{ store.transactions().length }} pasujących
+          {{ feed.filteredEntryCount() }} z {{ feed.entryCount() }} pasujących
         } @else {
-          {{ store.transactions().length }} w tym miesiącu
+          {{ feed.entryCount() }} w tym miesiącu
         }
       </p>
     </div>
@@ -47,7 +47,7 @@
         </div>
       }
     </div>
-  } @else if (store.transactions().length === 0) {
+  } @else if (!feed.hasEntries()) {
     <ui-empty-state icon="pi-receipt" title="Pusto tutaj" text="Ten miesiąc nie ma jeszcze żadnych transakcji.">
       <button pButton type="button" class="action-button--solid feed__empty-action" (click)="editor.create()">
         <i class="pi pi-plus" aria-hidden="true"></i>
@@ -78,37 +78,22 @@
               </div>
               <div class="flex flex-col">
                 @for (transaction of group.transactions; track transaction.id) {
-                  @let item = itemOf(transaction);
                   <div class="tx-row">
                     <button type="button" class="tx-row__main" (click)="editor.edit(transaction)">
-                      <ui-item-icon class="tx-row__icon" [icon]="item?.icon ?? 'pi-question'" [color]="item?.color ?? '#94a3b8'"/>
-                      <span class="tx-row__title">{{ transaction.note || item?.name }}</span>
-                      <span class="flex flex-row flex-wrap items-center tx-row__meta">
-                        @if (transaction.note) {
-                          <span>{{ item?.name }} <span aria-hidden="true">·</span></span>
-                        }
-                        @if (isAssignedToMember(transaction)) {
-                          <span class="flex flex-row items-center gap-4">
-                            <ui-member-avatar [member]="memberOf(transaction)" size="xs"/>
-                            {{ memberOf(transaction)?.firstName }}
-                          </span>
-                        }
-                        @if (transaction.shared) {
-                          <span class="meta-badge meta-badge--shared"><i class="pi pi-home" aria-hidden="true"></i>dobro wspólne</span>
-                        }
-                        @if (transaction.recurring) {
-                          <span class="meta-badge meta-badge--recurring"><i class="pi pi-sync" aria-hidden="true"></i>cykliczna</span>
-                        }
-                      </span>
-                      <span class="amount tx-row__amount" [class]="'amount--' + transaction.type.toLowerCase()">
-                        {{ signOf(transaction) }}{{ transaction.amount | money }}
-                      </span>
-                      <i class="pi pi-pencil tx-row__edit" aria-hidden="true"></i>
+                      <ng-container [ngTemplateOutlet]="rowContent" [ngTemplateOutletContext]="{$implicit: transaction, recurring: transaction.recurring}"/>
                     </button>
                     <button type="button" class="tx-row__delete" pTooltip="Usuń" tooltipPosition="left"
                             [attr.aria-label]="deleteLabel(transaction)" (click)="confirmDeletion(transaction, $event)">
                       <i class="pi pi-trash" aria-hidden="true"></i>
                     </button>
+                  </div>
+                }
+                @for (recurring of group.recurring; track recurring.id) {
+                  <div class="tx-row">
+                    <a class="tx-row__main" [routerLink]="AppRoute.SETTINGS" [queryParams]="{tab: 'recurring'}"
+                       pTooltip="Edytuj w konfiguracji" tooltipPosition="left">
+                      <ng-container [ngTemplateOutlet]="rowContent" [ngTemplateOutletContext]="{$implicit: recurring, recurring: true}"/>
+                    </a>
                   </div>
                 }
               </div>
@@ -119,3 +104,30 @@
     </div>
   }
 </section>
+
+<ng-template #rowContent let-entry let-recurring="recurring">
+  @let item = itemOf(entry);
+  <ui-item-icon class="tx-row__icon" [icon]="item?.icon ?? 'pi-question'" [color]="item?.color ?? '#94a3b8'"/>
+  <span class="tx-row__title">{{ entry.note || item?.name }}</span>
+  <span class="flex flex-row flex-wrap items-center tx-row__meta">
+    @if (entry.note) {
+      <span>{{ item?.name }} <span aria-hidden="true">·</span></span>
+    }
+    @if (isAssignedToMember(entry)) {
+      <span class="flex flex-row items-center gap-4">
+        <ui-member-avatar [member]="memberOf(entry)" size="xs"/>
+        {{ memberOf(entry)?.firstName }}
+      </span>
+    }
+    @if (entry.shared) {
+      <span class="meta-badge meta-badge--shared"><i class="pi pi-home" aria-hidden="true"></i>dobro wspólne</span>
+    }
+    @if (recurring) {
+      <span class="meta-badge meta-badge--recurring"><i class="pi pi-sync" aria-hidden="true"></i>cykliczna</span>
+    }
+  </span>
+  <span class="amount tx-row__amount" [class]="'amount--' + entry.type.toLowerCase()">
+    {{ signOf(entry) }}{{ entry.amount | money }}
+  </span>
+  <i class="pi pi-pencil tx-row__edit" aria-hidden="true"></i>
+</ng-template>

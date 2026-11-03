@@ -3,14 +3,15 @@ import {addDays, format, isSameDay, subDays} from 'date-fns';
 import {pl} from 'date-fns/locale';
 import {BudgetConfigStore} from '../../../stores/budget-config.store';
 import {CalendarStore} from '../../../stores/calendar.store';
-import {Transaction, TransactionType} from '../../../models/transaction.model';
+import {TransactionType} from '../../../models/transaction.model';
 import {parseDateKey} from '../../../shared/utils/month';
 import {sumAmounts} from '../../../shared/utils/money';
 import {
-  hasTransactionFilters, matchesTransactionFilters, NO_TRANSACTION_FILTERS, TransactionFilters, withSharedOnly, withType
+  FilterableTransaction, hasTransactionFilters, matchesTransactionFilters, NO_TRANSACTION_FILTERS, TransactionFilters, withSharedOnly, withType
 } from '../../../shared/utils/transaction-filters';
 import {DayGroup, FeedSection} from '../models/month-view';
 import {MonthStore} from './month.store';
+import {MonthForecastStore} from './month-forecast.store';
 
 export interface FeedFilters extends TransactionFilters {
   categoryId: number | null;
@@ -23,21 +24,20 @@ export class TransactionFeedStore {
   private readonly monthStore = inject(MonthStore);
   private readonly configStore = inject(BudgetConfigStore);
   private readonly calendar = inject(CalendarStore);
+  private readonly forecast = inject(MonthForecastStore);
 
   private readonly _filters = linkedSignal<string, FeedFilters>({source: this.monthStore.month, computation: () => NO_FILTERS});
   readonly filters = this._filters.asReadonly();
   readonly isFiltered = computed(() => hasTransactionFilters(this.filters()) || this.filters().categoryId !== null);
 
   readonly filteredTransactions = computed(() => this.monthStore.transactions().filter(t => this.matchesFilters(t, this.filters())));
+  readonly filteredRecurring = computed(() => this.forecast.upcomingRecurring().filter(r => this.matchesFilters(r, this.filters())));
+  readonly entryCount = computed(() => this.monthStore.transactions().length + this.forecast.upcomingRecurring().length);
+  readonly filteredEntryCount = computed(() => this.filteredTransactions().length + this.filteredRecurring().length);
+  readonly hasEntries = computed(() => this.entryCount() > 0);
   readonly dayGroups = computed<DayGroup[]>(() => {
-    const groups = new Map<string, Transaction[]>();
-    this.filteredTransactions().forEach(t => groups.set(t.date, [...(groups.get(t.date) ?? []), t]));
-    return [...groups.entries()].map(([date, transactions]) => ({
-      date,
-      label: dayLabel(date, this.calendar.today()),
-      expenses: sumAmounts(transactions.filter(t => t.type === TransactionType.EXPENSE)),
-      transactions,
-    }));
+    const dates = new Set([...this.filteredTransactions().map(t => t.date), ...this.filteredRecurring().map(r => r.nextOccurrence)]);
+    return [...dates].sort((a, b) => b.localeCompare(a)).map(date => this.dayGroupOf(date));
   });
   readonly sections = computed<FeedSection[]>(() => [
     {planned: true, days: this.dayGroups().filter(day => this.monthStore.isPlanned(day.date))},
@@ -46,7 +46,7 @@ export class TransactionFeedStore {
 
   countOfType(type: TransactionType | null): number {
     const filters = {...this.filters(), type};
-    return this.monthStore.transactions().filter(t => this.matchesFilters(t, filters)).length;
+    return [...this.monthStore.transactions(), ...this.forecast.upcomingRecurring()].filter(entry => this.matchesFilters(entry, filters)).length;
   }
 
   selectType(type: TransactionType | null): void {
@@ -75,11 +75,25 @@ export class TransactionFeedStore {
     this._filters.set(NO_FILTERS);
   }
 
-  private matchesFilters(transaction: Transaction, filters: FeedFilters): boolean {
-    return matchesTransactionFilters(transaction, filters, this.configStore.itemOf(transaction.type, transaction.itemId)?.name)
-           && (filters.categoryId === null || (transaction.type === TransactionType.EXPENSE && transaction.itemId === filters.categoryId));
+  private dayGroupOf(date: string): DayGroup {
+    const transactions = this.filteredTransactions().filter(t => t.date === date);
+    const recurring = this.filteredRecurring().filter(r => r.nextOccurrence === date);
+    return {
+      date,
+      label: dayLabel(date, this.calendar.today()),
+      expenses: sumAmounts([...transactions, ...recurring].filter(entry => entry.type === TransactionType.EXPENSE)),
+      transactions,
+      recurring,
+    };
+  }
+
+  private matchesFilters(entry: FeedEntry, filters: FeedFilters): boolean {
+    return matchesTransactionFilters(entry, filters, this.configStore.itemOf(entry.type, entry.itemId)?.name)
+           && (filters.categoryId === null || (entry.type === TransactionType.EXPENSE && entry.itemId === filters.categoryId));
   }
 }
+
+type FeedEntry = FilterableTransaction & {itemId: number};
 
 function dayLabel(dateKey: string, today: Date): string {
   const date = parseDateKey(dateKey);
