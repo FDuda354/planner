@@ -1,7 +1,7 @@
 import {ChangeDetectionStrategy, Component, computed, inject, signal} from '@angular/core';
 import {ChartConfiguration} from 'chart.js';
 import {MonthStore} from '../../stores/month.store';
-import {TransactionFeedStore} from '../../stores/transaction-feed.store';
+import {TransactionFeedStore} from '../../../../shared/components/transaction-feed/transaction-feed.store';
 import {AppearanceService} from '../../../../services/appearance.service';
 import {chartTheme, moneyTooltip} from '../../../../shared/utils/chart-theme';
 
@@ -28,7 +28,7 @@ export class CategoryBreakdownComponent {
   readonly chart = computed<ChartConfiguration>(() => {
     const theme = chartTheme(this.appearance.darkMode());
     const shares = this.store.categoryShares();
-    const selected = this.feed.filters().categoryId;
+    const selected = this.feed.selectedCategoryId();
     return {
       type: 'doughnut',
       data: {

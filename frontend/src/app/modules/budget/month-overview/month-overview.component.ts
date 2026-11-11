@@ -1,7 +1,10 @@
 import {ChangeDetectionStrategy, Component, effect, inject, input} from '@angular/core';
 import {MonthStore} from '../stores/month.store';
 import {MonthForecastStore} from '../stores/month-forecast.store';
-import {TransactionFeedStore} from '../stores/transaction-feed.store';
+import {MonthFeedSource} from '../stores/month-feed-source';
+import {UpcomingRecurringStore} from '../../../stores/upcoming-recurring.store';
+import {TransactionFeedStore} from '../../../shared/components/transaction-feed/transaction-feed.store';
+import {TransactionFeedSource} from '../../../shared/components/transaction-feed/transaction-feed-source';
 
 @Component({
   selector: 'app-month-overview',
@@ -9,7 +12,13 @@ import {TransactionFeedStore} from '../stores/transaction-feed.store';
   styleUrl: './month-overview.component.scss',
   standalone: false,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [MonthStore, TransactionFeedStore, MonthForecastStore],
+  providers: [
+    MonthStore,
+    MonthForecastStore,
+    UpcomingRecurringStore,
+    TransactionFeedStore,
+    {provide: TransactionFeedSource, useClass: MonthFeedSource},
+  ],
 })
 export class MonthOverviewComponent {
   readonly store = inject(MonthStore);

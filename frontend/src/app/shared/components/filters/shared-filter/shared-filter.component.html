@@ -1,5 +1,9 @@
-<button type="button" class="choice-chip" [class.choice-chip--active]="active()" [attr.aria-pressed]="active()"
-        (click)="changed.emit(!active())">
-  <i class="pi pi-home" aria-hidden="true"></i>
-  Dobro wspólne
-</button>
+<div class="flex flex-row flex-wrap items-center gap-8">
+  @for (option of options; track option.shared) {
+    <button type="button" class="choice-chip" [class.choice-chip--active]="value() === option.shared" [attr.aria-pressed]="value() === option.shared"
+            (click)="toggle(option)">
+      <i [class]="option.icon" aria-hidden="true"></i>
+      {{ option.label }}
+    </button>
+  }
+</div>

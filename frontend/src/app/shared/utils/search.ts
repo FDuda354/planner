@@ -1,10 +1,10 @@
 export function matchesSearch(query: string, entry: {note: string; amount: number}, itemName: string | undefined): boolean {
-  const normalizedQuery = query.trim().toLowerCase();
+  const normalizedQuery = normalizeForSearch(query.trim());
   if (normalizedQuery === '') {
     return true;
   }
   const amount = entry.amount.toFixed(2);
-  return `${entry.note} ${itemName ?? ''} ${amount} ${amount.replace('.', ',')}`.toLowerCase().includes(normalizedQuery);
+  return normalizeForSearch(`${entry.note} ${itemName ?? ''} ${amount} ${amount.replace('.', ',')}`).includes(normalizedQuery);
 }
 
 export function normalizeForSearch(text: string): string {

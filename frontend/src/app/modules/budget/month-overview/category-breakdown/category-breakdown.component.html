@@ -22,9 +22,9 @@
         <button type="button"
                 class="category-row"
                 [style.--item-color]="share.item.color"
-                [class.category-row--active]="feed.filters().categoryId === share.item.id"
-                [class.category-row--dimmed]="feed.filters().categoryId !== null && feed.filters().categoryId !== share.item.id"
-                [attr.aria-pressed]="feed.filters().categoryId === share.item.id"
+                [class.category-row--active]="feed.selectedCategoryId() === share.item.id"
+                [class.category-row--dimmed]="feed.selectedCategoryId() !== null && feed.selectedCategoryId() !== share.item.id"
+                [attr.aria-pressed]="feed.selectedCategoryId() === share.item.id"
                 (click)="feed.toggleCategory(share.item.id)">
           <ui-item-icon [icon]="share.item.icon" [color]="share.item.color" size="sm"/>
           <div class="flex flex-col category-row__body">

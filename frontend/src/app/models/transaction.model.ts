@@ -108,3 +108,13 @@ const ITEM_LABELS: Record<TransactionType, string> = {
 export function itemLabelOf(type: TransactionType): string {
   return ITEM_LABELS[type];
 }
+
+const ITEM_GROUP_LABELS: Record<TransactionType, string> = {
+  [TransactionType.EXPENSE]: 'Kategorie wydatków',
+  [TransactionType.INCOME]: 'Źródła dochodu',
+  [TransactionType.SAVING]: 'Cele',
+};
+
+export function itemGroupLabelOf(type: TransactionType): string {
+  return ITEM_GROUP_LABELS[type];
+}

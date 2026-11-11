@@ -23,6 +23,7 @@ import {Tag} from 'primeng/tag';
 import {Divider} from 'primeng/divider';
 import {Message} from 'primeng/message';
 import {Checkbox} from 'primeng/checkbox';
+import {Paginator} from 'primeng/paginator';
 import {MoneyPipe} from './pipes/money.pipe';
 import {IconClassPipe} from './pipes/icon-class.pipe';
 import {ChartDirective} from './components/ui/chart/chart.directive';
@@ -38,16 +39,18 @@ import {TransactionDialogComponent} from './components/transaction-dialog/transa
 import {TypeSwitchComponent} from './components/transaction-form/type-switch/type-switch.component';
 import {ItemPickerComponent} from './components/transaction-form/item-picker/item-picker.component';
 import {SharedToggleComponent} from './components/transaction-form/shared-toggle/shared-toggle.component';
+import {TransactionFeedComponent} from './components/transaction-feed/transaction-feed.component';
+import {TransactionFeedFiltersComponent} from './components/transaction-feed/transaction-feed-filters/transaction-feed-filters.component';
 
 const PRIME_COMPONENTS = [
   ButtonDirective, Toast, ConfirmDialog, ConfirmPopup, Dialog, InputText, InputNumber, InputPassword, DatePicker, IconField,
-  InputIcon, AutoFocus, ToggleSwitch, Select, Tabs, TabList, Tab, Tooltip, Skeleton, Tag, Divider, Message, Checkbox,
+  InputIcon, AutoFocus, ToggleSwitch, Select, Tabs, TabList, Tab, Tooltip, Skeleton, Tag, Divider, Message, Checkbox, Paginator,
 ];
 
 const SHARED_DECLARATIONS = [
   MoneyPipe, IconClassPipe, ChartDirective, ItemIconComponent, MemberAvatarComponent, ProgressRingComponent, EmptyStateComponent, FieldErrorComponent,
   TransactionDialogComponent, TypeFilterComponent, MemberPickerComponent, SharedFilterComponent,
-  TypeSwitchComponent, ItemPickerComponent, SharedToggleComponent,
+  TypeSwitchComponent, ItemPickerComponent, SharedToggleComponent, TransactionFeedComponent, TransactionFeedFiltersComponent,
 ];
 
 @NgModule({

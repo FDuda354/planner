@@ -40,6 +40,10 @@
     grid-column: span 12;
   }
 
+  &__feed {
+    margin-top: 20px;
+  }
+
   @media (max-width: 1200px) {
     &__cashflow,
     &__income {

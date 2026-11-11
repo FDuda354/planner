@@ -6,35 +6,20 @@
         @if (feed.isFiltered()) {
           {{ feed.filteredEntryCount() }} z {{ feed.entryCount() }} pasujących
         } @else {
-          {{ feed.entryCount() }} w tym miesiącu
+          {{ feed.entryCount() }} {{ periodLabel() }}
         }
       </p>
     </div>
     <p-iconfield class="feed__search">
       <p-inputicon class="pi pi-search"/>
-      <input pInputText type="search" placeholder="Szukaj…" aria-label="Szukaj transakcji"
+      <input pInputText type="search" placeholder="Szukaj po nazwie…" aria-label="Szukaj transakcji po nazwie"
              [value]="feed.filters().search" (input)="onSearch($event)"/>
     </p-iconfield>
   </div>
 
-  <div class="flex flex-row flex-wrap items-center gap-8 feed__filters">
-    <ui-type-filter name="feed-type" [value]="feed.filters().type" [countOf]="countOfType" (changed)="feed.selectType($event)"/>
-    <ui-member-picker name="feed-member" label="Osoba dokonująca transakcji" noneLabel="Wszyscy" [value]="feed.filters().memberId"
-                      [members]="householdStore.members()" (changed)="feed.selectMember($event)"/>
-    <ui-shared-filter [active]="feed.filters().sharedOnly" (changed)="feed.selectSharedOnly($event)"/>
-    @if (selectedCategory(); as category) {
-      <button type="button" class="choice-chip choice-chip--active" (click)="feed.toggleCategory(category.id)">
-        <i [class]="category.icon | iconClass" aria-hidden="true"></i>
-        {{ category.name }}
-        <i class="pi pi-times" aria-label="Usuń filtr"></i>
-      </button>
-    }
-    @if (feed.isFiltered()) {
-      <button pButton type="button" variant="text" severity="secondary" (click)="feed.clearFilters()">Wyczyść filtry</button>
-    }
-  </div>
+  <app-transaction-feed-filters class="feed__filters"/>
 
-  @if (isFirstLoad()) {
+  @if (feed.isFirstLoad()) {
     <div class="flex flex-col gap-12">
       @for (row of [1, 2, 3, 4, 5]; track row) {
         <div class="flex flex-row items-center gap-12">
@@ -48,45 +33,44 @@
       }
     </div>
   } @else if (!feed.hasEntries()) {
-    <ui-empty-state icon="pi-receipt" title="Pusto tutaj" text="Ten miesiąc nie ma jeszcze żadnych transakcji.">
+    <ui-empty-state icon="pi-receipt" title="Pusto tutaj" [text]="emptyText()">
       <button pButton type="button" class="action-button--solid feed__empty-action" (click)="editor.create()">
         <i class="pi pi-plus" aria-hidden="true"></i>
         Dodaj pierwszą transakcję
       </button>
     </ui-empty-state>
-  } @else if (feed.dayGroups().length === 0) {
+  } @else if (!feed.hasMatches()) {
     <ui-empty-state icon="pi-filter-slash" title="Nic nie pasuje do filtrów" text="Zmień albo wyczyść filtry, aby zobaczyć transakcje.">
       <button pButton type="button" variant="outlined" (click)="feed.clearFilters()">Wyczyść filtry</button>
     </ui-empty-state>
   } @else {
     <div class="flex flex-col gap-20">
-      @for (section of feed.sections(); track section.planned) {
-        @if (section.planned) {
-          <div class="planned">
-            <h3 class="planned__heading">
-              <button type="button" class="flex flex-row items-center gap-12 planned__toggle" aria-controls="planned-days"
-                      [attr.aria-expanded]="plannedExpanded()" (click)="togglePlanned()">
-                <span class="planned__icon"><i class="pi pi-clock" aria-hidden="true"></i></span>
-                <span class="planned__title">Zaplanowane</span>
-                <span class="planned__count">{{ section.entryCount }}</span>
-                <i class="pi pi-chevron-down planned__chevron animation-rotatable" [class.animation-rotatable--rotated]="plannedExpanded()"
-                   aria-hidden="true"></i>
-              </button>
-            </h3>
-            <div id="planned-days" class="animation-expandable" [class.animation-expandable--expanded]="plannedExpanded()"
-                 [inert]="!plannedExpanded()">
-              <div>
-                <div class="planned__days">
-                  <ng-container [ngTemplateOutlet]="dayList" [ngTemplateOutletContext]="{$implicit: section.days}"/>
-                </div>
+      @if (feed.showsPlanned()) {
+        <div class="planned">
+          <h3 class="planned__heading">
+            <button type="button" class="flex flex-row items-center gap-12 planned__toggle" aria-controls="planned-days"
+                    [attr.aria-expanded]="plannedExpanded()" (click)="togglePlanned()">
+              <span class="planned__icon"><i class="pi pi-clock" aria-hidden="true"></i></span>
+              <span class="planned__title">Zaplanowane</span>
+              <span class="planned__count">{{ feed.plannedCount() }}</span>
+              <i class="pi pi-chevron-down planned__chevron animation-rotatable" [class.animation-rotatable--rotated]="plannedExpanded()"
+                 aria-hidden="true"></i>
+            </button>
+          </h3>
+          <div id="planned-days" class="animation-expandable" [class.animation-expandable--expanded]="plannedExpanded()"
+               [inert]="!plannedExpanded()">
+            <div>
+              <div class="planned__days">
+                <ng-container [ngTemplateOutlet]="dayList" [ngTemplateOutletContext]="{$implicit: feed.plannedDays()}"/>
               </div>
             </div>
           </div>
-        } @else {
-          <div class="flex flex-col gap-20">
-            <ng-container [ngTemplateOutlet]="dayList" [ngTemplateOutletContext]="{$implicit: section.days}"/>
-          </div>
-        }
+        </div>
+      }
+      <ng-container [ngTemplateOutlet]="dayList" [ngTemplateOutletContext]="{$implicit: feed.bookedDays()}"/>
+      @if (feed.isPaginated()) {
+        <p-paginator class="feed__paginator" [first]="feed.first()" [rows]="pageSize" [totalRecords]="feed.bookedCount()"
+                     [pageLinkSize]="3" (onPageChange)="showPage($event)"/>
       }
     </div>
   }
@@ -127,12 +111,12 @@
 </ng-template>
 
 <ng-template #rowContent let-entry let-recurring="recurring">
-  @let item = itemOf(entry);
-  <ui-item-icon class="tx-row__icon" [icon]="item?.icon ?? 'pi-question'" [color]="item?.color ?? '#94a3b8'"/>
-  <span class="tx-row__title">{{ entry.note || item?.name }}</span>
+  @let budgetItem = itemOf(entry);
+  <ui-item-icon class="tx-row__icon" [icon]="budgetItem?.icon ?? 'pi-question'" [color]="budgetItem?.color ?? '#94a3b8'"/>
+  <span class="tx-row__title">{{ entry.note || budgetItem?.name }}</span>
   <span class="flex flex-row flex-wrap items-center tx-row__meta">
     @if (entry.note) {
-      <span>{{ item?.name }} <span aria-hidden="true">·</span></span>
+      <span>{{ budgetItem?.name }} <span aria-hidden="true">·</span></span>
     }
     @if (isAssignedToMember(entry)) {
       <span class="flex flex-row items-center gap-4">

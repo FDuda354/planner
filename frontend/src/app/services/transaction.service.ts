@@ -16,6 +16,11 @@ export class TransactionService {
     return this.http.get<Transaction[]>(this.baseUrl, {params});
   }
 
+  getYearTransactions(year: number): Observable<Transaction[]> {
+    const params = new HttpParams().set('year', year);
+    return this.http.get<Transaction[]>(`${this.baseUrl}/year`, {params});
+  }
+
   saveTransaction(request: TransactionRequest): Observable<void> {
     return this.http.post<void>(this.baseUrl, request).pipe(tap(() => this.markChanged()));
   }

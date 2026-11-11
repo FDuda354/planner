@@ -12,7 +12,6 @@ import {MonthBalanceComponent} from './month-overview/month-balance/month-balanc
 import {MemberSplitComponent} from './month-overview/member-split/member-split.component';
 import {CategoryBreakdownComponent} from './month-overview/category-breakdown/category-breakdown.component';
 import {SpendingPaceComponent} from './month-overview/spending-pace/spending-pace.component';
-import {TransactionFeedComponent} from './month-overview/transaction-feed/transaction-feed.component';
 
 @NgModule({
   declarations: [
@@ -26,7 +25,6 @@ import {TransactionFeedComponent} from './month-overview/transaction-feed/transa
     MemberSplitComponent,
     CategoryBreakdownComponent,
     SpendingPaceComponent,
-    TransactionFeedComponent,
   ],
   imports: [
     SharedModule,

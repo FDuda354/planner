@@ -6,7 +6,7 @@ import {BudgetConfigStore} from '../../../stores/budget-config.store';
 import {HouseholdStore} from '../../../stores/household.store';
 import {CalendarStore} from '../../../stores/calendar.store';
 import {netAmountOf, Transaction, TransactionType} from '../../../models/transaction.model';
-import {daysInMonth, monthName, parseDateKey, shiftMonth, toDateKey} from '../../../shared/utils/month';
+import {daysInMonth, monthName, parseDateKey, shiftMonth} from '../../../shared/utils/month';
 import {percentOf, sumAmounts} from '../../../shared/utils/money';
 import {reloadWhenChanged} from '../../../shared/utils/resource';
 import {CategoryShare, MemberShare, MonthTransactions} from '../models/month-view';
@@ -32,11 +32,10 @@ export class MonthStore {
     defaultValue: EMPTY_MONTH,
   });
 
-  private readonly todayKey = computed(() => toDateKey(this.calendar.today()));
 
   readonly transactions = computed(() => this.data.value().current);
-  readonly bookedTransactions = computed(() => this.transactions().filter(t => !this.isPlanned(t.date)));
-  readonly plannedTransactions = computed(() => this.transactions().filter(t => this.isPlanned(t.date)));
+  readonly bookedTransactions = computed(() => this.transactions().filter(t => !this.calendar.isAfterToday(t.date)));
+  readonly plannedTransactions = computed(() => this.transactions().filter(t => this.calendar.isAfterToday(t.date)));
   readonly isCurrentMonth = computed(() => this._month() === this.calendar.currentMonth());
   readonly previousMonthName = computed(() => monthName(shiftMonth(this._month(), -1)));
   readonly daysInMonth = computed(() => daysInMonth(this._month()));
@@ -97,10 +96,6 @@ export class MonthStore {
 
   setMonth(month: string): void {
     this._month.set(month);
-  }
-
-  isPlanned(dateKey: string): boolean {
-    return dateKey > this.todayKey();
   }
 
   private sharesByMember(type: TransactionType): MemberShare[] {

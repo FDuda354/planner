@@ -5,7 +5,7 @@ import {BudgetConfigStore} from '../../../stores/budget-config.store';
 import {RecurrenceFrequency, RecurringTransaction} from '../../../models/recurring-transaction.model';
 import {TransactionType} from '../../../models/transaction.model';
 import {
-  hasTransactionFilters, matchesTransactionFilters, NO_TRANSACTION_FILTERS, TransactionFilters, withSharedOnly, withType
+  hasTransactionFilters, matchesTransactionFilters, NO_TRANSACTION_FILTERS, TransactionFilters, withShared, withType
 } from '../../../shared/utils/transaction-filters';
 
 export interface RecurringFilters extends TransactionFilters {
@@ -59,8 +59,8 @@ export class RecurringTransactionsStore {
     this._filters.update(filters => withType(filters, type));
   }
 
-  selectSharedOnly(sharedOnly: boolean): void {
-    this._filters.update(filters => withSharedOnly(filters, sharedOnly));
+  selectShared(shared: boolean | null): void {
+    this._filters.update(filters => withShared(filters, shared));
   }
 
   selectMember(memberId: number | null): void {

@@ -106,5 +106,26 @@ export const POLISH_TRANSLATION: Translation = {
   clear: 'Wyczyść',
   weekHeader: 'Tydz',
   firstDayOfWeek: 1,
-  dateFormat: 'dd.mm.yy'
+  dateFormat: 'dd.mm.yy',
+  emptyMessage: 'Brak opcji',
+  emptyFilterMessage: 'Brak wyników',
+  aria: {
+    close: 'Zamknij',
+    previous: 'Poprzedni',
+    next: 'Następny',
+    navigation: 'Nawigacja',
+    pageLabel: 'Strona {page}',
+    firstPageLabel: 'Pierwsza strona',
+    lastPageLabel: 'Ostatnia strona',
+    nextPageLabel: 'Następna strona',
+    prevPageLabel: 'Poprzednia strona',
+    previousPageLabel: 'Poprzednia strona',
+    rowsPerPageLabel: 'Liczba wierszy na stronę',
+    jumpToPageDropdownLabel: 'Przejdź do strony',
+    jumpToPageInputLabel: 'Przejdź do strony',
+    maximizeLabel: 'Maksymalizuj',
+    minimizeLabel: 'Minimalizuj',
+    listLabel: 'Lista opcji',
+    removeLabel: 'Usuń'
+  }
 };

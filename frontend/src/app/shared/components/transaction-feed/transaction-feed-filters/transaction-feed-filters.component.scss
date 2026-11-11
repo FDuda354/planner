@@ -1,0 +1,21 @@
+:host {
+  display: block;
+}
+
+.feed-filters {
+  &__category {
+    width: 220px;
+  }
+
+  &__option .pi {
+    width: 16px;
+    font-size: 14px;
+    text-align: center;
+  }
+
+  @media (max-width: 640px) {
+    &__category {
+      width: 100%;
+    }
+  }
+}

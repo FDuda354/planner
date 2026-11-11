@@ -32,7 +32,7 @@
     </div>
     <ui-member-picker name="recurring-filter-member" label="Osoba dokonująca transakcji" noneLabel="Wszyscy" [value]="store.filters().memberId"
                       [members]="householdStore.members()" (changed)="store.selectMember($event)"/>
-    <ui-shared-filter [active]="store.filters().sharedOnly" (changed)="store.selectSharedOnly($event)"/>
+    <ui-shared-filter [value]="store.filters().shared" (changed)="store.selectShared($event)"/>
     @if (store.isFiltered()) {
       <button pButton type="button" variant="text" severity="secondary" (click)="store.clearFilters()">Wyczyść filtry</button>
     }

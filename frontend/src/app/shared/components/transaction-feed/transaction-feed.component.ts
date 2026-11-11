@@ -1,14 +1,14 @@
-import {ChangeDetectionStrategy, Component, computed, inject, signal} from '@angular/core';
-import {MonthStore} from '../../stores/month.store';
-import {TransactionFeedStore} from '../../stores/transaction-feed.store';
-import {BudgetConfigStore} from '../../../../stores/budget-config.store';
-import {HouseholdStore} from '../../../../stores/household.store';
-import {TransactionEditorStore} from '../../../../stores/transaction-editor.store';
-import {TransactionDeletionService} from '../../../../services/transaction-deletion.service';
-import {amountSignOf, belongsToNobody, Transaction, TransactionType} from '../../../../models/transaction.model';
-import {BudgetItem} from '../../../../models/budget-item.model';
-import {Member} from '../../../../models/member.model';
-import {AppRoute} from '../../../../app-routes';
+import {ChangeDetectionStrategy, Component, ElementRef, inject, input, signal} from '@angular/core';
+import {PaginatorState} from 'primeng/paginator';
+import {BudgetConfigStore} from '../../../stores/budget-config.store';
+import {HouseholdStore} from '../../../stores/household.store';
+import {TransactionEditorStore} from '../../../stores/transaction-editor.store';
+import {TransactionDeletionService} from '../../../services/transaction-deletion.service';
+import {amountSignOf, belongsToNobody, Transaction} from '../../../models/transaction.model';
+import {BudgetItem} from '../../../models/budget-item.model';
+import {Member} from '../../../models/member.model';
+import {AppRoute} from '../../../app-routes';
+import {FEED_PAGE_SIZE, TransactionFeedStore} from './transaction-feed.store';
 
 type FeedRowEntry = Pick<Transaction, 'type' | 'itemId' | 'memberId' | 'shared'>;
 
@@ -20,25 +20,27 @@ type FeedRowEntry = Pick<Transaction, 'type' | 'itemId' | 'memberId' | 'shared'>
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TransactionFeedComponent {
-  readonly store = inject(MonthStore);
   readonly feed = inject(TransactionFeedStore);
   readonly editor = inject(TransactionEditorStore);
   private readonly deletion = inject(TransactionDeletionService);
   private readonly configStore = inject(BudgetConfigStore);
   readonly householdStore = inject(HouseholdStore);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   protected readonly AppRoute = AppRoute;
 
-  readonly selectedCategory = computed(() => {
-    const categoryId = this.feed.filters().categoryId;
-    return categoryId === null ? undefined : this.configStore.itemOf(TransactionType.EXPENSE, categoryId);
-  });
+  readonly periodLabel = input.required<string>();
+  readonly emptyText = input.required<string>();
 
-  readonly isFirstLoad = computed(() => this.store.data.isLoading() && this.store.transactions().length === 0);
-  readonly countOfType = (type: TransactionType | null) => this.feed.countOfType(type);
+  readonly pageSize = FEED_PAGE_SIZE;
   readonly plannedExpanded = signal(false);
 
   togglePlanned(): void {
     this.plannedExpanded.update(expanded => !expanded);
+  }
+
+  showPage(state: PaginatorState): void {
+    this.feed.showPage(state.first ?? 0);
+    this.host.nativeElement.scrollIntoView({behavior: 'smooth', block: 'start'});
   }
 
   itemOf(entry: FeedRowEntry): BudgetItem | undefined {

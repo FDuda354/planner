@@ -1,5 +1,6 @@
 :host {
   display: block;
+  scroll-margin-top: 16px;
 }
 
 .feed {
@@ -8,7 +9,7 @@
   }
 
   &__search input {
-    width: 200px;
+    width: 220px;
   }
 
   &__empty-action.p-button {
@@ -17,6 +18,11 @@
 
   &__filters {
     margin-bottom: 16px;
+  }
+
+  &__paginator {
+    --p-paginator-background: transparent;
+    --p-paginator-padding: 0;
   }
 
   @media (max-width: 640px) {

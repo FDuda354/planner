@@ -1,6 +1,8 @@
 package pl.dudios.planner.transaction.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +33,12 @@ public class TransactionController {
   public ResponseEntity<List<TransactionDTO>> getTransactions(@RequestParam @DateTimeFormat(pattern = "yyyy-MM") YearMonth month,
                                                               @AuthenticationPrincipal Member member) {
     return ResponseEntity.ok(transactionService.getTransactions(member.getHouseholdId(), month));
+  }
+
+  @GetMapping("/year")
+  public ResponseEntity<List<TransactionDTO>> getYearTransactions(@RequestParam @Min(2000) @Max(2100) int year,
+                                                                  @AuthenticationPrincipal Member member) {
+    return ResponseEntity.ok(transactionService.getYearTransactions(member.getHouseholdId(), year));
   }
 
   @PostMapping

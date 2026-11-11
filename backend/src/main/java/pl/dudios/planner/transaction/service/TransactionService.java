@@ -13,6 +13,7 @@ import pl.dudios.planner.transaction.model.request.TransactionRequest;
 import pl.dudios.planner.transaction.repository.TransactionRepository;
 
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.YearMonth;
 import java.util.List;
 
@@ -27,10 +28,12 @@ public class TransactionService {
 
   @Transactional(readOnly = true)
   public List<TransactionDTO> getTransactions(Long householdId, YearMonth month) {
-    return transactionRepository.findAllByHouseholdIdAndDateBetweenOrderByDateDescIdDesc(householdId, month.atDay(1), month.atEndOfMonth())
-                                .stream()
-                                .map(Transaction::toDTO)
-                                .toList();
+    return getTransactionsBetween(householdId, month.atDay(1), month.atEndOfMonth());
+  }
+
+  @Transactional(readOnly = true)
+  public List<TransactionDTO> getYearTransactions(Long householdId, int year) {
+    return getTransactionsBetween(householdId, LocalDate.of(year, Month.JANUARY, 1), LocalDate.of(year, Month.DECEMBER, 31));
   }
 
   @Transactional
@@ -70,6 +73,13 @@ public class TransactionService {
   @Transactional
   public void deleteHouseholdTransactions(Long householdId) {
     transactionRepository.deleteAllByHouseholdId(householdId);
+  }
+
+  private List<TransactionDTO> getTransactionsBetween(Long householdId, LocalDate from, LocalDate to) {
+    return transactionRepository.findAllByHouseholdIdAndDateBetweenOrderByDateDescIdDesc(householdId, from, to)
+                                .stream()
+                                .map(Transaction::toDTO)
+                                .toList();
   }
 
   private Transaction getTransaction(Long householdId, Long transactionId) {
