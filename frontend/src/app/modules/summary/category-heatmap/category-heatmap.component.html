@@ -2,7 +2,7 @@
   <div class="panel__header">
     <div>
       <h2 class="panel__title">Mapa wydatków</h2>
-      <p class="panel__subtitle">Im ciemniejsze pole, tym więcej wydaliście na kategorię w danym miesiącu. Kliknij pole, aby otworzyć miesiąc.</p>
+      <p class="panel__subtitle">Im ciemniejsze pole, tym więcej wydaliście na kategorię w danym miesiącu. Kliknij pole, aby zobaczyć transakcje tej kategorii w danym miesiącu.</p>
     </div>
   </div>
 
@@ -26,6 +26,7 @@
             @if (cell.route) {
               <a class="heatmap__cell"
                  [routerLink]="cell.route"
+                 [queryParams]="{category: row.item.id}"
                  [style.--item-color]="row.item.color"
                  [style.--intensity]="cell.intensity"
                  [pTooltip]="cell.tooltip"

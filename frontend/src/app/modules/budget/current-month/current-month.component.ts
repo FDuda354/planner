@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, inject} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, input} from '@angular/core';
 import {CalendarStore} from '../../../stores/calendar.store';
 
 @Component({
@@ -9,4 +9,5 @@ import {CalendarStore} from '../../../stores/calendar.store';
 })
 export class CurrentMonthComponent {
   readonly month = inject(CalendarStore).currentMonth;
+  readonly category = input<string>();
 }

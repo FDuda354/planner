@@ -16,6 +16,7 @@ export class MonthDetailComponent {
   private readonly calendar = inject(CalendarStore);
 
   readonly month = input.required<string>();
+  readonly category = input<string>();
 
   readonly previousRoute = computed(() => monthDetailRoute(shiftMonth(this.month(), -1)));
   readonly previousLabel = computed(() => monthLabel(shiftMonth(this.month(), -1)));
