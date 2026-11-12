@@ -5,7 +5,7 @@ plugins {
 
 allprojects {
     group = "pl.dudios"
-    version = "1.5.0"
+    version = "1.5.1"
 }
 
 sonar {
