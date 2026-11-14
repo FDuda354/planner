@@ -16,6 +16,8 @@
   --budget-tag-recurring: #c2410c;
   --budget-tag-frequency: #6d28d9;
   --budget-tag-planned: #4f46e5;
+  --budget-extra: #b45309;
+  --budget-extra-soft: #fef3c7;
 }
 
 .my-app-dark {
@@ -34,6 +36,8 @@
   --budget-tag-recurring: #fb923c;
   --budget-tag-frequency: #a78bfa;
   --budget-tag-planned: #818cf8;
+  --budget-extra: #fbbf24;
+  --budget-extra-soft: rgba(251, 191, 36, 0.14);
 }
 
 [data-transaction-type] {

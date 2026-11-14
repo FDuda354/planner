@@ -7,7 +7,9 @@ export interface BudgetItem {
 
 export type ExpenseCategory = BudgetItem;
 
-export type IncomeSource = BudgetItem;
+export interface IncomeSource extends BudgetItem {
+  extra: boolean;
+}
 
 export interface SavingsGoal extends BudgetItem {
   note: string;
@@ -32,6 +34,10 @@ export interface BudgetItemRequest {
   name: string;
   icon: string;
   color: string;
+}
+
+export interface IncomeSourceRequest extends BudgetItemRequest {
+  extra: boolean;
 }
 
 export interface SavingsGoalRequest extends BudgetItemRequest {

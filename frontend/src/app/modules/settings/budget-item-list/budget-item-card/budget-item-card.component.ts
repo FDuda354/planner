@@ -1,5 +1,5 @@
 import {ChangeDetectionStrategy, Component, computed, inject, input} from '@angular/core';
-import {BudgetItem, SavingsGoal} from '../../../../models/budget-item.model';
+import {BudgetItem, IncomeSource, SavingsGoal} from '../../../../models/budget-item.model';
 import {HouseholdStore} from '../../../../stores/household.store';
 import {formatMoney} from '../../../../shared/utils/money';
 import {TransactionType} from '../../../../models/transaction.model';
@@ -21,7 +21,16 @@ export class BudgetItemCardComponent {
   readonly item = input.required<BudgetItem>();
   readonly kind = input.required<TransactionType>();
 
-  readonly meta = computed(() => this.kind() === TransactionType.SAVING ? this.goalMeta(this.item() as SavingsGoal) : null);
+  readonly meta = computed(() => {
+    switch (this.kind()) {
+      case TransactionType.SAVING:
+        return this.goalMeta(this.item() as SavingsGoal);
+      case TransactionType.INCOME:
+        return (this.item() as IncomeSource).extra ? 'Zarobione ekstra' : null;
+      default:
+        return null;
+    }
+  });
 
   edit(): void {
     this.editor.edit(this.kind(), this.item());

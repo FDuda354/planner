@@ -1,5 +1,6 @@
 package pl.dudios.planner.budgetconfig.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -34,8 +35,11 @@ public class IncomeSource extends BudgetItem {
   )
   private Long id;
 
+  @Column(name = "extra", nullable = false)
+  private boolean extra;
+
   public IncomeSourceDTO toDTO() {
-    return new IncomeSourceDTO(id, getName(), getIcon(), getColor());
+    return new IncomeSourceDTO(id, getName(), getIcon(), getColor(), extra);
   }
 
 }

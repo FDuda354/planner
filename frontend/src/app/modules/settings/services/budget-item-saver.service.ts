@@ -3,7 +3,7 @@ import {Observable, tap} from 'rxjs';
 import {BudgetConfigService} from '../../../services/budget-config.service';
 import {BudgetConfigStore} from '../../../stores/budget-config.store';
 import {TransactionType} from '../../../models/transaction.model';
-import {BudgetItemFormModel, toBudgetItemRequest, toSavingsGoalRequest} from '../budget-item-editor/models/form-budget-item';
+import {BudgetItemFormModel, toBudgetItemRequest, toIncomeSourceRequest, toSavingsGoalRequest} from '../budget-item-editor/models/form-budget-item';
 
 @Injectable({providedIn: 'root'})
 export class BudgetItemSaverService {
@@ -19,7 +19,7 @@ export class BudgetItemSaverService {
       case TransactionType.EXPENSE:
         return this.configService.saveExpenseCategory(toBudgetItemRequest(model));
       case TransactionType.INCOME:
-        return this.configService.saveIncomeSource(toBudgetItemRequest(model));
+        return this.configService.saveIncomeSource(toIncomeSourceRequest(model));
       case TransactionType.SAVING:
         return this.configService.saveSavingsGoal(toSavingsGoalRequest(model));
     }

@@ -2,7 +2,7 @@ import {computed, inject, Injectable} from '@angular/core';
 import {rxResource} from '@angular/core/rxjs-interop';
 import {BudgetConfigService} from '../services/budget-config.service';
 import {BudgetConfig, BudgetItem} from '../models/budget-item.model';
-import {TransactionType} from '../models/transaction.model';
+import {Transaction, TransactionType} from '../models/transaction.model';
 import {AuthService} from '../modules/auth/services/auth.service';
 
 const EMPTY_CONFIG: BudgetConfig = {expenseCategories: [], incomeSources: [], savingsGoals: []};
@@ -21,6 +21,7 @@ export class BudgetConfigStore {
   readonly expenseCategories = computed(() => this.config.value().expenseCategories);
   readonly incomeSources = computed(() => this.config.value().incomeSources);
   readonly savingsGoals = computed(() => this.config.value().savingsGoals);
+  private readonly extraIncomeSourceIds = computed(() => new Set(this.incomeSources().filter(source => source.extra).map(source => source.id)));
 
   private readonly itemsByType = computed<Record<TransactionType, BudgetItem[]>>(() => ({
     [TransactionType.EXPENSE]: this.expenseCategories(),
@@ -34,6 +35,10 @@ export class BudgetConfigStore {
 
   itemOf(type: TransactionType, itemId: number): BudgetItem | undefined {
     return this.itemsOf(type).find(item => item.id === itemId);
+  }
+
+  isExtraIncome(transaction: Transaction): boolean {
+    return transaction.type === TransactionType.INCOME && this.extraIncomeSourceIds().has(transaction.itemId);
   }
 
   reload(): void {

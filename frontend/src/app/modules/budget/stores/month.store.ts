@@ -103,8 +103,10 @@ export class MonthStore {
     const total = sumAmounts(personal);
     return this.householdStore.everyone()
       .map(member => {
-        const amount = sumAmounts(personal.filter(t => t.memberId === member.id));
-        return {member, amount, share: percentOf(amount, total)};
+        const ofMember = personal.filter(t => t.memberId === member.id);
+        const amount = sumAmounts(ofMember);
+        const extraAmount = sumAmounts(ofMember.filter(t => this.configStore.isExtraIncome(t)));
+        return {member, amount, extraAmount, share: percentOf(amount, total)};
       })
       .filter(share => this.householdStore.isCurrentMember(share.member.id) || share.amount > 0);
   }

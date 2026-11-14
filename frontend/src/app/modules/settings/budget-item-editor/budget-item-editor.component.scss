@@ -101,3 +101,36 @@
     font-size: 13px;
   }
 }
+
+.extra-toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border: 1.5px solid var(--budget-border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+
+  &--active {
+    border-color: var(--budget-extra);
+    background: var(--budget-extra-soft);
+  }
+
+  &__title {
+    font-weight: 700;
+    font-size: 14px;
+
+    .pi {
+      font-size: 13px;
+      margin-right: 4px;
+      color: var(--budget-extra);
+    }
+  }
+
+  &__hint {
+    font-size: 12px;
+    line-height: 16px;
+    color: var(--p-text-muted-color);
+  }
+}

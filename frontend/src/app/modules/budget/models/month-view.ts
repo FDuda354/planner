@@ -17,5 +17,6 @@ export interface CategoryShare {
 export interface MemberShare {
   member: Member;
   amount: number;
+  extraAmount: number;
   share: number;
 }

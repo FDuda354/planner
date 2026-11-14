@@ -57,6 +57,7 @@ public class BudgetConfigService {
       : getIncomeSource(householdId, request.id());
 
     source.applyDetails(request.name(), request.icon(), request.color());
+    source.setExtra(request.extra());
 
     incomeSourceRepository.save(source);
   }

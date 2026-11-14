@@ -1,7 +1,7 @@
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {inject, Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
-import {BudgetConfig, BudgetItemRequest, ItemUsage, SavingsGoalRequest} from '../models/budget-item.model';
+import {BudgetConfig, BudgetItemRequest, IncomeSourceRequest, ItemUsage, SavingsGoalRequest} from '../models/budget-item.model';
 import {TransactionType} from '../models/transaction.model';
 import {environment} from '../../environments/environment';
 
@@ -18,7 +18,7 @@ export class BudgetConfigService {
     return this.http.post<void>(`${this.baseUrl}/expense-category`, request);
   }
 
-  saveIncomeSource(request: BudgetItemRequest): Observable<void> {
+  saveIncomeSource(request: IncomeSourceRequest): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/income-source`, request);
   }
 

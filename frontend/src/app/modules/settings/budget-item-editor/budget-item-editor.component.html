@@ -73,6 +73,16 @@
       </div>
     </div>
 
+    @if (isIncome()) {
+      <label class="extra-toggle" [class.extra-toggle--active]="model().extra" for="income-extra">
+        <p-checkbox [formField]="itemForm.extra" [binary]="true" inputId="income-extra"/>
+        <span class="flex flex-col">
+          <span class="extra-toggle__title"><i class="pi pi-sparkles" aria-hidden="true"></i> Zarobione ekstra</span>
+          <span class="extra-toggle__hint">Liczy się jak zwykły wpływ, a w „Kto ile wpłacił do budżetu” pokażemy je osobno przy osobie</span>
+        </span>
+      </label>
+    }
+
     @if (isGoal()) {
       <div class="flex flex-col gap-8">
         <span class="overline">Czyj to cel</span>

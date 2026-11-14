@@ -18,7 +18,11 @@
 
   <div class="members__bar" aria-hidden="true">
     @for (share of shares(); track share.member.id) {
-      <span [style.width.%]="share.share * 100" [style.background]="share.member.color"></span>
+      <span class="members__segment" [style.width.%]="share.share * 100" [style.background]="share.member.color">
+        @if (share.extraAmount > 0) {
+          <span class="members__segment-extra" [style.width.%]="share.extraAmount / share.amount * 100"></span>
+        }
+      </span>
     }
   </div>
 
@@ -30,7 +34,15 @@
           <span class="member-row__name">{{ share.member.firstName }}</span>
           <span class="member-row__share">{{ share.share | percent }} {{ copy().shareLabel }}</span>
         </div>
-        <span class="amount member-row__amount">{{ share.amount | money }}</span>
+        <span class="flex flex-col items-end member-row__amounts">
+          <span class="amount member-row__amount">{{ share.amount | money }}</span>
+          @if (share.extraAmount > 0) {
+            <span class="member-row__extra">
+              <i class="pi pi-sparkles" aria-hidden="true"></i>
+              w tym <span class="amount">{{ share.extraAmount | money }}</span> ekstra
+            </span>
+          }
+        </span>
       </div>
     }
     <div class="member-row member-row--shared">

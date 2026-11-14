@@ -28,12 +28,21 @@
     overflow: hidden;
     border-radius: 99px;
     background: var(--budget-surface-muted);
+  }
 
-    span {
-      height: 100%;
-      border-radius: 99px;
-      transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
-    }
+  &__segment {
+    display: flex;
+    justify-content: flex-end;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 99px;
+    transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  &__segment-extra {
+    height: 100%;
+    background: repeating-linear-gradient(-45deg, var(--budget-extra) 0 3px, transparent 3px 6px);
+    transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
   }
 }
 
@@ -78,5 +87,26 @@
 
   &__amount {
     font-size: 16px;
+  }
+
+  &__amounts {
+    gap: 2px;
+  }
+
+  &__extra {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 1px 8px;
+    border-radius: 99px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+    color: var(--budget-extra);
+    background: var(--budget-extra-soft);
+
+    .pi {
+      font-size: 10px;
+    }
   }
 }

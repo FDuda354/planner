@@ -41,6 +41,7 @@ export class BudgetItemEditorComponent {
     .map(group => ({...group, icons: group.icons.filter(icon => matchesIconSearch(icon, group, this.iconSearch()))}))
     .filter(group => group.icons.length > 0));
   readonly isGoal = computed(() => this.state().kind === TransactionType.SAVING);
+  readonly isIncome = computed(() => this.state().kind === TransactionType.INCOME);
   readonly isWorking = signal(false);
   readonly header = computed(() => this.state().item ? KIND_NAMES[this.state().kind].edit : KIND_NAMES[this.state().kind].create);
   readonly placeholder = computed(() => KIND_NAMES[this.state().kind].placeholder);
